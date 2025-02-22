@@ -1,0 +1,1342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Хранилище GeotekMetallCompleteModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ActsOfWork">
+          <Key>
+            <PropertyRef Name="ActID" />
+          </Key>
+          <Property Name="ActID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectID" Type="int" Nullable="false" />
+          <Property Name="ActDate" Type="datetime" />
+          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="BudgetTransactions">
+          <Key>
+            <PropertyRef Name="TransactionID" />
+          </Key>
+          <Property Name="TransactionID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectID" Type="int" Nullable="false" />
+          <Property Name="TransactionDate" Type="datetime" Nullable="false" />
+          <Property Name="Amount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RecordedBy" Type="int" />
+        </EntityType>
+        <EntityType Name="Contracts">
+          <Key>
+            <PropertyRef Name="ContractID" />
+          </Key>
+          <Property Name="ContractID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectID" Type="int" Nullable="false" />
+          <Property Name="ContractDate" Type="datetime" />
+          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="FinancialReports">
+          <Key>
+            <PropertyRef Name="ReportID" />
+          </Key>
+          <Property Name="ReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectID" Type="int" Nullable="false" />
+          <Property Name="ReportType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ReportDate" Type="datetime" />
+          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="Projects">
+          <Key>
+            <PropertyRef Name="ProjectID" />
+          </Key>
+          <Property Name="ProjectID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RequestID" Type="int" Nullable="false" />
+          <Property Name="ProjectStartDate" Type="datetime" />
+          <Property Name="ProjectEndDate" Type="datetime" />
+          <Property Name="ProjectManagerID" Type="int" />
+        </EntityType>
+        <EntityType Name="ProjectStages">
+          <Key>
+            <PropertyRef Name="StageID" />
+          </Key>
+          <Property Name="StageID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProjectID" Type="int" />
+          <Property Name="StageName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="StageDescription" Type="nvarchar(max)" />
+          <Property Name="StartDate" Type="datetime" />
+          <Property Name="EndDate" Type="datetime" />
+          <Property Name="StatusID" Type="int" />
+        </EntityType>
+        <EntityType Name="ProjectStageUsers">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StageID" Type="int" Nullable="false" />
+          <Property Name="UserID" Type="int" />
+        </EntityType>
+        <EntityType Name="Requests">
+          <Key>
+            <PropertyRef Name="RequestID" />
+          </Key>
+          <Property Name="RequestID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" />
+          <Property Name="ObjectName" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Address" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Area" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="Floors" Type="int" />
+          <Property Name="ObjectType" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Purpose" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="RoomCount" Type="int" />
+          <Property Name="WorkType" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Deadline" Type="date" Nullable="false" />
+          <Property Name="ApprovalReason" Type="nvarchar(max)" />
+          <Property Name="StatusID" Type="int" />
+        </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="RoleID" />
+          </Key>
+          <Property Name="RoleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleName" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Statuses">
+          <Key>
+            <PropertyRef Name="StatusID" />
+          </Key>
+          <Property Name="StatusID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StatusName" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="TaskReports">
+          <Key>
+            <PropertyRef Name="ReportID" />
+          </Key>
+          <Property Name="ReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaskID" Type="int" Nullable="false" />
+          <Property Name="UploadedBy" Type="int" />
+          <Property Name="FilePath" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="UploadDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tasks">
+          <Key>
+            <PropertyRef Name="TaskID" />
+          </Key>
+          <Property Name="TaskID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StageID" Type="int" Nullable="false" />
+          <Property Name="TaskDescription" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="DueDate" Type="datetime" />
+          <Property Name="StatusID" Type="int" />
+        </EntityType>
+        <EntityType Name="TaskUsers">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaskID" Type="int" Nullable="false" />
+          <Property Name="UserID" Type="int" />
+        </EntityType>
+        <EntityType Name="UserRoles">
+          <Key>
+            <PropertyRef Name="UserRoleID" />
+          </Key>
+          <Property Name="UserRoleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="RoleID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Login" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__ActsOfWor__Proje__2EDAF651">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ActsOfWork" Type="Self.ActsOfWork" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="ActsOfWork">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BudgetTra__Proje__3864608B">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="BudgetTransactions">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BudgetTra__Recor__395884C4">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="BudgetTransactions">
+              <PropertyRef Name="RecordedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Contracts__Proje__31B762FC">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Contracts" Type="Self.Contracts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="Contracts">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Financial__Proje__2BFE89A6">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="FinancialReports" Type="Self.FinancialReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="FinancialReports">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Projects__Projec__0B91BA14">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ProjectManagerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Projects__Reques__08B54D69">
+          <End Role="Requests" Type="Self.Requests" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Requests">
+              <PropertyRef Name="RequestID" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="RequestID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Proje__123EB7A3">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="ProjectStages">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Stage__17036CC0">
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStages">
+              <PropertyRef Name="StageID" />
+            </Principal>
+            <Dependent Role="ProjectStageUsers">
+              <PropertyRef Name="StageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Statu__1332DBDC">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="ProjectStages">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__UserI__17F790F9">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="ProjectStageUsers">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Requests__Status__04E4BC85">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Requests__UserID__03F0984C">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskRepor__TaskI__282DF8C2">
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tasks">
+              <PropertyRef Name="TaskID" />
+            </Principal>
+            <Dependent Role="TaskReports">
+              <PropertyRef Name="TaskID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskRepor__Uploa__29221CFB">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="TaskReports">
+              <PropertyRef Name="UploadedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tasks__StageID__1AD3FDA4">
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStages">
+              <PropertyRef Name="StageID" />
+            </Principal>
+            <Dependent Role="Tasks">
+              <PropertyRef Name="StageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tasks__StatusID__1BC821DD">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="Tasks">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskUsers__TaskI__245D67DE">
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TaskUsers" Type="Self.TaskUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tasks">
+              <PropertyRef Name="TaskID" />
+            </Principal>
+            <Dependent Role="TaskUsers">
+              <PropertyRef Name="TaskID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskUsers__UserI__25518C17">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="TaskUsers" Type="Self.TaskUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="TaskUsers">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__UserRoles__RoleI__787EE5A0">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleID" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="RoleID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__UserRoles__UserI__778AC167">
+          <End Role="Users" Type="Self.Users" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Хранилище GeotekMetallCompleteModelContainer">
+          <EntitySet Name="ActsOfWork" EntityType="Self.ActsOfWork" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BudgetTransactions" EntityType="Self.BudgetTransactions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Contracts" EntityType="Self.Contracts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FinancialReports" EntityType="Self.FinancialReports" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Projects" EntityType="Self.Projects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectStages" EntityType="Self.ProjectStages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProjectStageUsers" EntityType="Self.ProjectStageUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Requests" EntityType="Self.Requests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Statuses" EntityType="Self.Statuses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaskReports" EntityType="Self.TaskReports" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tasks" EntityType="Self.Tasks" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__ActsOfWor__Proje__2EDAF651" Association="Self.FK__ActsOfWor__Proje__2EDAF651">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ActsOfWork" EntitySet="ActsOfWork" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BudgetTra__Proje__3864608B" Association="Self.FK__BudgetTra__Proje__3864608B">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BudgetTra__Recor__395884C4" Association="Self.FK__BudgetTra__Recor__395884C4">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Contracts__Proje__31B762FC" Association="Self.FK__Contracts__Proje__31B762FC">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="Contracts" EntitySet="Contracts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Financial__Proje__2BFE89A6" Association="Self.FK__Financial__Proje__2BFE89A6">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="FinancialReports" EntitySet="FinancialReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Projects__Projec__0B91BA14" Association="Self.FK__Projects__Projec__0B91BA14">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Projects__Reques__08B54D69" Association="Self.FK__Projects__Reques__08B54D69">
+            <End Role="Requests" EntitySet="Requests" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Proje__123EB7A3" Association="Self.FK__ProjectSt__Proje__123EB7A3">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Stage__17036CC0" Association="Self.FK__ProjectSt__Stage__17036CC0">
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Statu__1332DBDC" Association="Self.FK__ProjectSt__Statu__1332DBDC">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__UserI__17F790F9" Association="Self.FK__ProjectSt__UserI__17F790F9">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Requests__Status__04E4BC85" Association="Self.FK__Requests__Status__04E4BC85">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Requests__UserID__03F0984C" Association="Self.FK__Requests__UserID__03F0984C">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__TaskI__282DF8C2" Association="Self.FK__TaskRepor__TaskI__282DF8C2">
+            <End Role="Tasks" EntitySet="Tasks" />
+            <End Role="TaskReports" EntitySet="TaskReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__Uploa__29221CFB" Association="Self.FK__TaskRepor__Uploa__29221CFB">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="TaskReports" EntitySet="TaskReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tasks__StageID__1AD3FDA4" Association="Self.FK__Tasks__StageID__1AD3FDA4">
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+            <End Role="Tasks" EntitySet="Tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tasks__StatusID__1BC821DD" Association="Self.FK__Tasks__StatusID__1BC821DD">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="Tasks" EntitySet="Tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskUsers__TaskI__245D67DE" Association="Self.FK__TaskUsers__TaskI__245D67DE">
+            <End Role="Tasks" EntitySet="Tasks" />
+            <End Role="TaskUsers" EntitySet="TaskUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskUsers__UserI__25518C17" Association="Self.FK__TaskUsers__UserI__25518C17">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="TaskUsers" EntitySet="TaskUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__UserRoles__RoleI__787EE5A0" Association="Self.FK__UserRoles__RoleI__787EE5A0">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK__UserRoles__UserI__778AC167" Association="Self.FK__UserRoles__UserI__778AC167">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GeotekMetallCompleteModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ActsOfWork">
+          <Key>
+            <PropertyRef Name="ActID" />
+          </Key>
+          <Property Name="ActID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectID" Type="Int32" Nullable="false" />
+          <Property Name="ActDate" Type="DateTime" Precision="3" />
+          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__ActsOfWor__Proje__2EDAF651" FromRole="ActsOfWork" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="BudgetTransactions">
+          <Key>
+            <PropertyRef Name="TransactionID" />
+          </Key>
+          <Property Name="TransactionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectID" Type="Int32" Nullable="false" />
+          <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Amount" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RecordedBy" Type="Int32" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__BudgetTra__Proje__3864608B" FromRole="BudgetTransactions" ToRole="Projects" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__BudgetTra__Recor__395884C4" FromRole="BudgetTransactions" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Contracts">
+          <Key>
+            <PropertyRef Name="ContractID" />
+          </Key>
+          <Property Name="ContractID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectID" Type="Int32" Nullable="false" />
+          <Property Name="ContractDate" Type="DateTime" Precision="3" />
+          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__Contracts__Proje__31B762FC" FromRole="Contracts" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="FinancialReports">
+          <Key>
+            <PropertyRef Name="ReportID" />
+          </Key>
+          <Property Name="ReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectID" Type="Int32" Nullable="false" />
+          <Property Name="ReportType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ReportDate" Type="DateTime" Precision="3" />
+          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__Financial__Proje__2BFE89A6" FromRole="FinancialReports" ToRole="Projects" />
+        </EntityType>
+        <EntityType Name="Projects">
+          <Key>
+            <PropertyRef Name="ProjectID" />
+          </Key>
+          <Property Name="ProjectID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RequestID" Type="Int32" Nullable="false" />
+          <Property Name="ProjectStartDate" Type="DateTime" Precision="3" />
+          <Property Name="ProjectEndDate" Type="DateTime" Precision="3" />
+          <Property Name="ProjectManagerID" Type="Int32" />
+          <NavigationProperty Name="ActsOfWork" Relationship="Self.FK__ActsOfWor__Proje__2EDAF651" FromRole="Projects" ToRole="ActsOfWork" />
+          <NavigationProperty Name="BudgetTransactions" Relationship="Self.FK__BudgetTra__Proje__3864608B" FromRole="Projects" ToRole="BudgetTransactions" />
+          <NavigationProperty Name="Contracts" Relationship="Self.FK__Contracts__Proje__31B762FC" FromRole="Projects" ToRole="Contracts" />
+          <NavigationProperty Name="FinancialReports" Relationship="Self.FK__Financial__Proje__2BFE89A6" FromRole="Projects" ToRole="FinancialReports" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__Projects__Projec__0B91BA14" FromRole="Projects" ToRole="Users" />
+          <NavigationProperty Name="Requests" Relationship="Self.FK__Projects__Reques__08B54D69" FromRole="Projects" ToRole="Requests" />
+          <NavigationProperty Name="ProjectStages" Relationship="Self.FK__ProjectSt__Proje__123EB7A3" FromRole="Projects" ToRole="ProjectStages" />
+        </EntityType>
+        <EntityType Name="ProjectStages">
+          <Key>
+            <PropertyRef Name="StageID" />
+          </Key>
+          <Property Name="StageID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProjectID" Type="Int32" />
+          <Property Name="StageName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="StageDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Precision="3" />
+          <Property Name="StatusID" Type="Int32" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__ProjectSt__Proje__123EB7A3" FromRole="ProjectStages" ToRole="Projects" />
+          <NavigationProperty Name="ProjectStageUsers" Relationship="Self.FK__ProjectSt__Stage__17036CC0" FromRole="ProjectStages" ToRole="ProjectStageUsers" />
+          <NavigationProperty Name="Statuses" Relationship="Self.FK__ProjectSt__Statu__1332DBDC" FromRole="ProjectStages" ToRole="Statuses" />
+          <NavigationProperty Name="Tasks" Relationship="Self.FK__Tasks__StageID__1AD3FDA4" FromRole="ProjectStages" ToRole="Tasks" />
+        </EntityType>
+        <EntityType Name="ProjectStageUsers">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StageID" Type="Int32" Nullable="false" />
+          <Property Name="UserID" Type="Int32" />
+          <NavigationProperty Name="ProjectStages" Relationship="Self.FK__ProjectSt__Stage__17036CC0" FromRole="ProjectStageUsers" ToRole="ProjectStages" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__ProjectSt__UserI__17F790F9" FromRole="ProjectStageUsers" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Requests">
+          <Key>
+            <PropertyRef Name="RequestID" />
+          </Key>
+          <Property Name="RequestID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" />
+          <Property Name="ObjectName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Area" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="Floors" Type="Int32" />
+          <Property Name="ObjectType" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Purpose" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RoomCount" Type="Int32" />
+          <Property Name="WorkType" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Deadline" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="ApprovalReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StatusID" Type="Int32" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__Projects__Reques__08B54D69" FromRole="Requests" ToRole="Projects" />
+          <NavigationProperty Name="Statuses" Relationship="Self.FK__Requests__Status__04E4BC85" FromRole="Requests" ToRole="Statuses" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__Requests__UserID__03F0984C" FromRole="Requests" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="RoleID" />
+          </Key>
+          <Property Name="RoleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="UserRoles" Relationship="Self.FK__UserRoles__RoleI__787EE5A0" FromRole="Roles" ToRole="UserRoles" />
+        </EntityType>
+        <EntityType Name="Statuses">
+          <Key>
+            <PropertyRef Name="StatusID" />
+          </Key>
+          <Property Name="StatusID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StatusName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="ProjectStages" Relationship="Self.FK__ProjectSt__Statu__1332DBDC" FromRole="Statuses" ToRole="ProjectStages" />
+          <NavigationProperty Name="Requests" Relationship="Self.FK__Requests__Status__04E4BC85" FromRole="Statuses" ToRole="Requests" />
+          <NavigationProperty Name="Tasks" Relationship="Self.FK__Tasks__StatusID__1BC821DD" FromRole="Statuses" ToRole="Tasks" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="TaskReports">
+          <Key>
+            <PropertyRef Name="ReportID" />
+          </Key>
+          <Property Name="ReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaskID" Type="Int32" Nullable="false" />
+          <Property Name="UploadedBy" Type="Int32" />
+          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UploadDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Tasks" Relationship="Self.FK__TaskRepor__TaskI__282DF8C2" FromRole="TaskReports" ToRole="Tasks" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="TaskReports" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Tasks">
+          <Key>
+            <PropertyRef Name="TaskID" />
+          </Key>
+          <Property Name="TaskID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StageID" Type="Int32" Nullable="false" />
+          <Property Name="TaskDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DueDate" Type="DateTime" Precision="3" />
+          <Property Name="StatusID" Type="Int32" />
+          <NavigationProperty Name="ProjectStages" Relationship="Self.FK__Tasks__StageID__1AD3FDA4" FromRole="Tasks" ToRole="ProjectStages" />
+          <NavigationProperty Name="Statuses" Relationship="Self.FK__Tasks__StatusID__1BC821DD" FromRole="Tasks" ToRole="Statuses" />
+          <NavigationProperty Name="TaskReports" Relationship="Self.FK__TaskRepor__TaskI__282DF8C2" FromRole="Tasks" ToRole="TaskReports" />
+          <NavigationProperty Name="TaskUsers" Relationship="Self.FK__TaskUsers__TaskI__245D67DE" FromRole="Tasks" ToRole="TaskUsers" />
+        </EntityType>
+        <EntityType Name="TaskUsers">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaskID" Type="Int32" Nullable="false" />
+          <Property Name="UserID" Type="Int32" />
+          <NavigationProperty Name="Tasks" Relationship="Self.FK__TaskUsers__TaskI__245D67DE" FromRole="TaskUsers" ToRole="Tasks" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__TaskUsers__UserI__25518C17" FromRole="TaskUsers" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="UserRoles">
+          <Key>
+            <PropertyRef Name="UserRoleID" />
+          </Key>
+          <Property Name="UserRoleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="RoleID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Roles" Relationship="Self.FK__UserRoles__RoleI__787EE5A0" FromRole="UserRoles" ToRole="Roles" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__UserRoles__UserI__778AC167" FromRole="UserRoles" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Login" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FirstName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="BudgetTransactions" Relationship="Self.FK__BudgetTra__Recor__395884C4" FromRole="Users" ToRole="BudgetTransactions" />
+          <NavigationProperty Name="Projects" Relationship="Self.FK__Projects__Projec__0B91BA14" FromRole="Users" ToRole="Projects" />
+          <NavigationProperty Name="ProjectStageUsers" Relationship="Self.FK__ProjectSt__UserI__17F790F9" FromRole="Users" ToRole="ProjectStageUsers" />
+          <NavigationProperty Name="Requests" Relationship="Self.FK__Requests__UserID__03F0984C" FromRole="Users" ToRole="Requests" />
+          <NavigationProperty Name="TaskReports" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="Users" ToRole="TaskReports" />
+          <NavigationProperty Name="TaskUsers" Relationship="Self.FK__TaskUsers__UserI__25518C17" FromRole="Users" ToRole="TaskUsers" />
+          <NavigationProperty Name="UserRoles" Relationship="Self.FK__UserRoles__UserI__778AC167" FromRole="Users" ToRole="UserRoles" />
+        </EntityType>
+        <Association Name="FK__ActsOfWor__Proje__2EDAF651">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ActsOfWork" Type="Self.ActsOfWork" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="ActsOfWork">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BudgetTra__Proje__3864608B">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="BudgetTransactions">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BudgetTra__Recor__395884C4">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="BudgetTransactions">
+              <PropertyRef Name="RecordedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Contracts__Proje__31B762FC">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Contracts" Type="Self.Contracts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="Contracts">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Financial__Proje__2BFE89A6">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="FinancialReports" Type="Self.FinancialReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="FinancialReports">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Projects__Projec__0B91BA14">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="ProjectManagerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Projects__Reques__08B54D69">
+          <End Role="Requests" Type="Self.Requests" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Projects" Type="Self.Projects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Requests">
+              <PropertyRef Name="RequestID" />
+            </Principal>
+            <Dependent Role="Projects">
+              <PropertyRef Name="RequestID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Proje__123EB7A3">
+          <End Role="Projects" Type="Self.Projects" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Projects">
+              <PropertyRef Name="ProjectID" />
+            </Principal>
+            <Dependent Role="ProjectStages">
+              <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Stage__17036CC0">
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStages">
+              <PropertyRef Name="StageID" />
+            </Principal>
+            <Dependent Role="ProjectStageUsers">
+              <PropertyRef Name="StageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__Statu__1332DBDC">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="ProjectStages">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tasks__StageID__1AD3FDA4">
+          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProjectStages">
+              <PropertyRef Name="StageID" />
+            </Principal>
+            <Dependent Role="Tasks">
+              <PropertyRef Name="StageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProjectSt__UserI__17F790F9">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="ProjectStageUsers">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Requests__Status__04E4BC85">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Requests__UserID__03F0984C">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__UserRoles__RoleI__787EE5A0">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleID" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="RoleID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tasks__StatusID__1BC821DD">
+          <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Statuses">
+              <PropertyRef Name="StatusID" />
+            </Principal>
+            <Dependent Role="Tasks">
+              <PropertyRef Name="StatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskRepor__TaskI__282DF8C2">
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tasks">
+              <PropertyRef Name="TaskID" />
+            </Principal>
+            <Dependent Role="TaskReports">
+              <PropertyRef Name="TaskID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskRepor__Uploa__29221CFB">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="TaskReports">
+              <PropertyRef Name="UploadedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskUsers__TaskI__245D67DE">
+          <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TaskUsers" Type="Self.TaskUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tasks">
+              <PropertyRef Name="TaskID" />
+            </Principal>
+            <Dependent Role="TaskUsers">
+              <PropertyRef Name="TaskID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__TaskUsers__UserI__25518C17">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="TaskUsers" Type="Self.TaskUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="TaskUsers">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__UserRoles__UserI__778AC167">
+          <End Role="Users" Type="Self.Users" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="GeotekMetallCompleteEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ActsOfWork" EntityType="Self.ActsOfWork" />
+          <EntitySet Name="BudgetTransactions" EntityType="Self.BudgetTransactions" />
+          <EntitySet Name="Contracts" EntityType="Self.Contracts" />
+          <EntitySet Name="FinancialReports" EntityType="Self.FinancialReports" />
+          <EntitySet Name="Projects" EntityType="Self.Projects" />
+          <EntitySet Name="ProjectStages" EntityType="Self.ProjectStages" />
+          <EntitySet Name="ProjectStageUsers" EntityType="Self.ProjectStageUsers" />
+          <EntitySet Name="Requests" EntityType="Self.Requests" />
+          <EntitySet Name="Roles" EntityType="Self.Roles" />
+          <EntitySet Name="Statuses" EntityType="Self.Statuses" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
+          <EntitySet Name="TaskReports" EntityType="Self.TaskReports" />
+          <EntitySet Name="Tasks" EntityType="Self.Tasks" />
+          <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" />
+          <EntitySet Name="UserRoles" EntityType="Self.UserRoles" />
+          <EntitySet Name="Users" EntityType="Self.Users" />
+          <AssociationSet Name="FK__ActsOfWor__Proje__2EDAF651" Association="Self.FK__ActsOfWor__Proje__2EDAF651">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ActsOfWork" EntitySet="ActsOfWork" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BudgetTra__Proje__3864608B" Association="Self.FK__BudgetTra__Proje__3864608B">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BudgetTra__Recor__395884C4" Association="Self.FK__BudgetTra__Recor__395884C4">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Contracts__Proje__31B762FC" Association="Self.FK__Contracts__Proje__31B762FC">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="Contracts" EntitySet="Contracts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Financial__Proje__2BFE89A6" Association="Self.FK__Financial__Proje__2BFE89A6">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="FinancialReports" EntitySet="FinancialReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Projects__Projec__0B91BA14" Association="Self.FK__Projects__Projec__0B91BA14">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Projects__Reques__08B54D69" Association="Self.FK__Projects__Reques__08B54D69">
+            <End Role="Requests" EntitySet="Requests" />
+            <End Role="Projects" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Proje__123EB7A3" Association="Self.FK__ProjectSt__Proje__123EB7A3">
+            <End Role="Projects" EntitySet="Projects" />
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Stage__17036CC0" Association="Self.FK__ProjectSt__Stage__17036CC0">
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__Statu__1332DBDC" Association="Self.FK__ProjectSt__Statu__1332DBDC">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tasks__StageID__1AD3FDA4" Association="Self.FK__Tasks__StageID__1AD3FDA4">
+            <End Role="ProjectStages" EntitySet="ProjectStages" />
+            <End Role="Tasks" EntitySet="Tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProjectSt__UserI__17F790F9" Association="Self.FK__ProjectSt__UserI__17F790F9">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Requests__Status__04E4BC85" Association="Self.FK__Requests__Status__04E4BC85">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Requests__UserID__03F0984C" Association="Self.FK__Requests__UserID__03F0984C">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK__UserRoles__RoleI__787EE5A0" Association="Self.FK__UserRoles__RoleI__787EE5A0">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tasks__StatusID__1BC821DD" Association="Self.FK__Tasks__StatusID__1BC821DD">
+            <End Role="Statuses" EntitySet="Statuses" />
+            <End Role="Tasks" EntitySet="Tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__TaskI__282DF8C2" Association="Self.FK__TaskRepor__TaskI__282DF8C2">
+            <End Role="Tasks" EntitySet="Tasks" />
+            <End Role="TaskReports" EntitySet="TaskReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__Uploa__29221CFB" Association="Self.FK__TaskRepor__Uploa__29221CFB">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="TaskReports" EntitySet="TaskReports" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskUsers__TaskI__245D67DE" Association="Self.FK__TaskUsers__TaskI__245D67DE">
+            <End Role="Tasks" EntitySet="Tasks" />
+            <End Role="TaskUsers" EntitySet="TaskUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskUsers__UserI__25518C17" Association="Self.FK__TaskUsers__UserI__25518C17">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="TaskUsers" EntitySet="TaskUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__UserRoles__UserI__778AC167" Association="Self.FK__UserRoles__UserI__778AC167">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище GeotekMetallCompleteModelContainer" CdmEntityContainer="GeotekMetallCompleteEntities">
+          <EntitySetMapping Name="ActsOfWork">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.ActsOfWork">
+              <MappingFragment StoreEntitySet="ActsOfWork">
+                <ScalarProperty Name="ActID" ColumnName="ActID" />
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="ActDate" ColumnName="ActDate" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BudgetTransactions">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.BudgetTransactions">
+              <MappingFragment StoreEntitySet="BudgetTransactions">
+                <ScalarProperty Name="TransactionID" ColumnName="TransactionID" />
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="RecordedBy" ColumnName="RecordedBy" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Contracts">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Contracts">
+              <MappingFragment StoreEntitySet="Contracts">
+                <ScalarProperty Name="ContractID" ColumnName="ContractID" />
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="ContractDate" ColumnName="ContractDate" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FinancialReports">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.FinancialReports">
+              <MappingFragment StoreEntitySet="FinancialReports">
+                <ScalarProperty Name="ReportID" ColumnName="ReportID" />
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="ReportType" ColumnName="ReportType" />
+                <ScalarProperty Name="ReportDate" ColumnName="ReportDate" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Projects">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Projects">
+              <MappingFragment StoreEntitySet="Projects">
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="RequestID" ColumnName="RequestID" />
+                <ScalarProperty Name="ProjectStartDate" ColumnName="ProjectStartDate" />
+                <ScalarProperty Name="ProjectEndDate" ColumnName="ProjectEndDate" />
+                <ScalarProperty Name="ProjectManagerID" ColumnName="ProjectManagerID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectStages">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.ProjectStages">
+              <MappingFragment StoreEntitySet="ProjectStages">
+                <ScalarProperty Name="StageID" ColumnName="StageID" />
+                <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
+                <ScalarProperty Name="StageName" ColumnName="StageName" />
+                <ScalarProperty Name="StageDescription" ColumnName="StageDescription" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectStageUsers">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.ProjectStageUsers">
+              <MappingFragment StoreEntitySet="ProjectStageUsers">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="StageID" ColumnName="StageID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Requests">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Requests">
+              <MappingFragment StoreEntitySet="Requests">
+                <ScalarProperty Name="RequestID" ColumnName="RequestID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="ObjectName" ColumnName="ObjectName" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="Floors" ColumnName="Floors" />
+                <ScalarProperty Name="ObjectType" ColumnName="ObjectType" />
+                <ScalarProperty Name="Purpose" ColumnName="Purpose" />
+                <ScalarProperty Name="RoomCount" ColumnName="RoomCount" />
+                <ScalarProperty Name="WorkType" ColumnName="WorkType" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Deadline" ColumnName="Deadline" />
+                <ScalarProperty Name="ApprovalReason" ColumnName="ApprovalReason" />
+                <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Roles">
+              <MappingFragment StoreEntitySet="Roles">
+                <ScalarProperty Name="RoleID" ColumnName="RoleID" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Statuses">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Statuses">
+              <MappingFragment StoreEntitySet="Statuses">
+                <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.sysdiagrams">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TaskReports">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.TaskReports">
+              <MappingFragment StoreEntitySet="TaskReports">
+                <ScalarProperty Name="ReportID" ColumnName="ReportID" />
+                <ScalarProperty Name="TaskID" ColumnName="TaskID" />
+                <ScalarProperty Name="UploadedBy" ColumnName="UploadedBy" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="UploadDate" ColumnName="UploadDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tasks">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Tasks">
+              <MappingFragment StoreEntitySet="Tasks">
+                <ScalarProperty Name="TaskID" ColumnName="TaskID" />
+                <ScalarProperty Name="StageID" ColumnName="StageID" />
+                <ScalarProperty Name="TaskDescription" ColumnName="TaskDescription" />
+                <ScalarProperty Name="DueDate" ColumnName="DueDate" />
+                <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TaskUsers">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.TaskUsers">
+              <MappingFragment StoreEntitySet="TaskUsers">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="TaskID" ColumnName="TaskID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserRoles">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.UserRoles">
+              <MappingFragment StoreEntitySet="UserRoles">
+                <ScalarProperty Name="UserRoleID" ColumnName="UserRoleID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="RoleID" ColumnName="RoleID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.Users">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Login" ColumnName="Login" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
