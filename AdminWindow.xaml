@@ -5,8 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="700" Width="1000"  MaxHeight="800" MaxWidth="1200" 
+        WindowStartupLocation="CenterScreen" MinHeight="600" MinWidth="1000">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="menu" Style="{StaticResource StackPanelStyle}" Grid.Column="0">
+            <Image Source="img/llogo.png" Margin="0,100,0,20"/>
+            <Label x:Name="role" Style="{StaticResource LabelStyle}">Администратор</Label>
+            <Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_UserManagement_Click">управление пользователями</Button>
+            <Button Style="{StaticResource ButtonStyle}">заявки</Button>
+            <Button Style="{StaticResource ButtonStyle}">проекты</Button>
+            <Button Style="{StaticResource ButtonStyle}">финансы</Button>
+            <Button Style="{StaticResource ButtonStyle}">клиенты</Button>
+            <Button Style="{StaticResource ButtonStyle}">мои данные</Button>
+        </StackPanel>
+
+        <Border Grid.Column="1">
+            <StackPanel>
+                <TextBlock x:Name="ContentName" Text="Заголовок новой страницы" Style="{StaticResource TextBlockStyle}" Margin="40,40,0,15"/>
+                <Frame x:Name="ContentFrame" NavigationUIVisibility="Hidden"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

@@ -79,6 +79,7 @@
     <Compile Include="FinancialReports.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
+    <Compile Include="General.cs" />
     <Compile Include="ModelGMC.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -114,6 +115,9 @@
     <Compile Include="TaskUsers.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
+    <Compile Include="userManagementPage.xaml.cs">
+      <DependentUpon>userManagementPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserRoles.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
@@ -139,6 +143,10 @@
       <DependentUpon>AdminWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="userManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModelGMC.Context.cs">

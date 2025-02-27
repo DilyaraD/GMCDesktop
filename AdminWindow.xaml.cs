@@ -17,11 +17,19 @@ namespace GeotekMetallCompleteDesktop
 {
     public partial class AdminWindow : Window
     {
-        public AdminWindow()
+        public Users _user;
+        public AdminWindow(Users user)
         {
             InitializeComponent();
+            _user = user;
+            name.Content = user.Login;
+            ContentName.Text = "Вы вошли в аккаунт, "+ _user.FirstName+"!\nВыберите кнопку перехода.";
         }
 
-
+        private void Button_UserManagement_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Управление пользователями";
+            ContentFrame.Navigate(new userManagementPage(_user));
+        }
     }
 }

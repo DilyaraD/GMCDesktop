@@ -23,40 +23,11 @@ namespace GeotekMetallCompleteDesktop
         {
             InitializeComponent();
             _context = new GeotekMetallCompleteEntities();
-        }
+            login.GotFocus += General.RemoveText;
+            login.LostFocus += General.AddText;
 
-        private void RemoveText(object sender, EventArgs e)
-        {
-            TextBox instance = (TextBox)sender;
-            if (instance.Text == instance.Tag.ToString())
-            {
-                instance.Text = "";
-                instance.Foreground = Brushes.Black; 
-            }
-        }
-
-        private void AddText(object sender, EventArgs e)
-        {
-            TextBox instance = (TextBox)sender;
-            if (string.IsNullOrWhiteSpace(instance.Text))
-            {
-                instance.Text = instance.Tag.ToString();
-                instance.Foreground = Brushes.Gray;
-            }
-        }
-
-        public static string HashPassword(string password)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
-            }
+            password.GotFocus += General.RemoveText;
+            password.LostFocus += General.AddText;
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -78,25 +49,25 @@ namespace GeotekMetallCompleteDesktop
 
             if (user != null)
             {
-                string hashedPassword = HashPassword(passwordText); 
+                string hashedPassword = General.HashPassword(passwordText); 
 
                 if (user.PasswordHash.Trim() == hashedPassword)
                 {
-                    MessageBox.Show("Вы вошли в аккаунт");
+                    //MessageBox.Show("Вы вошли в аккаунт");
                     if(role.RoleID == 4)
                     {
-                        var admin = new AdminWindow();
+                        var admin = new AdminWindow(user);
                         admin.Show();
                         this.Hide();
                     }
                     else
                     {
-                        MessageBox.Show("no role");
+                        MessageBox.Show("Не определена роль");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Провал");
+                    MessageBox.Show("Пароль неверный!");
                 }
             }
             else

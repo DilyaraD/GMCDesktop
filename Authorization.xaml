@@ -10,8 +10,8 @@
     <Grid Background="#161F46">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="250">
             <Image Source="img/llogo.png"/>
-            <TextBox x:Name="login" Margin="0,35,0,0" GotFocus="RemoveText" LostFocus="AddText" Tag="Логин" Text="Логин"/>
-            <TextBox x:Name="password" Margin="0,15,0,0" GotFocus="RemoveText" LostFocus="AddText" Tag="Пароль" Text="Пароль"/>
+            <TextBox x:Name="login" Margin="0,35,0,0" Tag="Логин" Text="Логин"/>
+            <TextBox x:Name="password" Margin="0,15,0,0" Tag="Пароль" Text="Пароль" />
 
             <Button Click="Login_Click">войти</Button>
         </StackPanel>

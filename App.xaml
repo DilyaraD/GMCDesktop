@@ -5,9 +5,8 @@
              StartupUri="Authorization.xaml">
     <Application.Resources>
         <Style TargetType="TextBox">
-            <Setter Property="Margin" Value="0,35,0,0"/>
             <Setter Property="Height" Value="30"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="17"/>
             <Setter Property="Foreground" Value="Gray"/>
             <Setter Property="FontFamily" Value="Leelawadee"/>
         </Style>
@@ -24,6 +23,77 @@
 
         <Style TargetType="Image">
             <Setter Property="Height" Value="80"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
+
+        <Style TargetType="{x:Type StackPanel}" x:Key="StackPanelStyle">
+            <Setter Property="Background" Value="#161F46"/>
+            <Setter Property="Width" Value="250"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <Style TargetType="{x:Type Label}" x:Key="LabelStyle">
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="{x:Type Label}" x:Key="LabelNameStyle">
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <!--<Setter Property="FontWeight" Value="Bold"/>-->
+            <Setter Property="Foreground" Value="Lightgray"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="{x:Type Button}" x:Key="ButtonStyle">
+            <Setter Property="Background" Value="#2878FF"/>
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="15,15,15,5"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}" x:Key="TextBlockStyle">
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="32"/>
+            <!--<Setter Property="Margin" Value="40,40,0,15"/>-->
+            <Setter Property="TextDecorations" Value="Underline"/>
+        </Style>
+
+        <Style TargetType="{x:Type Button}" x:Key="ButtonPageStyle">
+            <Setter Property="Background" Value="#2878FF"/>
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="15,15,15,5"/>
+        </Style>
+
+        <Style TargetType="{x:Type ToggleButton}" x:Key="ToggleButtonPageStyle">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="15,15,15,5"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}" x:Key="TextBoxStyle">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="FontFamily" Value="Leelawadee"/>
         </Style>
     </Application.Resources>
 </Application>
