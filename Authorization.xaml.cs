@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
@@ -19,24 +20,31 @@ namespace GeotekMetallCompleteDesktop
     public partial class Authorization : Window
     {
         private readonly GeotekMetallCompleteEntities _context;
+
+        private string passwordText = "";
+
         public Authorization()
         {
             InitializeComponent();
             _context = new GeotekMetallCompleteEntities();
+
             login.GotFocus += General.RemoveText;
             login.LostFocus += General.AddText;
 
-            password.GotFocus += General.RemoveText;
-            password.LostFocus += General.AddText;
+            passwordBox.GotFocus += (s, e) => placeholderText.Visibility = Visibility.Collapsed;
+            passwordBox.LostFocus += (s, e) =>
+            {
+                if (string.IsNullOrEmpty(passwordBox.Password))
+                    placeholderText.Visibility = Visibility.Visible;
+            };
         }
+
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             string loginText = login.Text;
-            string passwordText = password.Text;
 
             if (loginText == (string)login.Tag) { loginText = ""; }
-            if (passwordText == (string)password.Tag) { passwordText = ""; }
 
             if (string.IsNullOrEmpty(loginText) || string.IsNullOrEmpty(passwordText))
             {
@@ -45,18 +53,29 @@ namespace GeotekMetallCompleteDesktop
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Login == loginText);
-            var role = _context.UserRoles.FirstOrDefault(u=>u.UserID == user.UserID);
 
             if (user != null)
             {
-                string hashedPassword = General.HashPassword(passwordText); 
+                var role = _context.UserRoles.FirstOrDefault(u => u.UserID == user.UserID);
+                string hashedPassword = General.HashPassword(passwordText);
 
                 if (user.PasswordHash.Trim() == hashedPassword)
                 {
-                    //MessageBox.Show("Вы вошли в аккаунт");
-                    if(role.RoleID == 4)
+                    if (role.RoleID == 4)
                     {
                         var admin = new AdminWindow(user);
+                        admin.Show();
+                        this.Hide();
+                    }
+                    else if (role.RoleID == 1)
+                    {
+                        var admin = new WorkerWindow(user);
+                        admin.Show();
+                        this.Hide();
+                    }
+                    else if (role.RoleID == 3)
+                    {
+                        var admin = new AccountantWindow(user);
                         admin.Show();
                         this.Hide();
                     }
@@ -74,6 +93,31 @@ namespace GeotekMetallCompleteDesktop
             {
                 MessageBox.Show("Пользователь не найден.");
             }
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            passwordText = passwordBox.Password;
+            placeholderText.Visibility = string.IsNullOrEmpty(passwordText) ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void ShowPasswordCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            passwordTextBox.Text = passwordText;
+            passwordTextBox.Visibility = Visibility.Visible;
+            passwordBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowPasswordCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            passwordBox.Password = passwordText;
+            passwordBox.Visibility = Visibility.Visible;
+            passwordTextBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void PasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            passwordText = passwordTextBox.Text;
         }
     }
 }

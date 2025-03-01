@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
       d:DesignHeight="500" d:DesignWidth="720"
-      Title="userManagementPage">
+      Title="управление пользователями">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -37,34 +37,35 @@
                 </ListView>
             </StackPanel>
 
-            <StackPanel x:Name="AddUserStackPanel"  Visibility="Collapsed" Width="600" Height="500">
-                <TextBlock x:Name="NameText" Text="Добавить пользователя" Style="{StaticResource TextBlockStyle}" Margin="0,10,0,5"/>
-                <TextBox x:Name="LoginTextBox" Text="Логин" Tag="Логин" MaxLength="50" Margin="0,5,0,0" />
-                <TextBlock x:Name="LoginExistsTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"/>
-                <TextBox x:Name="PasswordTextBox" Text="Пароль" Tag="Пароль" MaxLength="50" Margin="0,5,0,0"/>
-                <TextBlock x:Name="PasswordErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                <TextBox x:Name="FirstNameTextBox" Text="Имя" Tag="Имя" MaxLength="50" Margin="0,5,0,0" />
-                <TextBlock x:Name="FirstNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                <TextBox x:Name="LastNameTextBox" Text="Фамилия" Tag="Фамилия" MaxLength="50" Margin="0,5,0,0" />
-                <TextBlock x:Name="LastNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                <TextBox x:Name="PhoneNumberTextBox" Text="Телефон" Tag="Телефон" MaxLength="11"
-                         PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" Margin="0,5,0,0" />
-                <TextBlock x:Name="PhoneNumberErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}" />
-                <TextBox x:Name="EmailTextBox" Text="Электронная почта" Tag="Электронная почта" MaxLength="50" Margin="0,5,0,0" />
-                <TextBlock x:Name="EmailErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                <StackPanel>
-                    <TextBlock Text="Должность:" FontSize="14" FontFamily="Leelawadee" Margin="0,5,0,0" />
-                    <ComboBox x:Name="RoleComboBox" />
-                    <TextBlock x:Name="RoleErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                </StackPanel>
-                
+            <Border  x:Name="AddUserStackPanel1" Visibility="Collapsed" Background="White" CornerRadius="10" Padding="10" Effect="{StaticResource ShadowEffect}" Margin="30">
+                <StackPanel x:Name="AddUserStackPanel"  Visibility="Collapsed" Width="600" Height="400">
+                    <TextBlock x:Name="NameText" Text="Добавить пользователя" Style="{StaticResource TextBlockStyle}" Margin="0,10,0,5"/>
+                    <TextBox x:Name="LoginTextBox" Text="Логин" Tag="Логин" MaxLength="50" Margin="0,5,0,0" />
+                    <TextBlock x:Name="LoginExistsTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"/>
+                    <TextBox x:Name="PasswordTextBox" Text="Пароль" Tag="Пароль" MaxLength="50" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="PasswordErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
+                    <TextBox x:Name="FirstNameTextBox" Text="Имя" Tag="Имя" MaxLength="50" Margin="0,5,0,0"  PreviewTextInput="NameTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="FirstNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
+                    <TextBox x:Name="LastNameTextBox" Text="Фамилия" Tag="Фамилия" MaxLength="50" Margin="0,5,0,0"  PreviewTextInput="NameTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="LastNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
+                    <TextBox x:Name="PhoneNumberTextBox" Text="Телефон" Tag="Телефон" MaxLength="11"
+                             PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" Margin="0,5,0,0" />
+                    <TextBlock x:Name="PhoneNumberErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}" />
+                    <TextBox x:Name="EmailTextBox" Text="Электронная почта" Tag="Электронная почта" MaxLength="50" Margin="0,5,0,0" />
+                    <TextBlock x:Name="EmailErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
+                    <StackPanel>
+                        <TextBlock Text="Должность:" FontSize="14" FontFamily="Leelawadee" Margin="0,5,0,0" />
+                        <ComboBox x:Name="RoleComboBox" />
+                            <TextBlock x:Name="RoleErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
+                        </StackPanel>
 
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="cохранить" Click="SaveButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
-                    <Button Content="удалить" x:Name="DeleteButton" Click="DeleteButton_Click"  Visibility="Collapsed" Style="{StaticResource ButtonPageStyle}" Width="100"/>
-                    <Button Content="oтмена" Click="CancelButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="cохранить" Click="SaveButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
+                        <Button Content="удалить" x:Name="DeleteButton" Click="DeleteButton_Click"  Visibility="Collapsed" Style="{StaticResource ButtonPageStyle}" Width="100"/>
+                        <Button Content="oтмена" Click="CancelButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Page>

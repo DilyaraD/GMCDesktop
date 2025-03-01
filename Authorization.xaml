@@ -8,11 +8,18 @@
         Title="Авторизация" Height="700" Width="1000"  MaxHeight="800" MaxWidth="1200" 
         WindowStartupLocation="CenterScreen" MinHeight="600" MinWidth="800">
     <Grid Background="#161F46">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="250">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="300">
             <Image Source="img/llogo.png"/>
             <TextBox x:Name="login" Margin="0,35,0,0" Tag="Логин" Text="Логин"/>
-            <TextBox x:Name="password" Margin="0,15,0,0" Tag="Пароль" Text="Пароль" />
+            <Grid Margin="0,15,0,0">
+                <PasswordBox x:Name="passwordBox" PasswordChanged="PasswordBox_PasswordChanged" Visibility="Visible"/>
+                <TextBox x:Name="passwordTextBox" Visibility="Collapsed" Style="{StaticResource TextBoxStyle11}" TextChanged="PasswordTextBox_TextChanged"/>
+                <TextBox x:Name="placeholderText" Tag="Пароль" Text="Пароль" IsHitTestVisible="False" Visibility="Visible" Background="White" FontSize="17" Foreground="Gray"/>
+            </Grid>
 
+            <CheckBox x:Name="showPasswordCheckBox" Content="Показать пароль" Margin="0,5,0,0" Checked="ShowPasswordCheckBox_Checked" Unchecked="ShowPasswordCheckBox_Unchecked"
+                      Foreground="White" FontFamily="Leelawadee" />
+            
             <Button Click="Login_Click">войти</Button>
         </StackPanel>
     </Grid>

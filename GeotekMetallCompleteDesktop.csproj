@@ -67,6 +67,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AccountantWindow.xaml.cs">
+      <DependentUpon>AccountantWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ActsOfWork.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
@@ -75,6 +78,12 @@
     </Compile>
     <Compile Include="Contracts.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomersManagementPage.xaml.cs">
+      <DependentUpon>CustomersManagementPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FinanceManagementPage.xaml.cs">
+      <DependentUpon>FinanceManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="FinancialReports.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
@@ -85,14 +94,23 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
+    <Compile Include="MyDataPage.xaml.cs">
+      <DependentUpon>MyDataPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Projects.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectsManagementPage.xaml.cs">
+      <DependentUpon>ProjectsManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProjectStages.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectStageUsers.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
+    </Compile>
+    <Compile Include="requestManagementPage.xaml.cs">
+      <DependentUpon>requestManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Requests.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
@@ -124,6 +142,13 @@
     <Compile Include="Users.cs">
       <DependentUpon>ModelGMC.tt</DependentUpon>
     </Compile>
+    <Compile Include="WorkerWindow.xaml.cs">
+      <DependentUpon>WorkerWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="AccountantWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Authorization.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -143,7 +168,31 @@
       <DependentUpon>AdminWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="CustomersManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FinanceManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MyDataPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProjectsManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="requestManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="userManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WorkerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
