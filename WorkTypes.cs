@@ -12,32 +12,18 @@ namespace GeotekMetallCompleteDesktop
     using System;
     using System.Collections.Generic;
     
-    public partial class Requests
+    public partial class WorkTypes
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Requests()
+        public WorkTypes()
         {
-            this.Projects = new HashSet<Projects>();
+            this.Requests = new HashSet<Requests>();
         }
     
-        public int RequestID { get; set; }
-        public Nullable<int> UserID { get; set; }
-        public string ObjectName { get; set; }
-        public string Address { get; set; }
-        public decimal Area { get; set; }
-        public Nullable<int> Floors { get; set; }
-        public string ObjectType { get; set; }
-        public Nullable<int> Purpose { get; set; }
-        public Nullable<int> RoomCount { get; set; }
-        public string Description { get; set; }
-        public System.DateTime Deadline { get; set; }
-        public string ApprovalReason { get; set; }
-        public Nullable<int> StatusID { get; set; }
+        public int WorkTypeID { get; set; }
+        public string WorkTypeName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Projects> Projects { get; set; }
-        public virtual Statuses Statuses { get; set; }
-        public virtual Users Users { get; set; }
-        public virtual WorkTypes WorkTypes { get; set; }
+        public virtual ICollection<Requests> Requests { get; set; }
     }
 }

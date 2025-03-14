@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="e029d404d9334d8c928a90f73db2e738" Name="Diagram1" ZoomLevel="64">
+      <Diagram DiagramId="5cd7f441d1f946dbb5caafdbb56db669" Name="Diagram1">
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.ActsOfWork" Width="1.5" PointX="8.25" PointY="12.25" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.BudgetTransactions" Width="1.5" PointX="3" PointY="14.75" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.Contracts" Width="1.5" PointX="8.25" PointY="15" IsExpanded="true" />
@@ -14,13 +14,14 @@
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.ProjectStageUsers" Width="1.5" PointX="13.5" PointY="15" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.Requests" Width="1.5" PointX="3" PointY="8.875" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.Roles" Width="1.5" PointX="0.75" PointY="19.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="GeotekMetallCompleteModel.Statuses" Width="1.5" PointX="0.75" PointY="10" IsExpanded="true" />
+        <EntityTypeShape EntityType="GeotekMetallCompleteModel.Statuses" Width="1.5" PointX="0.75" PointY="8.875" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.sysdiagrams" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.TaskReports" Width="1.5" PointX="18.75" PointY="14.625" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.Tasks" Width="1.5" PointX="16.5" PointY="14.625" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.TaskUsers" Width="1.5" PointX="21.75" PointY="15" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.UserRoles" Width="1.5" PointX="3" PointY="18" IsExpanded="true" />
         <EntityTypeShape EntityType="GeotekMetallCompleteModel.Users" Width="1.5" PointX="0.75" PointY="14.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="GeotekMetallCompleteModel.WorkTypes" Width="1.5" PointX="0.75" PointY="11.625" IsExpanded="true" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__ActsOfWor__Proje__2EDAF651" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__BudgetTra__Proje__3864608B" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__BudgetTra__Recor__395884C4" ManuallyRouted="false" />
@@ -35,6 +36,7 @@
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__ProjectSt__UserI__17F790F9" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__Requests__Status__04E4BC85" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__Requests__UserID__03F0984C" ManuallyRouted="false" />
+        <AssociationConnector Association="GeotekMetallCompleteModel.FK_WorkType" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__UserRoles__RoleI__787EE5A0" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__Tasks__StatusID__1BC821DD" ManuallyRouted="false" />
         <AssociationConnector Association="GeotekMetallCompleteModel.FK__TaskRepor__TaskI__282DF8C2" ManuallyRouted="false" />

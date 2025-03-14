@@ -19,14 +19,14 @@ namespace GeotekMetallCompleteDesktop
 {
     public partial class Authorization : Window
     {
-        private readonly GeotekMetallCompleteEntities _context;
+        private readonly GeotekMetallCompleteEntities1 _context;
 
         private string passwordText = "";
 
         public Authorization()
         {
             InitializeComponent();
-            _context = new GeotekMetallCompleteEntities();
+            _context = new GeotekMetallCompleteEntities1();
 
             login.GotFocus += General.RemoveText;
             login.LostFocus += General.AddText;

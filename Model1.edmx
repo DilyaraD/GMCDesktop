@@ -85,9 +85,8 @@
           <Property Name="Area" Type="decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="Floors" Type="int" />
           <Property Name="ObjectType" Type="nvarchar" MaxLength="100" Nullable="false" />
-          <Property Name="Purpose" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Purpose" Type="int" />
           <Property Name="RoomCount" Type="int" />
-          <Property Name="WorkType" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Deadline" Type="date" Nullable="false" />
           <Property Name="ApprovalReason" Type="nvarchar(max)" />
@@ -166,6 +165,13 @@
           <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
           <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WorkTypes">
+          <Key>
+            <PropertyRef Name="WorkTypeID" />
+          </Key>
+          <Property Name="WorkTypeID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="WorkTypeName" Type="nvarchar" MaxLength="255" Nullable="false" />
         </EntityType>
         <Association Name="FK__ActsOfWor__Proje__2EDAF651">
           <End Role="Projects" Type="Self.Projects" Multiplicity="1">
@@ -443,6 +449,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_WorkType">
+          <End Role="WorkTypes" Type="Self.WorkTypes" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WorkTypes">
+              <PropertyRef Name="WorkTypeID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="Purpose" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="Хранилище GeotekMetallCompleteModelContainer">
           <EntitySet Name="ActsOfWork" EntityType="Self.ActsOfWork" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BudgetTransactions" EntityType="Self.BudgetTransactions" Schema="dbo" store:Type="Tables" />
@@ -460,6 +478,7 @@
           <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WorkTypes" EntityType="Self.WorkTypes" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__ActsOfWor__Proje__2EDAF651" Association="Self.FK__ActsOfWor__Proje__2EDAF651">
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ActsOfWork" EntitySet="ActsOfWork" />
@@ -543,6 +562,10 @@
           <AssociationSet Name="FK__UserRoles__UserI__778AC167" Association="Self.FK__UserRoles__UserI__778AC167">
             <End Role="Users" EntitySet="Users" />
             <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WorkType" Association="Self.FK_WorkType">
+            <End Role="WorkTypes" EntitySet="WorkTypes" />
+            <End Role="Requests" EntitySet="Requests" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -648,9 +671,8 @@
           <Property Name="Area" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="Floors" Type="Int32" />
           <Property Name="ObjectType" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Purpose" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Purpose" Type="Int32" />
           <Property Name="RoomCount" Type="Int32" />
-          <Property Name="WorkType" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Deadline" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="ApprovalReason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
@@ -658,6 +680,7 @@
           <NavigationProperty Name="Projects" Relationship="Self.FK__Projects__Reques__08B54D69" FromRole="Requests" ToRole="Projects" />
           <NavigationProperty Name="Statuses" Relationship="Self.FK__Requests__Status__04E4BC85" FromRole="Requests" ToRole="Statuses" />
           <NavigationProperty Name="Users" Relationship="Self.FK__Requests__UserID__03F0984C" FromRole="Requests" ToRole="Users" />
+          <NavigationProperty Name="WorkTypes" Relationship="Self.FK_WorkType" FromRole="Requests" ToRole="WorkTypes" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -753,6 +776,14 @@
           <NavigationProperty Name="TaskReports" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="Users" ToRole="TaskReports" />
           <NavigationProperty Name="TaskUsers" Relationship="Self.FK__TaskUsers__UserI__25518C17" FromRole="Users" ToRole="TaskUsers" />
           <NavigationProperty Name="UserRoles" Relationship="Self.FK__UserRoles__UserI__778AC167" FromRole="Users" ToRole="UserRoles" />
+        </EntityType>
+        <EntityType Name="WorkTypes">
+          <Key>
+            <PropertyRef Name="WorkTypeID" />
+          </Key>
+          <Property Name="WorkTypeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="WorkTypeName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Requests" Relationship="Self.FK_WorkType" FromRole="WorkTypes" ToRole="Requests" />
         </EntityType>
         <Association Name="FK__ActsOfWor__Proje__2EDAF651">
           <End Role="Projects" Type="Self.Projects" Multiplicity="1">
@@ -938,6 +969,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_WorkType">
+          <End Role="WorkTypes" Type="Self.WorkTypes" Multiplicity="0..1" />
+          <End Role="Requests" Type="Self.Requests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WorkTypes">
+              <PropertyRef Name="WorkTypeID" />
+            </Principal>
+            <Dependent Role="Requests">
+              <PropertyRef Name="Purpose" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__UserRoles__RoleI__787EE5A0">
           <End Role="Roles" Type="Self.Roles" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -1030,7 +1073,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="GeotekMetallCompleteEntities" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="GeotekMetallCompleteEntities1" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ActsOfWork" EntityType="Self.ActsOfWork" />
           <EntitySet Name="BudgetTransactions" EntityType="Self.BudgetTransactions" />
           <EntitySet Name="Contracts" EntityType="Self.Contracts" />
@@ -1047,6 +1090,7 @@
           <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" />
           <EntitySet Name="UserRoles" EntityType="Self.UserRoles" />
           <EntitySet Name="Users" EntityType="Self.Users" />
+          <EntitySet Name="WorkTypes" EntityType="Self.WorkTypes" />
           <AssociationSet Name="FK__ActsOfWor__Proje__2EDAF651" Association="Self.FK__ActsOfWor__Proje__2EDAF651">
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ActsOfWork" EntitySet="ActsOfWork" />
@@ -1103,6 +1147,10 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="Requests" EntitySet="Requests" />
           </AssociationSet>
+          <AssociationSet Name="FK_WorkType" Association="Self.FK_WorkType">
+            <End Role="WorkTypes" EntitySet="WorkTypes" />
+            <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
           <AssociationSet Name="FK__UserRoles__RoleI__787EE5A0" Association="Self.FK__UserRoles__RoleI__787EE5A0">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="UserRoles" EntitySet="UserRoles" />
@@ -1137,7 +1185,7 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="Хранилище GeotekMetallCompleteModelContainer" CdmEntityContainer="GeotekMetallCompleteEntities">
+        <EntityContainerMapping StorageEntityContainer="Хранилище GeotekMetallCompleteModelContainer" CdmEntityContainer="GeotekMetallCompleteEntities1">
           <EntitySetMapping Name="ActsOfWork">
             <EntityTypeMapping TypeName="GeotekMetallCompleteModel.ActsOfWork">
               <MappingFragment StoreEntitySet="ActsOfWork">
@@ -1226,7 +1274,6 @@
                 <ScalarProperty Name="ObjectType" ColumnName="ObjectType" />
                 <ScalarProperty Name="Purpose" ColumnName="Purpose" />
                 <ScalarProperty Name="RoomCount" ColumnName="RoomCount" />
-                <ScalarProperty Name="WorkType" ColumnName="WorkType" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Deadline" ColumnName="Deadline" />
                 <ScalarProperty Name="ApprovalReason" ColumnName="ApprovalReason" />
@@ -1313,6 +1360,14 @@
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
                 <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WorkTypes">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.WorkTypes">
+              <MappingFragment StoreEntitySet="WorkTypes">
+                <ScalarProperty Name="WorkTypeID" ColumnName="WorkTypeID" />
+                <ScalarProperty Name="WorkTypeName" ColumnName="WorkTypeName" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -19,13 +19,13 @@ namespace GeotekMetallCompleteDesktop
     public partial class MyDataPage : Page
     {
         public Users _user;
-        public readonly GeotekMetallCompleteEntities db;
+        public readonly GeotekMetallCompleteEntities1 db;
 
         public MyDataPage(Users user)
         {
             InitializeComponent();
             _user = user;
-            db =new GeotekMetallCompleteEntities();
+            db =new GeotekMetallCompleteEntities1();
             Load();
         }
 

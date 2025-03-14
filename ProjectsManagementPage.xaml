@@ -5,10 +5,32 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="ProjectsManagementPage">
+      d:DesignHeight="500" d:DesignWidth="700"
+      Title="управление проектами">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-    <Grid>
-        
+        <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Margin="10,10,10,5" Width="720">
+            <ComboBox x:Name="FilterByStatusComboBox" Width="150" Margin="5" SelectionChanged="FilterByStatusComboBox_SelectionChanged">
+                <ComboBoxItem Content="Все заявки" />
+                <ComboBoxItem Content="Новые" />
+                <ComboBoxItem Content="Принятые" />
+                <ComboBoxItem Content="Отклоненные" />
+            </ComboBox>
+            <ComboBox x:Name="SortByDeadlineComboBox" Width="200" Margin="5" SelectionChanged="SortByDeadlineComboBox_SelectionChanged">
+                <ComboBoxItem Content="Сортировка по дедлайну" IsEnabled="False"/>
+                <ComboBoxItem Content="Ближайшие" />
+                <ComboBoxItem Content="Убывание" />
+            </ComboBox>
+            <ComboBox x:Name="FilterByWorkTypeComboBox" Width="200" Margin="5" SelectionChanged="FilterByWorkTypeComboBox_SelectionChanged">
+                <ComboBoxItem Content="Все типы работ" />
+            </ComboBox>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+        </Grid>
     </Grid>
 </Page>

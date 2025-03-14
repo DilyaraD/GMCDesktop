@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -71,13 +71,13 @@
       <DependentUpon>AccountantWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ActsOfWork.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="BudgetTransactions.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Contracts.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="CustomersManagementPage.xaml.cs">
       <DependentUpon>CustomersManagementPage.xaml</DependentUpon>
@@ -86,64 +86,78 @@
       <DependentUpon>FinanceManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="FinancialReports.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="General.cs" />
-    <Compile Include="ModelGMC.cs">
+    <Compile Include="Model1.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model1.edmx</DependentUpon>
     </Compile>
     <Compile Include="MyDataPage.xaml.cs">
       <DependentUpon>MyDataPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Projects.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectsManagementPage.xaml.cs">
       <DependentUpon>ProjectsManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProjectStages.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="ProjectStageUsers.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="requestManagementPage.xaml.cs">
       <DependentUpon>requestManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Requests.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Roles.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="SizeConverter.cs" />
     <Compile Include="Statuses.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="sysdiagrams.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="TaskReports.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Tasks.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="TaskUsers.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="userManagementPage.xaml.cs">
       <DependentUpon>userManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserRoles.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Users.cs">
-      <DependentUpon>ModelGMC.tt</DependentUpon>
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="WorkerWindow.xaml.cs">
       <DependentUpon>WorkerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WorkTypes.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Page Include="AccountantWindow.xaml">
       <SubType>Designer</SubType>
@@ -198,16 +212,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModelGMC.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ModelGMC.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="ModelGMC.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ModelGMC.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -225,12 +229,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EntityDeploy Include="ModelGMC.edmx">
+    <EntityDeploy Include="Model1.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ModelGMC.Designer.cs</LastGenOutput>
+      <LastGenOutput>Model1.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="ModelGMC.edmx.diagram">
-      <DependentUpon>ModelGMC.edmx</DependentUpon>
+    <None Include="Model1.edmx.diagram">
+      <DependentUpon>Model1.edmx</DependentUpon>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -242,15 +246,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ModelGMC.Context.tt">
+    <Content Include="Model1.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ModelGMC.Context.cs</LastGenOutput>
-      <DependentUpon>ModelGMC.edmx</DependentUpon>
+      <DependentUpon>Model1.edmx</DependentUpon>
+      <LastGenOutput>Model1.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="ModelGMC.tt">
+    <Content Include="Model1.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ModelGMC.edmx</DependentUpon>
-      <LastGenOutput>ModelGMC.cs</LastGenOutput>
+      <DependentUpon>Model1.edmx</DependentUpon>
+      <LastGenOutput>Model1.cs</LastGenOutput>
     </Content>
     <Resource Include="img\llogo.png" />
     <Content Include="img\logo.svg" />

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace GeotekMetallCompleteDesktop
@@ -29,21 +31,6 @@ namespace GeotekMetallCompleteDesktop
                 instance.Foreground = Brushes.Gray;
             }
         }
-
-        //public static string HashPassword(string password)
-        //{
-        //    using (SHA256 sha256Hash = SHA256.Create())
-        //    {
-        //        byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-        //        StringBuilder builder = new StringBuilder();
-        //        foreach (byte b in bytes)
-        //        {
-        //            builder.Append(b.ToString("x2"));
-        //        }
-        //        return builder.ToString();
-        //    }
-        //}
-
 
         private static readonly string _encryptionKey = "googlehelp901fool^%(_d)hello*trip";
 
@@ -110,5 +97,4 @@ namespace GeotekMetallCompleteDesktop
         }
 
     }
-
 }

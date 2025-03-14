@@ -100,8 +100,8 @@
 
         <Style TargetType="{x:Type TextBlock}" x:Key="TextBoxStyle">
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="Foreground" Value="Red"/>
             <Setter Property="FontFamily" Value="Leelawadee"/>
         </Style>
@@ -118,6 +118,7 @@
 
         <Style x:Key="LabelStyle12" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
+            <Setter Property="Margin" Value="10" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="Foreground" Value="#777" />
             <Setter Property="Margin" Value="0,0,10,5" />
@@ -169,7 +170,7 @@
 
         <Style x:Key="ErrorTextBlockStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#e74c3c" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="10" />
             <Setter Property="FontFamily" Value="Leelawadee"/>
             <Setter Property="Margin" Value="0,0,0,5" />
             <Setter Property="Visibility" Value="Collapsed" />
@@ -245,6 +246,9 @@
             <Setter Property="Background" Value="#3498db" />
             <Setter Property="Foreground" Value="White" />
         </Style>
-
+        <local:SizeConverter x:Key="SizeConverter" />
+        
+        
     </Application.Resources>
+    
 </Application>

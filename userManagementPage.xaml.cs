@@ -78,7 +78,7 @@ namespace GeotekMetallCompleteDesktop
         {
             try
             {
-                using (var db = new GeotekMetallCompleteEntities())
+                using (var db = new GeotekMetallCompleteEntities1())
                 {
                     _users = db.Users.Where(u => u.UserRoles.All(ur => ur.RoleID != 2))
                         .Select(u => new UsersView
@@ -107,7 +107,7 @@ namespace GeotekMetallCompleteDesktop
         {
             try
             {
-                using (var db = new GeotekMetallCompleteEntities())
+                using (var db = new GeotekMetallCompleteEntities1())
                 {
                     RoleComboBox.ItemsSource = db.Roles.Where(ur => ur.RoleID != 2).ToList();
                     RoleComboBox.DisplayMemberPath = "RoleName";
@@ -238,7 +238,7 @@ namespace GeotekMetallCompleteDesktop
         {
             if (userList.SelectedItem is UsersView selectedUserView)
             {
-                using (var db = new GeotekMetallCompleteEntities())
+                using (var db = new GeotekMetallCompleteEntities1())
                 {
                     var selectedUser = db.Users.FirstOrDefault(u => u.UserID == selectedUserView.UserID);
 
@@ -294,7 +294,7 @@ namespace GeotekMetallCompleteDesktop
             EmailTextBox.Text = user.Email;
             EmailTextBox.Foreground = Brushes.Black;
 
-            using (var db = new GeotekMetallCompleteEntities())
+            using (var db = new GeotekMetallCompleteEntities1())
             {
                 var userRole = db.UserRoles
     .Where(ur => ur.UserID == user.UserID && ur.RoleID != 2)
@@ -314,7 +314,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void LoginTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            using (var db = new GeotekMetallCompleteEntities())
+            using (var db = new GeotekMetallCompleteEntities1())
             {
                 if (_isAddingNewUser)
                 {
@@ -428,7 +428,7 @@ namespace GeotekMetallCompleteDesktop
 
             try
             {
-                using (var db = new GeotekMetallCompleteEntities())
+                using (var db = new GeotekMetallCompleteEntities1())
                 {
                     if (_isAddingNewUser)
                     {
@@ -641,7 +641,7 @@ namespace GeotekMetallCompleteDesktop
             {
                 try
                 {
-                    using (var db = new GeotekMetallCompleteEntities())
+                    using (var db = new GeotekMetallCompleteEntities1())
                     {
                         var userToDelete = db.Users.FirstOrDefault(u => u.UserID == _currentUser.UserID);
 

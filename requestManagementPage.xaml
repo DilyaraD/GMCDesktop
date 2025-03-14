@@ -5,10 +5,87 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="720" 
-      Title="управление заявкамими">
-
+      d:DesignHeight="500" d:DesignWidth="700" 
+      Title="управление заявками">
     <Grid Background="White">
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Margin="10,10,10,5" Width="720">
+            <ComboBox x:Name="FilterByStatusComboBox" Width="150" Margin="5" SelectionChanged="FilterByStatusComboBox_SelectionChanged">
+                <ComboBoxItem Content="Все заявки" />
+                <ComboBoxItem Content="Новые" />
+                <ComboBoxItem Content="Принятые" />
+                <ComboBoxItem Content="Отклоненные" />
+            </ComboBox>
+            <ComboBox x:Name="SortByDeadlineComboBox" Width="200" Margin="5" SelectionChanged="SortByDeadlineComboBox_SelectionChanged">
+                <ComboBoxItem Content="Сортировка по дедлайну" IsEnabled="False"/>
+                <ComboBoxItem Content="Ближайшие" />
+                <ComboBoxItem Content="Убывание" />
+            </ComboBox>
+            <ComboBox x:Name="FilterByWorkTypeComboBox" Width="200" Margin="5" SelectionChanged="FilterByWorkTypeComboBox_SelectionChanged">
+                <ComboBoxItem Content="Все типы работ" />
+            </ComboBox>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <StackPanel x:Name="RequestListStackPanel">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ListView x:Name="RequestList" MouseDoubleClick="RequestList_MouseDoubleClick"
+                              Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Название объекта" DisplayMemberBinding="{Binding ObjectName}"/>
+                                <GridViewColumn Header="Адрес" DisplayMemberBinding="{Binding Address}" Width="230"/>
+                                <GridViewColumn Header="Цель" DisplayMemberBinding="{Binding WorkTypeName}" Width="240" />
+                                <GridViewColumn Header="Дедлайн" DisplayMemberBinding="{Binding Deadline, StringFormat=dd.MM.yyyy}" Width="100" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </ScrollViewer>
+            </StackPanel>
+
+            <StackPanel x:Name="RequestDetailsStackPanel" Visibility="Collapsed" Margin="10">
+                <TextBlock Text="Детали заявки" FontSize="26" FontWeight="Bold" Margin="0,0,0,10" />
+                <ItemsControl x:Name="RequestDetailsItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Key}" Style="{StaticResource LabelStyle12}" Grid.Column="0" />
+                                <TextBlock Text="{Binding Value}" Style="{StaticResource ValueStyle}" Grid.Column="1" Margin="10,0,0,0" TextWrapping="Wrap" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button x:Name="BackButton" Content="Назад" Click="BackButton_Click" Margin="0,10,0,5" />
+                <Button x:Name="ApproveButton" Content="Принять заявку" Click="ApproveButton_Click" Margin="0,5,0,5" Visibility="Collapsed" />
+                <Button x:Name="RejectButton" Content="Отклонить заявку" Click="RejectButton_Click" Margin="0,5,0,10" Visibility="Collapsed" />
+            </StackPanel>
+
+            <StackPanel x:Name="ReasonInputStackPanel" Visibility="Collapsed" Margin="10">
+                <TextBlock Text="Введите причину:" FontSize="14" Margin="0,0,0,5" />
+                <TextBox x:Name="ReasonTextBox" Width="650" Height="100" AcceptsReturn="True" TextWrapping="Wrap" />
+                <Button x:Name="ConfirmReasonButton" Content="Подтвердить" Click="ConfirmReasonButton_Click" Margin="0,10,0,5" />
+                <Button x:Name="CancelReasonButton" Content="Отмена" Click="CancelReasonButton_Click" Margin="0,5,0,10" />
+            </StackPanel>
+
+            <StackPanel x:Name="CreateProjectStackPanel" Visibility="Collapsed" Margin="10">
+                <TextBlock Text="Создание проекта" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                <TextBlock Text="Дата начала проекта:" />
+                <DatePicker x:Name="ProjectStartDatePicker" Margin="0,5,0,10" />
+                <TextBlock Text="Дата окончания проекта:" />
+                <DatePicker x:Name="ProjectEndDatePicker" Margin="0,5,0,10" />
+                <TextBlock Text="Отвественный за проект:" />
+                <ComboBox x:Name="ProjectManagerComboBox" DisplayMemberPath="FullName" Margin="0,5,0,10" />
+                <Button x:Name="CreateProjectButton" Content="Создать проект" Click="CreateProjectButton_Click" Margin="0,10,0,5" />
+                <Button x:Name="CancelProjectButton" Content="Отмена" Click="CancelProjectButton_Click" Margin="0,5,0,10" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

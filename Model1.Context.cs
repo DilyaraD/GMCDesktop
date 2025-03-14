@@ -13,10 +13,10 @@ namespace GeotekMetallCompleteDesktop
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class GeotekMetallCompleteEntities : DbContext
+    public partial class GeotekMetallCompleteEntities1 : DbContext
     {
-        public GeotekMetallCompleteEntities()
-            : base("name=GeotekMetallCompleteEntities")
+        public GeotekMetallCompleteEntities1()
+            : base("name=GeotekMetallCompleteEntities1")
         {
         }
     
@@ -41,5 +41,6 @@ namespace GeotekMetallCompleteDesktop
         public virtual DbSet<TaskUsers> TaskUsers { get; set; }
         public virtual DbSet<UserRoles> UserRoles { get; set; }
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<WorkTypes> WorkTypes { get; set; }
     }
 }
