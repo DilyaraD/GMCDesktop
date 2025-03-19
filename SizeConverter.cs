@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Data;
 
 namespace GeotekMetallCompleteDesktop
@@ -14,7 +16,7 @@ namespace GeotekMetallCompleteDesktop
             }
             return value;
         }
-
+               
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

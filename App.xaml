@@ -15,7 +15,6 @@
         <Style TargetType="PasswordBox">
             <Setter Property="Height" Value="30"/>
             <Setter Property="FontSize" Value="17"/>
-            <!--<Setter Property="Foreground" Value="Gray"/>-->
             <Setter Property="FontFamily" Value="Leelawadee"/>
         </Style>
 
@@ -51,7 +50,6 @@
 
         <Style TargetType="{x:Type Label}" x:Key="LabelNameStyle">
             <Setter Property="FontFamily" Value="Leelawadee"/>
-            <!--<Setter Property="FontWeight" Value="Bold"/>-->
             <Setter Property="Foreground" Value="Lightgray"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -185,7 +183,6 @@
             <Setter Property="Padding" Value="15,10" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
-            <!--<Setter Property="Margin" Value="0,0,0,15" />-->
             <Setter Property="Width" Value="100"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Template">
@@ -218,9 +215,8 @@
             <Setter Property="Padding" Value="15,10" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
-            <!--<Setter Property="Margin" Value="0,0,0,15" />-->
             <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="40"/>            
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -247,8 +243,7 @@
             <Setter Property="Foreground" Value="White" />
         </Style>
         <local:SizeConverter x:Key="SizeConverter" />
-        
-        
+
+
     </Application.Resources>
-    
 </Application>

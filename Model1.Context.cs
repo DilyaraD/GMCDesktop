@@ -31,7 +31,6 @@ namespace GeotekMetallCompleteDesktop
         public virtual DbSet<FinancialReports> FinancialReports { get; set; }
         public virtual DbSet<Projects> Projects { get; set; }
         public virtual DbSet<ProjectStages> ProjectStages { get; set; }
-        public virtual DbSet<ProjectStageUsers> ProjectStageUsers { get; set; }
         public virtual DbSet<Requests> Requests { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<Statuses> Statuses { get; set; }

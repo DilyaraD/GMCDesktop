@@ -42,7 +42,7 @@
           <Property Name="ProjectID" Type="int" Nullable="false" />
           <Property Name="ReportType" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="ReportDate" Type="datetime" />
-          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+          <Property Name="FilePath" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="Projects">
           <Key>
@@ -65,14 +65,6 @@
           <Property Name="StartDate" Type="datetime" />
           <Property Name="EndDate" Type="datetime" />
           <Property Name="StatusID" Type="int" />
-        </EntityType>
-        <EntityType Name="ProjectStageUsers">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="StageID" Type="int" Nullable="false" />
-          <Property Name="UserID" Type="int" />
         </EntityType>
         <EntityType Name="Requests">
           <Key>
@@ -281,20 +273,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__ProjectSt__Stage__17036CC0">
-          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectStages">
-              <PropertyRef Name="StageID" />
-            </Principal>
-            <Dependent Role="ProjectStageUsers">
-              <PropertyRef Name="StageID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__ProjectSt__Statu__1332DBDC">
           <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
           <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
@@ -304,18 +282,6 @@
             </Principal>
             <Dependent Role="ProjectStages">
               <PropertyRef Name="StatusID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__ProjectSt__UserI__17F790F9">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
-          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserID" />
-            </Principal>
-            <Dependent Role="ProjectStageUsers">
-              <PropertyRef Name="UserID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -468,7 +434,6 @@
           <EntitySet Name="FinancialReports" EntityType="Self.FinancialReports" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Projects" EntityType="Self.Projects" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProjectStages" EntityType="Self.ProjectStages" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="ProjectStageUsers" EntityType="Self.ProjectStageUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Requests" EntityType="Self.Requests" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Statuses" EntityType="Self.Statuses" Schema="dbo" store:Type="Tables" />
@@ -511,17 +476,9 @@
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ProjectStages" EntitySet="ProjectStages" />
           </AssociationSet>
-          <AssociationSet Name="FK__ProjectSt__Stage__17036CC0" Association="Self.FK__ProjectSt__Stage__17036CC0">
-            <End Role="ProjectStages" EntitySet="ProjectStages" />
-            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
-          </AssociationSet>
           <AssociationSet Name="FK__ProjectSt__Statu__1332DBDC" Association="Self.FK__ProjectSt__Statu__1332DBDC">
             <End Role="Statuses" EntitySet="Statuses" />
             <End Role="ProjectStages" EntitySet="ProjectStages" />
-          </AssociationSet>
-          <AssociationSet Name="FK__ProjectSt__UserI__17F790F9" Association="Self.FK__ProjectSt__UserI__17F790F9">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
           </AssociationSet>
           <AssociationSet Name="FK__Requests__Status__04E4BC85" Association="Self.FK__Requests__Status__04E4BC85">
             <End Role="Statuses" EntitySet="Statuses" />
@@ -614,7 +571,7 @@
           <Property Name="ProjectID" Type="Int32" Nullable="false" />
           <Property Name="ReportType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="ReportDate" Type="DateTime" Precision="3" />
-          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__Financial__Proje__2BFE89A6" FromRole="FinancialReports" ToRole="Projects" />
         </EntityType>
         <EntityType Name="Projects">
@@ -646,19 +603,8 @@
           <Property Name="EndDate" Type="DateTime" Precision="3" />
           <Property Name="StatusID" Type="Int32" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__ProjectSt__Proje__123EB7A3" FromRole="ProjectStages" ToRole="Projects" />
-          <NavigationProperty Name="ProjectStageUsers" Relationship="Self.FK__ProjectSt__Stage__17036CC0" FromRole="ProjectStages" ToRole="ProjectStageUsers" />
           <NavigationProperty Name="Statuses" Relationship="Self.FK__ProjectSt__Statu__1332DBDC" FromRole="ProjectStages" ToRole="Statuses" />
           <NavigationProperty Name="Tasks" Relationship="Self.FK__Tasks__StageID__1AD3FDA4" FromRole="ProjectStages" ToRole="Tasks" />
-        </EntityType>
-        <EntityType Name="ProjectStageUsers">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StageID" Type="Int32" Nullable="false" />
-          <Property Name="UserID" Type="Int32" />
-          <NavigationProperty Name="ProjectStages" Relationship="Self.FK__ProjectSt__Stage__17036CC0" FromRole="ProjectStageUsers" ToRole="ProjectStages" />
-          <NavigationProperty Name="Users" Relationship="Self.FK__ProjectSt__UserI__17F790F9" FromRole="ProjectStageUsers" ToRole="Users" />
         </EntityType>
         <EntityType Name="Requests">
           <Key>
@@ -771,7 +717,6 @@
           <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="BudgetTransactions" Relationship="Self.FK__BudgetTra__Recor__395884C4" FromRole="Users" ToRole="BudgetTransactions" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__Projects__Projec__0B91BA14" FromRole="Users" ToRole="Projects" />
-          <NavigationProperty Name="ProjectStageUsers" Relationship="Self.FK__ProjectSt__UserI__17F790F9" FromRole="Users" ToRole="ProjectStageUsers" />
           <NavigationProperty Name="Requests" Relationship="Self.FK__Requests__UserID__03F0984C" FromRole="Users" ToRole="Requests" />
           <NavigationProperty Name="TaskReports" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="Users" ToRole="TaskReports" />
           <NavigationProperty Name="TaskUsers" Relationship="Self.FK__TaskUsers__UserI__25518C17" FromRole="Users" ToRole="TaskUsers" />
@@ -893,20 +838,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__ProjectSt__Stage__17036CC0">
-          <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ProjectStages">
-              <PropertyRef Name="StageID" />
-            </Principal>
-            <Dependent Role="ProjectStageUsers">
-              <PropertyRef Name="StageID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__ProjectSt__Statu__1332DBDC">
           <End Role="Statuses" Type="Self.Statuses" Multiplicity="0..1" />
           <End Role="ProjectStages" Type="Self.ProjectStages" Multiplicity="*" />
@@ -930,18 +861,6 @@
             </Principal>
             <Dependent Role="Tasks">
               <PropertyRef Name="StageID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__ProjectSt__UserI__17F790F9">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
-          <End Role="ProjectStageUsers" Type="Self.ProjectStageUsers" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserID" />
-            </Principal>
-            <Dependent Role="ProjectStageUsers">
-              <PropertyRef Name="UserID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1080,7 +999,6 @@
           <EntitySet Name="FinancialReports" EntityType="Self.FinancialReports" />
           <EntitySet Name="Projects" EntityType="Self.Projects" />
           <EntitySet Name="ProjectStages" EntityType="Self.ProjectStages" />
-          <EntitySet Name="ProjectStageUsers" EntityType="Self.ProjectStageUsers" />
           <EntitySet Name="Requests" EntityType="Self.Requests" />
           <EntitySet Name="Roles" EntityType="Self.Roles" />
           <EntitySet Name="Statuses" EntityType="Self.Statuses" />
@@ -1123,10 +1041,6 @@
             <End Role="Projects" EntitySet="Projects" />
             <End Role="ProjectStages" EntitySet="ProjectStages" />
           </AssociationSet>
-          <AssociationSet Name="FK__ProjectSt__Stage__17036CC0" Association="Self.FK__ProjectSt__Stage__17036CC0">
-            <End Role="ProjectStages" EntitySet="ProjectStages" />
-            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
-          </AssociationSet>
           <AssociationSet Name="FK__ProjectSt__Statu__1332DBDC" Association="Self.FK__ProjectSt__Statu__1332DBDC">
             <End Role="Statuses" EntitySet="Statuses" />
             <End Role="ProjectStages" EntitySet="ProjectStages" />
@@ -1134,10 +1048,6 @@
           <AssociationSet Name="FK__Tasks__StageID__1AD3FDA4" Association="Self.FK__Tasks__StageID__1AD3FDA4">
             <End Role="ProjectStages" EntitySet="ProjectStages" />
             <End Role="Tasks" EntitySet="Tasks" />
-          </AssociationSet>
-          <AssociationSet Name="FK__ProjectSt__UserI__17F790F9" Association="Self.FK__ProjectSt__UserI__17F790F9">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="ProjectStageUsers" EntitySet="ProjectStageUsers" />
           </AssociationSet>
           <AssociationSet Name="FK__Requests__Status__04E4BC85" Association="Self.FK__Requests__Status__04E4BC85">
             <End Role="Statuses" EntitySet="Statuses" />
@@ -1250,15 +1160,6 @@
                 <ScalarProperty Name="StartDate" ColumnName="StartDate" />
                 <ScalarProperty Name="EndDate" ColumnName="EndDate" />
                 <ScalarProperty Name="StatusID" ColumnName="StatusID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ProjectStageUsers">
-            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.ProjectStageUsers">
-              <MappingFragment StoreEntitySet="ProjectStageUsers">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="StageID" ColumnName="StageID" />
-                <ScalarProperty Name="UserID" ColumnName="UserID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

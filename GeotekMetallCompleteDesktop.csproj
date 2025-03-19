@@ -116,9 +116,6 @@
     <Compile Include="ProjectStages.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="ProjectStageUsers.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
     <Compile Include="requestManagementPage.xaml.cs">
       <DependentUpon>requestManagementPage.xaml</DependentUpon>
     </Compile>
@@ -127,6 +124,9 @@
     </Compile>
     <Compile Include="Roles.cs">
       <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SelectProjectРage.xaml.cs">
+      <DependentUpon>SelectProjectРage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SizeConverter.cs" />
     <Compile Include="Statuses.cs">
@@ -199,6 +199,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="requestManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SelectProjectРage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

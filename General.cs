@@ -41,7 +41,6 @@ namespace GeotekMetallCompleteDesktop
                 return sha256.ComputeHash(Encoding.UTF8.GetBytes(_encryptionKey));
             }
         }
-
         public static string HashPassword(string password)
         {
             byte[] iv = new byte[16];
@@ -70,7 +69,6 @@ namespace GeotekMetallCompleteDesktop
 
             return Convert.ToBase64String(array);
         }
-
         public static string DecryptString(string cipherText)
         {
             byte[] iv = new byte[16];
@@ -95,6 +93,10 @@ namespace GeotekMetallCompleteDesktop
                 }
             }
         }
+
+
+
+
 
     }
 }

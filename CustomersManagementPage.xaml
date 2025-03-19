@@ -5,10 +5,36 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="CustomersManagementPage">
+      d:DesignHeight="500" d:DesignWidth="700" 
+      Title="управление клиентами">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-    <Grid>
-        
+        <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Width="700" Grid.Row="0">
+            <TextBox x:Name="SearchTextBox" Tag="Поиск" Visibility="Collapsed"  Text="Поиск" 
+              Margin="0,0,0,-10" Width="250"  TextChanged="SearchTextBox_TextChanged"/>
+            <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
+                   Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListView x:Name="CustomersDataGrid" MouseDoubleClick="CustomersDataGrid_SelectionChanged"  
+                   Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}"/>
+                            <GridViewColumn Header="Имя" DisplayMemberBinding="{Binding FirstName}"/>
+                            <GridViewColumn Header="Фамилия" DisplayMemberBinding="{Binding LastName}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+
+
+        </Grid>
     </Grid>
 </Page>

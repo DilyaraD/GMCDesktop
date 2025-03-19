@@ -17,7 +17,6 @@ namespace GeotekMetallCompleteDesktop
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ProjectStages()
         {
-            this.ProjectStageUsers = new HashSet<ProjectStageUsers>();
             this.Tasks = new HashSet<Tasks>();
         }
     
@@ -30,8 +29,6 @@ namespace GeotekMetallCompleteDesktop
         public Nullable<int> StatusID { get; set; }
     
         public virtual Projects Projects { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectStageUsers> ProjectStageUsers { get; set; }
         public virtual Statuses Statuses { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Tasks> Tasks { get; set; }

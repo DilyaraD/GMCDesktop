@@ -292,7 +292,7 @@ namespace GeotekMetallCompleteDesktop
                     }
                 }
             }
-
+            ReasonTextBox.Text = string.Empty;
         }
 
         private void CloseAllPanels()
@@ -315,6 +315,7 @@ namespace GeotekMetallCompleteDesktop
         {
             CloseAllPanels();
             RequestDetailsStackPanel.Visibility = Visibility.Visible;
+            ReasonTextBox.Text= string.Empty;
         }
 
         private void CreateProjectButton_Click(object sender, RoutedEventArgs e)

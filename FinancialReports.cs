@@ -18,7 +18,7 @@ namespace GeotekMetallCompleteDesktop
         public int ProjectID { get; set; }
         public string ReportType { get; set; }
         public Nullable<System.DateTime> ReportDate { get; set; }
-        public string FilePath { get; set; }
+        public byte[] FilePath { get; set; }
     
         public virtual Projects Projects { get; set; }
     }

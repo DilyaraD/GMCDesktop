@@ -19,7 +19,6 @@ namespace GeotekMetallCompleteDesktop
         {
             this.BudgetTransactions = new HashSet<BudgetTransactions>();
             this.Projects = new HashSet<Projects>();
-            this.ProjectStageUsers = new HashSet<ProjectStageUsers>();
             this.Requests = new HashSet<Requests>();
             this.TaskReports = new HashSet<TaskReports>();
             this.TaskUsers = new HashSet<TaskUsers>();
@@ -38,8 +37,6 @@ namespace GeotekMetallCompleteDesktop
         public virtual ICollection<BudgetTransactions> BudgetTransactions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Projects> Projects { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProjectStageUsers> ProjectStageUsers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Requests> Requests { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
