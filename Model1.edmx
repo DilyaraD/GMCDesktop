@@ -12,7 +12,7 @@
           <Property Name="ActID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectID" Type="int" Nullable="false" />
           <Property Name="ActDate" Type="datetime" />
-          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+          <Property Name="FilePath" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="BudgetTransactions">
           <Key>
@@ -32,7 +32,8 @@
           <Property Name="ContractID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProjectID" Type="int" Nullable="false" />
           <Property Name="ContractDate" Type="datetime" />
-          <Property Name="FilePath" Type="nvarchar" MaxLength="255" />
+          <Property Name="FilePath" Type="varbinary(max)" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="FinancialReports">
           <Key>
@@ -115,10 +116,10 @@
           <Property Name="ReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TaskID" Type="int" Nullable="false" />
           <Property Name="UploadedBy" Type="int" />
-          <Property Name="FilePath" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="UploadDate" Type="datetime" Nullable="false" />
+          <Property Name="FilePath" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="Tasks">
           <Key>
@@ -537,7 +538,7 @@
           <Property Name="ActID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ProjectID" Type="Int32" Nullable="false" />
           <Property Name="ActDate" Type="DateTime" Precision="3" />
-          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__ActsOfWor__Proje__2EDAF651" FromRole="ActsOfWork" ToRole="Projects" />
         </EntityType>
         <EntityType Name="BudgetTransactions">
@@ -560,7 +561,8 @@
           <Property Name="ContractID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ProjectID" Type="Int32" Nullable="false" />
           <Property Name="ContractDate" Type="DateTime" Precision="3" />
-          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__Contracts__Proje__31B762FC" FromRole="Contracts" ToRole="Projects" />
         </EntityType>
         <EntityType Name="FinancialReports">
@@ -663,10 +665,10 @@
           <Property Name="ReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TaskID" Type="Int32" Nullable="false" />
           <Property Name="UploadedBy" Type="Int32" />
-          <Property Name="FilePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="UploadDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="Tasks" Relationship="Self.FK__TaskRepor__TaskI__282DF8C2" FromRole="TaskReports" ToRole="Tasks" />
           <NavigationProperty Name="Users" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="TaskReports" ToRole="Users" />
         </EntityType>
@@ -1125,6 +1127,7 @@
                 <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
                 <ScalarProperty Name="ContractDate" ColumnName="ContractDate" />
                 <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1215,10 +1218,10 @@
                 <ScalarProperty Name="ReportID" ColumnName="ReportID" />
                 <ScalarProperty Name="TaskID" ColumnName="TaskID" />
                 <ScalarProperty Name="UploadedBy" ColumnName="UploadedBy" />
-                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
                 <ScalarProperty Name="FileType" ColumnName="FileType" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="UploadDate" ColumnName="UploadDate" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

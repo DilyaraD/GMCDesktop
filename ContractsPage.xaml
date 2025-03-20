@@ -1,0 +1,52 @@
+﻿<Page x:Class="GeotekMetallCompleteDesktop.ContractsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
+      mc:Ignorable="d" 
+      d:DesignHeight="500" d:DesignWidth="700" 
+      Title="Управление договорами">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Кнопки управления -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <Button Content="Добавить договор" Click="AddContractButton_Click" Margin="0,0,10,0" />
+            <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
+            <Button Content="Сбросить проект" Click="ResetProjectButton_Click" />
+        </StackPanel>
+
+        <!-- Список договоров -->
+        <ListView x:Name="ContractsListView" Grid.Row="1" Margin="10">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ContractID}" Width="50" />
+                    <GridViewColumn Header="Дата договора" DisplayMemberBinding="{Binding ContractDate, StringFormat={}{0:dd.MM.yyyy}}" Width="100" />
+                    <GridViewColumn Header="Тип файла" DisplayMemberBinding="{Binding FileType}" Width="100" />
+                    <GridViewColumn Header="Действия" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Скачать" Click="DownloadContractButton_Click" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <!-- Панель добавления договора -->
+        <StackPanel x:Name="AddContractPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
+            <Label Content="Выбранный проект:" />
+            <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
+            <Label Content="Выбранный файл:" />
+            <TextBlock x:Name="SelectedFileTextBlock" Margin="0,0,0,10" />
+            <Button Content="Выбрать файл" Click="SelectFileButton_Click" />
+            <Button Content="Сохранить" Click="SaveContractButton_Click" Margin="0,10,0,0" />
+            <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
+        </StackPanel>
+    </Grid>
+</Page>

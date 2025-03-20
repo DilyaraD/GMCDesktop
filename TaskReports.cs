@@ -17,10 +17,10 @@ namespace GeotekMetallCompleteDesktop
         public int ReportID { get; set; }
         public int TaskID { get; set; }
         public Nullable<int> UploadedBy { get; set; }
-        public string FilePath { get; set; }
         public string FileType { get; set; }
         public string Description { get; set; }
         public System.DateTime UploadDate { get; set; }
+        public byte[] FilePath { get; set; }
     
         public virtual Tasks Tasks { get; set; }
         public virtual Users Users { get; set; }

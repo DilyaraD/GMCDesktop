@@ -22,6 +22,7 @@
             <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_CustomersManagementPage_Click">клиенты</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>
         </StackPanel>
 
         <Border Grid.Column="1">

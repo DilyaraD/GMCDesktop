@@ -21,6 +21,45 @@ namespace GeotekMetallCompleteDesktop
         {
             InitializeComponent();
             _user = user;
+            name.Content = user.Login;
+            ContentName.Text = "Вы вошли в аккаунт, " + _user.FirstName + "!\nВыберите кнопку перехода.";
+        }
+
+        private void Button_BudgetPage_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Управление бюджетом проектов";
+            ContentFrame.Navigate(new BudgetPage(_user));
+        }
+
+        private void Button_ActsOfWorkPage_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Управление актами выполненных работ";
+            ContentFrame.Navigate(new ActsOfWorkPage(_user));
+        }
+
+        private void Button_MyDataPage_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Мои данные";
+            ContentFrame.Navigate(new MyDataPage(_user));
+        }
+
+        private void Button_ContractsPage_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Управление проектами";
+            ContentFrame.Navigate(new ContractsPage(_user));
+        }
+
+        private void Button_FinanceManagementPage_Click(object sender, RoutedEventArgs e)
+        {
+            ContentName.Text = "Управление финансами";
+            ContentFrame.Navigate(new FinanceManagementPage(_user));
+        }
+
+        private void Button_Exit_Click(object sender, RoutedEventArgs e)
+        {
+            var ex = new Authorization();
+            ex.Show();
+            this.Close();            
         }
     }
 }

@@ -16,12 +16,12 @@
             <Image Source="img/llogo.png" Margin="0,100,0,20"/>
             <Label x:Name="role" Style="{StaticResource LabelStyle}">Бухгалтер</Label>
             <Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
-            <!--<Button Style="{StaticResource ButtonStyle}" Click="Button_UserManagement_Click">управление пользователями</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_RequestsManagement_Click">заявки</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_ProjectsManagementPage_Click">проекты</Button>-->
-            <!--<Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
-            --><!--<Button Style="{StaticResource ButtonStyle}" Click="Button_CustomersManagementPage_Click">клиенты</Button>--><!--
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>-->
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_BudgetPage_Click">бюджет</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_ActsOfWorkPage_Click">акты выполненных работ</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_ContractsPage_Click">договора</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>
         </StackPanel>
 
         <Border Grid.Column="1">

@@ -60,5 +60,12 @@ namespace GeotekMetallCompleteDesktop
             ContentName.Text = "Клиенты";
             ContentFrame.Navigate(new CustomersManagementPage(_user));
         }
+
+        private void Button_Exit_Click(object sender, RoutedEventArgs e)
+        {
+            var ex = new Authorization();
+            ex.Show();
+            this.Close();
+        }
     }
 }

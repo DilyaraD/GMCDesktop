@@ -17,7 +17,7 @@ namespace GeotekMetallCompleteDesktop
         private List<Requests> _requests;
         private Requests _selectedRequest;
         private List<WorkTypes> _workTypes;
-        private List<RequestViewModel> _requestViewModels;
+        //private List<RequestViewModel> _requestViewModels;
         private bool _isApproving = false;
         private readonly GeotekMetallCompleteEntities1 _context;
 

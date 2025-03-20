@@ -17,7 +17,7 @@ namespace GeotekMetallCompleteDesktop
         public int ActID { get; set; }
         public int ProjectID { get; set; }
         public Nullable<System.DateTime> ActDate { get; set; }
-        public string FilePath { get; set; }
+        public byte[] FilePath { get; set; }
     
         public virtual Projects Projects { get; set; }
     }
