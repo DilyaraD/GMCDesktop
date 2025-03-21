@@ -5,10 +5,48 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="BudgetPage">
+      d:DesignHeight="450" d:DesignWidth="700"
+      Title="Управление бюджетом">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-    <Grid>
-        
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <Button Content="Добавить транзакцию" Click="AddTransactionButton_Click" Margin="0,0,10,0" />
+            <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
+            <Button Content="Сбросить проект" Click="ResetProjectButton_Click" />
+        </StackPanel>
+
+        <ListView x:Name="TransactionsListView" Grid.Row="1" Margin="10">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding TransactionID}" Width="50" />
+                    <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding TransactionDate, StringFormat=dd.MM.yyyy}" Width="100" />
+                    <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="100" />
+                    <GridViewColumn Header="Описание" DisplayMemberBinding="{Binding Description}" Width="200" />
+                    <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel x:Name="AddTransactionPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
+            <TextBlock Text="Добавление транзакции" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+
+            <TextBlock Text="Выбранный проект:" />
+            <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
+            <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
+
+            <TextBlock Text="Сумма:" />
+            <TextBox x:Name="AmountTextBox" Margin="0,5,0,4" 
+         PreviewTextInput="AmountTextBox_PreviewTextInput" 
+         PreviewKeyDown="AmountTextBox_PreviewKeyDown"  />
+            <TextBlock Text="Описание:" />
+            <TextBox x:Name="DescriptionTextBox" Margin="0,5,0,4" />
+
+            <Button Content="Сохранить" Click="SaveTransactionButton_Click" Margin="0,10,0,0" />
+            <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
+        </StackPanel>
     </Grid>
 </Page>
