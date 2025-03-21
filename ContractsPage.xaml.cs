@@ -40,7 +40,7 @@ namespace GeotekMetallCompleteDesktop
             if (selectProjectWindow.ShowDialog() == true)
             {
                 _selectedProject = selectProjectWindow.SelectedProject;
-                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName; 
+                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
                 ContractsListView.Visibility = Visibility.Collapsed;
                 AddContractPanel.Visibility = Visibility.Visible;
             }
@@ -61,7 +61,18 @@ namespace GeotekMetallCompleteDesktop
         private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
         {
             _selectedProject = null;
-            ContractsListView.ItemsSource = _contracts; 
+            ContractsListView.ItemsSource = _contracts;
+        }
+
+        private void ChangeProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var projects = _db.Projects.ToList();
+            var selectProjectWindow = new SelectProjectWindow(projects);
+            if (selectProjectWindow.ShowDialog() == true)
+            {
+                _selectedProject = selectProjectWindow.SelectedProject;
+                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
+            }
         }
 
         private void DownloadContractButton_Click(object sender, RoutedEventArgs e)
@@ -88,9 +99,9 @@ namespace GeotekMetallCompleteDesktop
             if (openFileDialog.ShowDialog() == true)
             {
                 _selectedFile = File.ReadAllBytes(openFileDialog.FileName);
-                _selectedFileType = Path.GetExtension(openFileDialog.FileName).TrimStart('.'); 
-                _selectedFileName = Path.GetFileName(openFileDialog.FileName); 
-                SelectedFileTextBlock.Text = _selectedFileName; 
+                _selectedFileType = Path.GetExtension(openFileDialog.FileName).TrimStart('.');
+                _selectedFileName = Path.GetFileName(openFileDialog.FileName);
+                SelectedFileTextBlock.Text = _selectedFileName;
             }
         }
 
@@ -104,10 +115,10 @@ namespace GeotekMetallCompleteDesktop
 
             var newContract = new Contracts
             {
-                ProjectID = _selectedProject.ProjectID, 
+                ProjectID = _selectedProject.ProjectID,
                 ContractDate = DateTime.Now,
                 FilePath = _selectedFile,
-                FileType = _selectedFileType 
+                FileType = _selectedFileType
             };
 
             _db.Contracts.Add(newContract);

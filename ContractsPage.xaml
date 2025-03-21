@@ -42,6 +42,7 @@
         <StackPanel x:Name="AddContractPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
             <Label Content="Выбранный проект:" />
             <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
+            <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
             <Label Content="Выбранный файл:" />
             <TextBlock x:Name="SelectedFileTextBlock" Margin="0,0,0,10" />
             <Button Content="Выбрать файл" Click="SelectFileButton_Click" />

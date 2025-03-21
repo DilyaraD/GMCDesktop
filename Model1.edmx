@@ -13,6 +13,7 @@
           <Property Name="ProjectID" Type="int" Nullable="false" />
           <Property Name="ActDate" Type="datetime" />
           <Property Name="FilePath" Type="varbinary(max)" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="BudgetTransactions">
           <Key>
@@ -44,6 +45,7 @@
           <Property Name="ReportType" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="ReportDate" Type="datetime" />
           <Property Name="FilePath" Type="varbinary(max)" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Projects">
           <Key>
@@ -539,6 +541,7 @@
           <Property Name="ProjectID" Type="Int32" Nullable="false" />
           <Property Name="ActDate" Type="DateTime" Precision="3" />
           <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__ActsOfWor__Proje__2EDAF651" FromRole="ActsOfWork" ToRole="Projects" />
         </EntityType>
         <EntityType Name="BudgetTransactions">
@@ -574,6 +577,7 @@
           <Property Name="ReportType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="ReportDate" Type="DateTime" Precision="3" />
           <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__Financial__Proje__2BFE89A6" FromRole="FinancialReports" ToRole="Projects" />
         </EntityType>
         <EntityType Name="Projects">
@@ -1105,6 +1109,7 @@
                 <ScalarProperty Name="ProjectID" ColumnName="ProjectID" />
                 <ScalarProperty Name="ActDate" ColumnName="ActDate" />
                 <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1139,6 +1144,7 @@
                 <ScalarProperty Name="ReportType" ColumnName="ReportType" />
                 <ScalarProperty Name="ReportDate" ColumnName="ReportDate" />
                 <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

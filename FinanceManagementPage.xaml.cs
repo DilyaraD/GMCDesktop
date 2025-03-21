@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -19,7 +12,8 @@ namespace GeotekMetallCompleteDesktop
     {
         public Users _user;
         private GeotekMetallCompleteEntities1 _db;
-        private byte[] _FilePath; 
+        private byte[] _FilePath;
+        private Projects _selectedProject;
 
         public FinanceManagementPage(Users user)
         {
@@ -40,13 +34,44 @@ namespace GeotekMetallCompleteDesktop
             AddReportStackPanel.Visibility = Visibility.Visible;
         }
 
+        private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var projects = _db.Projects.ToList();
+            var selectProjectWindow = new SelectProjectWindow(projects);
+            if (selectProjectWindow.ShowDialog() == true)
+            {
+                _selectedProject = selectProjectWindow.SelectedProject;
+                var filteredReports = _db.FinancialReports
+                    .Where(r => r.ProjectID == _selectedProject.ProjectID)
+                    .ToList();
+                FinancialReportsListView.ItemsSource = filteredReports;
+            }
+        }
+
+        private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedProject = null;
+            LoadFinancialReports(); // Сброс фильтрации
+        }
+
+        private void ChangeProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var projects = _db.Projects.ToList();
+            var selectProjectWindow = new SelectProjectWindow(projects);
+            if (selectProjectWindow.ShowDialog() == true)
+            {
+                _selectedProject = selectProjectWindow.SelectedProject;
+                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
+            }
+        }
+
         private void SelectFileButton_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            var openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                _FilePath = System.IO.File.ReadAllBytes(openFileDialog.FileName);
-                SelectedFilePathTextBlock.Text = System.IO.Path.GetFileName(openFileDialog.FileName);
+                _FilePath = File.ReadAllBytes(openFileDialog.FileName);
+                SelectedFilePathTextBlock.Text = Path.GetFileName(openFileDialog.FileName);
             }
         }
 
@@ -64,28 +89,26 @@ namespace GeotekMetallCompleteDesktop
                 return;
             }
 
-            var selectProjectWindow = new SelectProjectWindow(_db.Projects.ToList());
-            if (selectProjectWindow.ShowDialog() == true)
+            if (_selectedProject == null)
             {
-                var selectedProject = selectProjectWindow.SelectedProject;
-                if (selectedProject != null)
-                {
-                    var newReport = new FinancialReports
-                    {
-                        ProjectID = selectedProject.ProjectID,
-                        ReportType = ReportTypeTextBox.Text,
-                        ReportDate = DateTime.Now,
-                        FilePath = _FilePath
-                    };
-
-                    _db.FinancialReports.Add(newReport);
-                    _db.SaveChanges();
-
-                    LoadFinancialReports();
-
-                    BackButton_Click(null, null);
-                }
+                MessageBox.Show("Выберите проект.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+
+            var newReport = new FinancialReports
+            {
+                ProjectID = _selectedProject.ProjectID,
+                ReportType = ReportTypeTextBox.Text,
+                ReportDate = DateTime.Now,
+                FilePath = _FilePath,
+                FileType = Path.GetExtension(SelectedFilePathTextBlock.Text).TrimStart('.')
+            };
+
+            _db.FinancialReports.Add(newReport);
+            _db.SaveChanges();
+
+            LoadFinancialReports();
+            BackButton_Click(null, null);
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -93,6 +116,8 @@ namespace GeotekMetallCompleteDesktop
             ReportTypeTextBox.Text = string.Empty;
             _FilePath = null;
             SelectedFilePathTextBlock.Text = string.Empty;
+            _selectedProject = null;
+            SelectedProjectTextBlock.Text = string.Empty;
 
             FinancialReportsListView.Visibility = Visibility.Visible;
             AddReportStackPanel.Visibility = Visibility.Collapsed;
@@ -105,15 +130,15 @@ namespace GeotekMetallCompleteDesktop
             {
                 try
                 {
-                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                    var saveFileDialog = new SaveFileDialog
                     {
-                        FileName = "report",
-                        Filter = "All Files (*.*)|*.*"
+                        FileName = $"report_{report.ReportID}.{report.FileType}",
+                        Filter = $"{report.FileType} files (*.{report.FileType})|*.{report.FileType}"
                     };
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        System.IO.File.WriteAllBytes(saveFileDialog.FileName, report.FilePath);
+                        File.WriteAllBytes(saveFileDialog.FileName, report.FilePath);
                         MessageBox.Show("Файл успешно скачан.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }

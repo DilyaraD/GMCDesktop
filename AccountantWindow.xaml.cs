@@ -45,7 +45,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void Button_ContractsPage_Click(object sender, RoutedEventArgs e)
         {
-            ContentName.Text = "Управление проектами";
+            ContentName.Text = "Управление договорами";
             ContentFrame.Navigate(new ContractsPage(_user));
         }
 
