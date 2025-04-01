@@ -12,7 +12,6 @@ namespace GeotekMetallCompleteDesktop
     {
         public Users _user;
         private GeotekMetallCompleteEntities1 _db;
-        //private byte[] _FilePath;
         private Projects _selectedProject;
 
         public FinanceManagementPage(Users user, int? projectId = null)
@@ -27,9 +26,11 @@ namespace GeotekMetallCompleteDesktop
                     .Where(r => r.ProjectID == projectId)
                     .ToList();
                 FinancialReportsListView.ItemsSource = filteredReports;
+                Filter.Visibility= Visibility.Collapsed;
             }
             else
             {
+                Filter.Visibility = Visibility.Visible;
                 LoadFinancialReports();
             }
         }
@@ -37,13 +38,11 @@ namespace GeotekMetallCompleteDesktop
         private void LoadFinancialReports()
         {
             FinancialReportsListView.ItemsSource = _db.FinancialReports.Include("Projects").ToList();
+            if (_selectedProject == null)
+            {
+                ResetProjectButton.Visibility = Visibility.Collapsed;
+            }
         }
-
-        //private void AddReportButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    FinancialReportsListView.Visibility = Visibility.Collapsed;
-        //    AddReportStackPanel.Visibility = Visibility.Visible;
-        //}
 
         private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -56,83 +55,15 @@ namespace GeotekMetallCompleteDesktop
                     .Where(r => r.ProjectID == _selectedProject.ProjectID)
                     .ToList();
                 FinancialReportsListView.ItemsSource = filteredReports;
+                ResetProjectButton.Visibility = Visibility.Visible;
             }
         }
 
         private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
         {
             _selectedProject = null;
-            LoadFinancialReports(); // Сброс фильтрации
+            LoadFinancialReports();
         }
-
-        //private void ChangeProjectButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var projects = _db.Projects.ToList();
-        //    var selectProjectWindow = new SelectProjectWindow(projects);
-        //    if (selectProjectWindow.ShowDialog() == true)
-        //    {
-        //        _selectedProject = selectProjectWindow.SelectedProject;
-        //        SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
-        //    }
-        //}
-
-        //private void SelectFileButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var openFileDialog = new OpenFileDialog();
-        //    if (openFileDialog.ShowDialog() == true)
-        //    {
-        //        _FilePath = File.ReadAllBytes(openFileDialog.FileName);
-        //        SelectedFilePathTextBlock.Text = Path.GetFileName(openFileDialog.FileName);
-        //    }
-        //}
-
-        //private void SaveReportButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (string.IsNullOrEmpty(ReportTypeTextBox.Text))
-        //    {
-        //        MessageBox.Show("Введите название отчета.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        return;
-        //    }
-
-        //    if (_FilePath == null || _FilePath.Length == 0)
-        //    {
-        //        MessageBox.Show("Выберите файл отчета.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        return;
-        //    }
-
-        //    if (_selectedProject == null)
-        //    {
-        //        MessageBox.Show("Выберите проект.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        return;
-        //    }
-
-        //    var newReport = new FinancialReports
-        //    {
-        //        ProjectID = _selectedProject.ProjectID,
-        //        ReportType = ReportTypeTextBox.Text,
-        //        ReportDate = DateTime.Now,
-        //        FilePath = _FilePath,
-        //        FileType = Path.GetExtension(SelectedFilePathTextBlock.Text).TrimStart('.')
-        //    };
-
-        //    _db.FinancialReports.Add(newReport);
-        //    _db.SaveChanges();
-
-        //    LoadFinancialReports();
-        //    BackButton_Click(null, null);
-        //}
-
-        //private void BackButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    ReportTypeTextBox.Text = string.Empty;
-        //    _FilePath = null;
-        //    SelectedFilePathTextBlock.Text = string.Empty;
-        //    _selectedProject = null;
-        //    SelectedProjectTextBlock.Text = string.Empty;
-
-        //    FinancialReportsListView.Visibility = Visibility.Visible;
-        //    AddReportStackPanel.Visibility = Visibility.Collapsed;
-        //}
 
         private void DownloadReportButton_Click(object sender, RoutedEventArgs e)
         {
@@ -143,7 +74,7 @@ namespace GeotekMetallCompleteDesktop
                 {
                     var saveFileDialog = new SaveFileDialog
                     {
-                        FileName = $"{report.ReportType}.{report.FileType}",
+                        FileName = $"{report.ReportType}_{report.ReportID}.{report.FileType}",
                         Filter = $"{report.FileType} files (*.{report.FileType})|*.{report.FileType}"
                     };
 
@@ -171,16 +102,13 @@ namespace GeotekMetallCompleteDesktop
             {
                 try
                 {
-                    // Создаем временный файл
                     string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.{report.FileType}");
                     File.WriteAllBytes(tempFilePath, report.FilePath);
 
-                    // Открываем окно просмотра
                     var viewWindow = new viewingDocument(tempFilePath, report.ReportType);
                     viewWindow.ShowDialog();
 
-                    // Удаляем временный файл
-                    try { File.Delete(tempFilePath); } catch { /* Игнорируем */ }
+                    try { File.Delete(tempFilePath); } catch { }
                 }
                 catch (Exception ex)
                 {
