@@ -5,57 +5,60 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="700" 
+      d:DesignHeight="700" d:DesignWidth="700" 
       Title="Управление финансовой отчетностью">
-    <Grid Background="White">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Grid Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!-- Кнопки управления -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
-            <Button Content="Добавить отчет" Click="AddReportButton_Click" Margin="0,0,10,0" />
-            <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
-            <Button Content="Сбросить проект" Click="ResetProjectButton_Click" />
-        </StackPanel>
+            <!-- Кнопки управления -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <Button Content="Добавить отчет" Click="AddReportButton_Click" Margin="0,0,10,0" />
+                <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
+                <Button Content="Сбросить проект" Click="ResetProjectButton_Click" Margin="0,0,10,0" />
+            </StackPanel>
+        <StackPanel Grid.Row="1" >
 
-        <!-- Список финансовых отчетов -->
-        <ListView x:Name="FinancialReportsListView" Grid.Row="1" Margin="10">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ReportID}" Width="50" />
-                    <GridViewColumn Header="Название отчета" DisplayMemberBinding="{Binding ReportType}" Width="150" />
-                    <GridViewColumn Header="Дата отчета" DisplayMemberBinding="{Binding ReportDate, StringFormat=dd.MM.yyyy}" Width="100" />
-                    <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
-                    <GridViewColumn Header="Действия" Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Скачать" Click="DownloadReportButton_Click" Tag="{Binding}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListView x:Name="FinancialReportsListView" Margin="10"
+                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ReportID}" Width="50" />
+                            <GridViewColumn Header="Название отчета" DisplayMemberBinding="{Binding ReportType}" Width="150" />
+                            <GridViewColumn Header="Дата отчета" DisplayMemberBinding="{Binding ReportDate, StringFormat=dd.MM.yyyy}" Width="100" />
+                            <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
+                            <GridViewColumn Header="Действия" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Скачать" Click="DownloadReportButton_Click" Tag="{Binding}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+            <!-- Панель добавления отчета -->
+            <StackPanel x:Name="AddReportStackPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
+                <TextBlock Text="Добавление финансового отчета" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
 
-        <!-- Панель добавления отчета -->
-        <StackPanel x:Name="AddReportStackPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
-            <TextBlock Text="Добавление финансового отчета" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+                <TextBlock Text="Название отчета:" />
+                <TextBox x:Name="ReportTypeTextBox" Margin="0,5,0,4" />
 
-            <TextBlock Text="Название отчета:" />
-            <TextBox x:Name="ReportTypeTextBox" Margin="0,5,0,4" />
+                <TextBlock Text="Файл отчета:" />
+                <Button x:Name="SelectFileButton" Content="Выбрать файл" Click="SelectFileButton_Click" Margin="0,5,0,5" />
+                <TextBlock x:Name="SelectedFilePathTextBlock" Margin="0,5,0,5" />
 
-            <TextBlock Text="Файл отчета:" />
-            <Button x:Name="SelectFileButton" Content="Выбрать файл" Click="SelectFileButton_Click" Margin="0,5,0,5" />
-            <TextBlock x:Name="SelectedFilePathTextBlock" Margin="0,5,0,5" />
+                <TextBlock Text="Выбранный проект:" />
+                <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,5,0,10" />
+                <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
 
-            <TextBlock Text="Выбранный проект:" />
-            <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,5,0,10" />
-            <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
-
-            <Button x:Name="SaveReportButton" Content="Сохранить" Click="SaveReportButton_Click" Margin="0,5,0,0" />
-            <Button x:Name="BackButton" Content="Назад" Click="BackButton_Click" Margin="0,5,0,0" />
+                <Button x:Name="SaveReportButton" Content="Сохранить" Click="SaveReportButton_Click" Margin="0,5,0,0" />
+                <Button x:Name="BackButton" Content="Назад" Click="BackButton_Click" Margin="0,5,0,0" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

@@ -21,15 +21,29 @@ namespace GeotekMetallCompleteDesktop
         private bool _isApproving = false;
         private readonly GeotekMetallCompleteEntities1 _context;
 
-        public requestManagementPage(Users user)
+        public requestManagementPage(Users user, RequestViewModel selectedRequest = null)
         {
             InitializeComponent();
             _context = new GeotekMetallCompleteEntities1();
             _user = user;
-            LoadData();
-            FilterByStatusComboBox.SelectedIndex = 0;
-            SortByDeadlineComboBox.SelectedIndex = 0;
-            FilterByWorkTypeComboBox.SelectedIndex = 0;
+
+            if (selectedRequest != null)
+            {
+                // Отображаем детали выбранной заявки
+                ShowRequestDetails(selectedRequest);
+                FilterStackPanel.Visibility = Visibility.Collapsed;
+                BackButton.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                // Загружаем данные, если заявка не передана
+                LoadData();
+                ApplyFilters();
+                BackToUserButton.Visibility = Visibility.Collapsed;
+                FilterByStatusComboBox.SelectedIndex = 0;
+                SortByDeadlineComboBox.SelectedIndex = 0;
+                FilterByWorkTypeComboBox.SelectedIndex = 0;
+            }
         }
 
         private void LoadData()
@@ -65,6 +79,52 @@ namespace GeotekMetallCompleteDesktop
                 }).ToList();
 
                 RequestList.ItemsSource = requestViewModels;
+            }
+        }
+
+        private void BackToUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.GoBack();
+        }
+
+        private void ShowRequestDetails(RequestViewModel selectedRequest)
+        {
+
+            var requestDetails = new List<KeyValuePair<string, string>>
+    {
+        new KeyValuePair<string, string>("Название объекта", selectedRequest.ObjectName),
+        new KeyValuePair<string, string>("Адрес", selectedRequest.Address),
+        new KeyValuePair<string, string>("Площадь", selectedRequest.Area.ToString()),
+        new KeyValuePair<string, string>("Этажность", selectedRequest.Floors?.ToString() ?? "Не указано"),
+        new KeyValuePair<string, string>("Тип объекта", selectedRequest.ObjectType),
+        new KeyValuePair<string, string>("Цель", selectedRequest.WorkTypeName),
+        new KeyValuePair<string, string>("Количество комнат", selectedRequest.RoomCount?.ToString() ?? "Не указано"),
+        new KeyValuePair<string, string>("Описание", selectedRequest.Description),
+        new KeyValuePair<string, string>("Дедлайн", selectedRequest.Deadline.ToString("dd.MM.yyyy")),
+        new KeyValuePair<string, string>("Статус", _context.Statuses.FirstOrDefault(s => s.StatusID == selectedRequest.StatusID)?.StatusName ?? "Не указано")
+    };
+
+            if ((selectedRequest.StatusID == 2 || selectedRequest.StatusID == 3) && !string.IsNullOrEmpty(selectedRequest.ApprovalReason))
+            {
+                string type = selectedRequest.StatusID == 2 ? "одобрения" : "отказа";
+                requestDetails.Add(new KeyValuePair<string, string>($"Причина {type}", selectedRequest.ApprovalReason));
+            }
+
+            RequestDetailsItemsControl.ItemsSource = requestDetails;
+
+            // Показываем панель с деталями заявки
+            RequestDetailsStackPanel.Visibility = Visibility.Visible;
+            RequestListStackPanel.Visibility = Visibility.Collapsed;
+
+            if (selectedRequest.StatusID == 1)
+            {
+                ApproveButton.Visibility = Visibility.Visible;
+                RejectButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ApproveButton.Visibility = Visibility.Collapsed;
+                RejectButton.Visibility = Visibility.Collapsed;
             }
         }
 

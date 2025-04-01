@@ -5,29 +5,33 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="700"
-      Title="управление проектами">
+      d:DesignHeight="700" d:DesignWidth="700"
+      Title="Управление проектами">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Панель фильтров и поиска -->
         <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Width="700" Grid.Row="0">
-            <ComboBox x:Name="SortByDeadlineComboBox" Width="200" Height="30"  Margin="10,0,0,-10" 
+            <ComboBox x:Name="SortByDeadlineComboBox" Width="200" Height="30" Margin="10,0,0,-10" 
                       SelectionChanged="SortByDeadlineComboBox_SelectionChanged">
-                <ComboBoxItem Content="Сортировка по дате" IsEnabled="False"/>
+                <ComboBoxItem Content="Сортировка по дате" IsSelected="True"/>
                 <ComboBoxItem Content="Ближайшие" />
                 <ComboBoxItem Content="Убывание" />
             </ComboBox>
-            <TextBox x:Name="SearchTextBox" Tag="Поиск по названию работы" Visibility="Collapsed"  Text="Поиск по названию работы" 
-                     Margin="10,0,0,-10" Width="250"  TextChanged="SearchTextBox_TextChanged"/>
-            <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
-                          Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
+            <TextBox x:Name="SearchTextBox" Tag="Поиск по названию работы" Visibility="Collapsed" 
+                     Text="Поиск по названию работы" Margin="10,0,0,-10" Width="250" 
+                     TextChanged="SearchTextBox_TextChanged"/>
+            <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}" 
+                          Width="100" Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
         </StackPanel>
 
+        <!-- Основное содержимое -->
         <Grid Grid.Row="1">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <!-- Список проектов -->
+            <ScrollViewer x:Name="ProjectsDataGrid2" VerticalScrollBarVisibility="Auto">
                 <ListView x:Name="ProjectsDataGrid" MouseDoubleClick="ProjectsDataGrid_SelectionChanged"  
                           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
                     <ListView.View>
@@ -36,15 +40,18 @@
                             <GridViewColumn Header="Название работы" DisplayMemberBinding="{Binding WorkName}"/>
                             <GridViewColumn Header="Дата начала" DisplayMemberBinding="{Binding ProjectStartDate, StringFormat=dd.MM.yyyy}" Width="100"/>
                             <GridViewColumn Header="Количество этапов" DisplayMemberBinding="{Binding StageCount}"/>
+                            <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding Status}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
             </ScrollViewer>
 
-
-
+            <!-- Детали проекта -->
             <StackPanel x:Name="ProjectDetailsStackPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
-                <TextBlock Text="Детали заявки" FontSize="26" FontWeight="Bold" Margin="0,0,0,10" />
+                <Button x:Name="BackToUserButton" Content="Назад к пользователю" Click="BackToUserButton_Click" Margin="0,10,0,5"/>
+                <TextBlock x:Name="ProjectDetailsTitle" Text="Детали проекта" FontSize="26" FontWeight="Bold" Margin="0,0,0,10" />
+
+                <!-- Информация о проекте -->
                 <ItemsControl x:Name="RequestDetailsItemsControl">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -60,61 +67,125 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- Кнопки этапов -->
-                <StackPanel x:Name="StageButtonsStackPanel" Orientation="Horizontal" Margin="0,10,0,0">
-                    <!-- Кнопки будут добавляться динамически в коде -->
+                <!-- Акты выполненных работ -->
+                <TextBlock x:Name="ActsOfWorkTitle" Text="Акты выполненных работ" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
+                <ItemsControl x:Name="ActsOfWorkItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <TextBlock Text="{Binding ActDate, StringFormat='Акт от {0:dd.MM.yyyy}'}" VerticalAlignment="Center"/>
+                                <Button Content="Скачать" Tag="{Binding}" Click="DownloadFileButton_Click" Margin="10,0,0,0" Padding="5,2"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Договоры -->
+                <TextBlock x:Name="ContractsTitle" Text="Договоры" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
+                <ItemsControl x:Name="ContractsItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <TextBlock Text="{Binding ContractDate, StringFormat='Договор от {0:dd.MM.yyyy}'}" VerticalAlignment="Center"/>
+                                <Button Content="Скачать" Tag="{Binding}" Click="DownloadFileButton_Click" Margin="10,0,0,0" Padding="5,2"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Список этапов -->
+                <StackPanel x:Name="StageButtonsStackPanel" Orientation="Horizontal" Margin="0,10,0,0"></StackPanel>
+
+                <!-- Панель добавления этапа -->
+                <StackPanel x:Name="AddStagePanel" Visibility="Collapsed" Margin="0,10,0,0">
+                    <TextBlock x:Name="ProjectDATETextBlock" />
+                    <TextBlock x:Name="StagesInfoTextBlock" Margin="10" TextWrapping="Wrap"/>
+                    <TextBlock Text="Добавить новый этап к проекту" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+                    <TextBlock Text="Описание этапа:" Margin="0,5,0,0" />
+                    <TextBox x:Name="StageDescriptionTextBox" Tag="Описание этапа" Margin="0,5,0,10" />
+                    <TextBlock Text="Дата начала этапа:" Margin="0,5,0,0" />
+                    <DatePicker x:Name="StageStartDatePicker" Margin="0,5,0,10" />
+                    <TextBlock Text="Дата окончания этапа:" Margin="0,5,0,0" />
+                    <DatePicker x:Name="StageEndDatePicker" Margin="0,5,0,10" />
+                    <Button x:Name="SaveStageButton" Content="Добавить" Click="SaveStageButton_Click" Margin="0,10,0,5" />
+                    <Button x:Name="CancelAddStageButton" Content="Отмена" Click="CancelAddStageButton_Click" Margin="0,5,0,10" />
                 </StackPanel>
 
-                <!-- Панель для отображения информации о выбранном этапе -->
+                <!-- Детали этапа -->
                 <StackPanel x:Name="StageDetailsStackPanel" Visibility="Collapsed" Margin="0,10,0,0">
-                    <TextBlock Text="Информация о этапе" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+                    <TextBlock x:Name="StageDetailsTitle" Text="Информация о этапе" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
                     <TextBlock x:Name="StageNameTextBlock" />
                     <TextBlock x:Name="StageStartDateTextBlock" />
                     <TextBlock x:Name="StageEndDateTextBlock" />
                     <TextBlock x:Name="StageStatusTextBlock" />
 
+                    <Button x:Name="AddTaskButton" Content="Добавить задачу" Click="AddTaskButton_Click" Margin="0,10,0,5" />
+
+                    <!-- Панель добавления задачи -->
+                    <StackPanel x:Name="AddTaskPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                        <TextBlock x:Name="StageDATETextBlock" />
+                        <TextBlock x:Name="StagesInfoTextBlock2" Margin="10" TextWrapping="Wrap"/>
+                        <TextBlock Text="Добавить задачу" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                        <TextBlock Text="Описание задачи:" Margin="0,5,0,0" />
+                        <TextBox x:Name="TaskDescriptionTextBox" Tag="Описание задачи" Margin="0,5,0,10" />
+                        <TextBlock Text="Дата готовности:" Margin="0,5,0,0" />
+                        <DatePicker x:Name="TaskDueDatePicker" Margin="0,5,0,10" />
+                        <Button x:Name="SaveTaskButton" Content="Добавить задачу" Click="SaveTaskButton_Click" Margin="0,10,0,5" />
+                        <Button x:Name="CancelAddTaskButton" Content="Отмена" Click="CancelAddTaskButton_Click" Margin="0,5,0,10" />
+                    </StackPanel>
+
                     <!-- Список задач -->
-                    <TextBlock Text="Задачи" FontSize="16" FontWeight="Bold" Margin="0,10,0,5" />
+                    <TextBlock x:Name="TasksTitle" Text="Задачи" FontSize="16" FontWeight="Bold" Margin="0,10,0,5" />
                     <ItemsControl x:Name="TasksItemsControl">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Content="{Binding TaskDescription}" Click="TaskButton_Click" Tag="{Binding}" 
-                            Background="LightGray" Margin="0,5,0,5" />
+                                        Background="LightGray" Margin="0,5,0,5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Список актов -->
-                    <TextBlock Text="Акты выполненных работ" FontSize="16" FontWeight="Bold" Margin="0,10,0,5" />
-                    <ItemsControl x:Name="ActsOfWorkItemsControl">
+                    <Button x:Name="CompleteStageButton" Content="Завершить этап" Click="CompleteStageButton_Click" Margin="0,5,0,10" />
+                    <Button x:Name="CancelStageButton" Content="Отменить этап" Click="CancelStageButton_Click" Margin="0,5,0,10" />
+                </StackPanel>
+
+                <StackPanel x:Name="TaskDetailsPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                    <TextBlock Text="Детали задачи" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock x:Name="TaskDescriptionText" Margin="0,5"/>
+                    <TextBlock x:Name="TaskDueDateText" Margin="0,5"/>
+                    <TextBlock x:Name="TaskStatusText" Margin="0,5"/>
+                    <TextBlock x:Name="TaskWorkersTitle" Text="Работники:" FontWeight="Bold" Margin="0,5"/>
+                    <ItemsControl x:Name="TaskWorkersItemsControl" Margin="10,0,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding ActDate, StringFormat='Акт от {0:dd.MM.yyyy}'}" />
+                                <TextBlock Margin="0,2" >
+                                    <Run Text="{Binding Users.FirstName}"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding Users.LastName}"/>          
+                                </TextBlock>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
-                    <!-- Список договоров -->
-                    <TextBlock Text="Договоры" FontSize="16" FontWeight="Bold" Margin="0,10,0,5" />
-                    <ItemsControl x:Name="ContractsItemsControl">
+                    <TextBlock x:Name="TaskReportsTitle" Text="Отчеты:" FontWeight="Bold" Margin="0,5"/>
+                    <ItemsControl x:Name="TaskReportsItemsControl" Margin="10,0,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding ContractDate, StringFormat='Договор от {0:dd.MM.yyyy}'}" />
+                                <TextBlock Text="{Binding Description}" Margin="0,2"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
-                    <!-- Кнопка добавления задачи -->
-                    <Button x:Name="AddTaskButton" Content="Добавить задачу" Click="AddTaskButton_Click" Margin="0,10,0,5" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button x:Name="CompleteTaskButton" Content="Выполнено" Click="CompleteTaskButton_Click" Margin="0,0,5,0"/>
+                        <Button x:Name="ResetTaskButton" Content="Сбросить" Click="ResetTaskButton_Click" Margin="0,0,5,0"/>
+                        <Button x:Name="CancelTaskButton" Content="Отменить" Click="CancelTaskButton_Click"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Кнопки управления -->
                 <Button x:Name="BackButton" Content="Назад" Click="BackButton_Click" Margin="0,10,0,5" />
                 <Button x:Name="AddStageButton" Content="Добавить этап" Click="AddStageButton_Click" Margin="0,5,0,5" />
                 <Button x:Name="CancelProjectButton" Content="Отменить проект" Click="CancelProjectButton_Click" Margin="0,5,0,10" />
-                <Button x:Name="CompleteStageButton" Content="Завершить этап" Click="CompleteStageButton_Click" Margin="0,5,0,10" />
             </StackPanel>
-
         </Grid>
     </Grid>
 </Page>

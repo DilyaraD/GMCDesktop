@@ -40,6 +40,8 @@ namespace GeotekMetallCompleteDesktop
             CustomersDataGrid.ItemsSource = _users;
         }
 
+
+
         private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             General.AddText(sender, e);
@@ -87,9 +89,108 @@ namespace GeotekMetallCompleteDesktop
             CustomersDataGrid.ItemsSource = filteredUsers;
         }
 
+        private void LoadUserProjects(Users user)
+        {
+            // Загружаем проекты, где UserID в Requests совпадает с UserID выбранного пользователя
+            var projects = _db.Projects
+                .Include("Requests") // Включаем связанные данные из Requests
+                .Where(p => p.Requests.UserID == user.UserID)
+                .ToList();
+
+            // Отладочный вывод
+            Console.WriteLine($"Найдено проектов: {projects.Count}");
+
+            // Привязываем проекты к ListView
+            UserProjectsListView.ItemsSource = projects;
+        }
+
         private void CustomersDataGrid_SelectionChanged(object sender, MouseButtonEventArgs e)
         {
-            
+            Console.WriteLine("Событие выбора пользователя вызвано");
+            var selectedUser = CustomersDataGrid.SelectedItem as Users;
+            if (selectedUser != null)
+            {
+                // Скрываем список пользователей
+                CustomersDataGrid.Visibility = Visibility.Collapsed;
+                CustomersDataGrid2.Visibility = Visibility.Collapsed;
+                FilterStackPanel.Visibility = Visibility.Collapsed;
+
+                // Показываем информацию о пользователе
+                UserDetailsStackPanel.Visibility = Visibility.Visible;
+
+                // Заполняем информацию о пользователе
+                UserInfoTextBlock.Text = $"Логин: {selectedUser.Login}\nИмя: {selectedUser.FirstName}\nФамилия: {selectedUser.LastName}\nEmail: {selectedUser.Email}";
+
+                // Загружаем проекты пользователя
+                LoadUserProjects(selectedUser);
+
+                // Загружаем заявки пользователя
+                LoadUserRequests(selectedUser);
+            }
+        }
+        private void UserRequestsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selectedRequest = UserRequestsListView.SelectedItem as RequestViewModel;
+            if (selectedRequest != null)
+            {
+                // Переход на страницу управления заявками с передачей выбранной заявки
+                var requestManagementPage = new requestManagementPage(_user, selectedRequest);
+                NavigationService.Navigate(requestManagementPage);
+            }
+            else
+            {
+                MessageBox.Show("Заявка не выбрана или данные не привязаны.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UserProjectsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selectedProject = UserProjectsListView.SelectedItem as Projects;
+            if (selectedProject != null)
+            {
+                // Переход на страницу управления проектами
+                var projectsManagementPage = new ProjectsManagementPage(_user, selectedProject);
+                NavigationService.Navigate(projectsManagementPage);
+            }
+        }
+
+        private void LoadUserRequests(Users user)
+        {
+            // Загружаем заявки, где UserID совпадает с UserID выбранного пользователя
+            var requests = _db.Requests
+                .Include("WorkTypes") // Включаем связанные данные из WorkTypes
+                .Where(r => r.UserID == user.UserID)
+                .Select(r => new RequestViewModel
+                {
+                RequestID = r.RequestID,
+                UserID = r.UserID,
+                ObjectName = r.ObjectName,
+                Address = r.Address,
+                Area = r.Area,
+                Floors = r.Floors,
+                ObjectType = r.ObjectType,
+                RoomCount = r.RoomCount,
+                Description = r.Description,
+                Deadline = r.Deadline,
+                ApprovalReason = r.ApprovalReason,
+                StatusID = r.StatusID,
+                Request = r,
+                WorkTypeName = r.WorkTypes.WorkTypeName,
+            }).ToList();
+
+            // Отладочный вывод
+            Console.WriteLine($"Найдено заявок: {requests.Count}");
+
+            // Привязываем заявки к ListView
+            UserRequestsListView.ItemsSource = requests;
+        }
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Возврат к списку пользователей
+            UserDetailsStackPanel.Visibility = Visibility.Collapsed;
+            CustomersDataGrid.Visibility = Visibility.Visible;
+            CustomersDataGrid2.Visibility = Visibility.Visible;
+            FilterStackPanel.Visibility = Visibility.Visible;
         }
     }
 }

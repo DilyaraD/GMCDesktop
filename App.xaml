@@ -96,6 +96,16 @@
             <Setter Property="Margin" Value="15,15,15,5"/>
         </Style>
 
+        <Style TargetType="{x:Type Button}" x:Key="ButtStyle">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="FontFamily" Value="Leelawadee"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,15,0,10"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="15,15,15,5"/>
+        </Style>
+
         <Style TargetType="{x:Type TextBlock}" x:Key="TextBoxStyle">
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Height" Value="20"/>

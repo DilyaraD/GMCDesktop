@@ -13,8 +13,8 @@ namespace GeotekMetallCompleteDesktop
         public Users _user;
         private List<ActsOfWork> _acts;
         private byte[] _selectedFile;
-        private string _selectedFileType; // Тип файла (расширение)
-        private string _selectedFileName; // Имя выбранного файла
+        private string _selectedFileType;
+        private string _selectedFileName;
         private Projects _selectedProject;
 
         private GeotekMetallCompleteEntities1 _db;

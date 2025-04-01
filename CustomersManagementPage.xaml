@@ -5,36 +5,74 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="700" 
+      d:DesignHeight="700" d:DesignWidth="700" 
       Title="управление клиентами">
-    <Grid Background="White">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <!--<ScrollViewer VerticalScrollBarVisibility="Auto" Height="670">-->
+        <Grid Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Width="700" Grid.Row="0">
-            <TextBox x:Name="SearchTextBox" Tag="Поиск" Visibility="Collapsed"  Text="Поиск" 
-              Margin="0,0,0,-10" Width="250"  TextChanged="SearchTextBox_TextChanged"/>
-            <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
-                   Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
-        </StackPanel>
+            <!-- Фильтры и поиск -->
+            <StackPanel x:Name="FilterStackPanel" Orientation="Horizontal" Width="700" Grid.Row="0">
+                <TextBox x:Name="SearchTextBox" Tag="Поиск" Visibility="Collapsed"  Text="Поиск" 
+                          Margin="0,0,0,-10" Width="250"  TextChanged="SearchTextBox_TextChanged"/>
+                <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
+                              Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
+            </StackPanel>
 
-        <Grid Grid.Row="1">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="CustomersDataGrid" MouseDoubleClick="CustomersDataGrid_SelectionChanged"  
-                   Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}"/>
-                            <GridViewColumn Header="Имя" DisplayMemberBinding="{Binding FirstName}"/>
-                            <GridViewColumn Header="Фамилия" DisplayMemberBinding="{Binding LastName}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </ScrollViewer>
+            <!-- Основной контент -->
+            <Grid Grid.Row="1">
+            <ScrollViewer x:Name="CustomersDataGrid2" VerticalScrollBarVisibility="Auto">
+                    <ListView x:Name="CustomersDataGrid" MouseDoubleClick="CustomersDataGrid_SelectionChanged"  
+                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}"/>
+                                <GridViewColumn Header="Имя" DisplayMemberBinding="{Binding FirstName}"/>
+                                <GridViewColumn Header="Фамилия" DisplayMemberBinding="{Binding LastName}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </ScrollViewer>
+                <!-- Панель с информацией о пользователе и его проектах -->
 
+                <StackPanel x:Name="UserDetailsStackPanel" Visibility="Collapsed"  Margin="10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="650">
+                        <StackPanel>
+                            <TextBlock Text="Информация о пользователе" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="UserInfoTextBlock" Margin="0,0,0,10"/>
 
+                            <TextBlock Text="Проекты пользователя" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
+                            <ListView x:Name="UserProjectsListView" MouseDoubleClick="UserProjectsListView_MouseDoubleClick">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Название проекта" DisplayMemberBinding="{Binding Requests.ObjectName}"/>
+                                        <GridViewColumn Header="Дата начала" DisplayMemberBinding="{Binding ProjectStartDate, StringFormat=dd.MM.yyyy}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <TextBlock Text="Заявки пользователя" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
+                            <!-- Убрал внутренний ScrollViewer, так как теперь скролл на уровне страницы -->
+                            <ListView x:Name="UserRequestsListView" MouseDoubleClick="UserRequestsListView_MouseDoubleClick">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Название объекта" DisplayMemberBinding="{Binding ObjectName}"/>
+                                        <GridViewColumn Header="Адрес" DisplayMemberBinding="{Binding Address}" Width="230"/>
+                                        <GridViewColumn Header="Цель" DisplayMemberBinding="{Binding WorkTypeName}" Width="240"/>
+                                        <GridViewColumn Header="Дедлайн" DisplayMemberBinding="{Binding Deadline, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="BackButton" Content="Назад" Click="BackButton_Click" Margin="0,10,0,0"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    <!--</ScrollViewer>-->
 </Page>

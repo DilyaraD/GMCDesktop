@@ -12,7 +12,7 @@ namespace GeotekMetallCompleteDesktop
         {
             if (value is double height)
             {
-                return height * 0.895;
+                return 610;
             }
             return value;
         }

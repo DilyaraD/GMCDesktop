@@ -5,49 +5,52 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="700" 
+      d:DesignHeight="700" d:DesignWidth="700" 
       Title="Управление актами">
-    <Grid Background="White">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Grid Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!-- Кнопки управления -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
-            <Button Content="Добавить акт" Click="AddActButton_Click" Margin="0,0,10,0" />
-            <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
-            <Button Content="Сбросить проект" Click="ResetProjectButton_Click" />
-        </StackPanel>
+            <!-- Кнопки управления -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
+                <Button Content="Добавить акт" Click="AddActButton_Click" Margin="0,0,10,0" />
+                <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
+                <Button Content="Сбросить проект" Click="ResetProjectButton_Click" Margin="0,0,10,0"  />
+            </StackPanel>
+        <StackPanel Grid.Row="1" >
 
-        <!-- Список актов -->
-        <ListView x:Name="ActsListView" Grid.Row="1" Margin="10">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ActID}" Width="50" />
-                    <GridViewColumn Header="Дата акта" DisplayMemberBinding="{Binding ActDate, StringFormat={}{0:dd.MM.yyyy}}" Width="100" />
-                    <GridViewColumn Header="Тип файла" DisplayMemberBinding="{Binding FileType}" Width="100" />
-                    <GridViewColumn Header="Действия" Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Скачать" Click="DownloadActButton_Click" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ListView x:Name="ActsListView"  
+                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ActID}" Width="50" />
+                        <GridViewColumn Header="Дата акта" DisplayMemberBinding="{Binding ActDate, StringFormat={}{0:dd.MM.yyyy}}" Width="100" />
+                        <GridViewColumn Header="Тип файла" DisplayMemberBinding="{Binding FileType}" Width="100" />
+                        <GridViewColumn Header="Действия" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Скачать" Click="DownloadActButton_Click" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            </ScrollViewer>
         <!-- Панель добавления акта -->
-        <StackPanel x:Name="AddActPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
-            <Label Content="Выбранный проект:" />
-            <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
-            <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
-            <Label Content="Выбранный файл:" />
-            <TextBlock x:Name="SelectedFileTextBlock" Margin="0,0,0,10" />
-            <Button Content="Выбрать файл" Click="SelectFileButton_Click" />
-            <Button Content="Сохранить" Click="SaveActButton_Click" Margin="0,10,0,0" />
-            <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
+            <StackPanel x:Name="AddActPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
+                <Label Content="Выбранный проект:" />
+                <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
+                <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
+                <Label Content="Выбранный файл:" />
+                <TextBlock x:Name="SelectedFileTextBlock" Margin="0,0,0,10" />
+                <Button Content="Выбрать файл" Click="SelectFileButton_Click" />
+                <Button Content="Сохранить" Click="SaveActButton_Click" Margin="0,10,0,0" />
+                <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

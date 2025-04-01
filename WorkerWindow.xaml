@@ -5,8 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
         mc:Ignorable="d"
-        Title="WorkerWindow" Height="450" Width="800">
+        Title="Окно рабочего" Height="800" Width="1000"  MaxHeight="800" MaxWidth="1200" 
+        WindowStartupLocation="CenterScreen" MinHeight="800" MinWidth="1000">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="menu" Style="{StaticResource StackPanelStyle}" Grid.Column="0">
+            <Image Source="img/llogo.png" Margin="0,100,0,20"/>
+            <Label x:Name="role" Style="{StaticResource LabelStyle}">Работник</Label>
+            <!--<Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_BudgetPage_Click">бюджет</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_ActsOfWorkPage_Click">акты выполненных работ</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_ContractsPage_Click">договора</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>-->
+        </StackPanel>
+
+        <Border Grid.Column="1">
+            <StackPanel>
+                <TextBlock x:Name="ContentName" Text="Заголовок новой страницы" Style="{StaticResource TextBlockStyle}" Margin="40,40,0,15"/>
+                <Frame x:Name="ContentFrame" NavigationUIVisibility="Hidden"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

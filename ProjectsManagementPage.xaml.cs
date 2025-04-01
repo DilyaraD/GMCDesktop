@@ -5,72 +5,164 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GeotekMetallCompleteDesktop
 {
     public partial class ProjectsManagementPage : Page
     {
         public Users _user;
-        private GeotekMetallCompleteEntities1 _db;
+        private readonly GeotekMetallCompleteEntities1 _db;
         private List<Projects> _projects;
         private List<ProjectViewModel> _projectViewModels;
         private Projects _selectedProject;
 
-        public ProjectsManagementPage(Users user)
-        {
+        public ProjectsManagementPage(Users user, Projects selectedProject = null)
+        {   
+            try
+            {
+                _db = new GeotekMetallCompleteEntities1();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка подключения к БД: {ex.Message}");
+                return;
+            }
             InitializeComponent();
-            _db = new GeotekMetallCompleteEntities1();
+            
             _user = user;
+            _selectedProject = selectedProject;
 
-            SearchTextBox.GotFocus += General.RemoveText;
-            SearchTextBox.LostFocus += SearchTextBox_LostFocus;
+            StageStartDatePicker.DisplayDateStart = DateTime.Today.AddDays(1);
+            StageEndDatePicker.DisplayDateStart = DateTime.Today.AddDays(1);
+            TaskDueDatePicker.DisplayDateStart = DateTime.Today.AddDays(1);
 
-            SortByDeadlineComboBox.SelectedIndex = 0; 
-            LoadProjects();
+            if (_selectedProject != null)
+            {
+                FilterStackPanel.Visibility = Visibility.Collapsed;
+                ProjectsDataGrid.Visibility = Visibility.Collapsed;
+                ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+                BackButton.Visibility = Visibility.Collapsed;
+
+                ShowProjectDetails();
+            }
+            else
+            {
+                SortByDeadlineComboBox.SelectedIndex = 0;
+                SearchTextBox.GotFocus += General.RemoveText;
+                SearchTextBox.LostFocus += SearchTextBox_LostFocus;
+                BackToUserButton.Visibility = Visibility.Collapsed;
+                LoadProjects();
+            }
         }
 
         private void LoadProjects()
         {
-            _projects = _db.Projects.Include("Requests").Include("ProjectStages").ToList();
-            _projectViewModels = _projects
-                .Select(p => new ProjectViewModel
-                {
-                    ProjectID = p.ProjectID,
-                    RequestID = p.RequestID,
-                    ProjectStartDate = p.ProjectStartDate,
-                    ProjectEndDate = p.ProjectEndDate,
-                    ProjectManagerID = p.ProjectManagerID,
-                    WorkName = p.Requests.WorkTypes?.WorkTypeName ?? "Не найдено",
-                    StageCount = p.ProjectStages?.Count ?? 0 
-                }).ToList();
+            if (_db == null)
+            {
+                MessageBox.Show("Ошибка: подключение к БД не инициализировано");
+                return;
+            }
 
-            ProjectsDataGrid.ItemsSource = _projectViewModels;
+            try
+            {
+                _projects = _db.Projects.Include("Requests")
+                                       .Include("ProjectStages")
+                                       .Include("ProjectStages.Tasks")
+                                       .ToList();
+
+                _projectViewModels = _projects
+                    .Select(p => new ProjectViewModel
+                    {
+                        ProjectID = p.ProjectID,
+                        RequestID = p.RequestID,
+                        ProjectStartDate = p.ProjectStartDate,
+                        ProjectEndDate = p.ProjectEndDate,
+                        ProjectManagerID = p.ProjectManagerID,
+                        WorkName = p.Requests.WorkTypes?.WorkTypeName ?? "Не найдено",
+                        StageCount = p.ProjectStages?.Count ?? 0,
+                        Status = GetProjectStatus(p) // Определяем статус проекта
+                    }).ToList();
+
+                ProjectsDataGrid.ItemsSource = _projectViewModels;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки проектов: {ex.Message}");
+                _projectViewModels = new List<ProjectViewModel>();
+            }
+        }
+
+        // Метод для определения статуса проекта
+        private string GetProjectStatus(Projects project)
+        {
+            if (project.ProjectStages == null || !project.ProjectStages.Any())
+                return "Новый";
+
+            // Проверяем, все ли этапы и задачи отменены
+            bool allCancelled = project.ProjectStages.All(s => s.StatusID == 5) &&
+                               project.ProjectStages.SelectMany(s => s.Tasks)
+                                                    .All(t => t.StatusID == 4);
+            if (allCancelled)
+                return "Закрыт";
+
+            // Проверяем, все ли этапы и задачи завершены
+            bool allCompleted = project.ProjectStages.All(s => s.StatusID == 7) &&
+                               project.ProjectStages.SelectMany(s => s.Tasks)
+                                                    .All(t => t.StatusID == 3);
+            if (allCompleted)
+                return "Завершен";
+
+            // Проверяем, есть ли хотя бы один этап или задача в работе
+            bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6) ||
+                                project.ProjectStages.SelectMany(s => s.Tasks)
+                                                     .Any(t => t.StatusID == 2);
+            if (anyInProgress)
+                return "В работе";
+
+            // Если ни одна из проверок не сработала
+            return "Не определен";
         }
 
         private void ApplyFiltersAndSort()
         {
+
             if (_projectViewModels == null)
             {
                 return;
             }
 
-            var searchText = SearchTextBox.Text.ToLower();
-            var selectedSort = SortByDeadlineComboBox?.SelectedItem as ComboBoxItem;
-            var sortText = selectedSort?.Content?.ToString();
+           var searchText = SearchTextBox.Text.ToLower();
+            var selectedSort = (SortByDeadlineComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            var filteredProjects = _projectViewModels
-                .Where(p => string.IsNullOrEmpty(searchText) || p.WorkName.ToLower().Contains(searchText))
-                .ToList();
-
-            if (!string.IsNullOrEmpty(sortText) && sortText != "Сортировка по дате")
+            IEnumerable<ProjectViewModel> filteredProjects;
+            if (string.IsNullOrWhiteSpace(SearchTextBox.Text) || SearchTextBox.Text == "Поиск по названию работы")
             {
-                switch (sortText)
+                filteredProjects = _projectViewModels.ToList();
+            }
+            else
+            {
+                filteredProjects = _projectViewModels
+                    .Where(p => p.WorkName?.ToLower()?.Contains(searchText) ?? false)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(selectedSort))
+            {
+                switch (selectedSort)
                 {
                     case "Ближайшие":
                         filteredProjects = filteredProjects.OrderBy(p => p.ProjectStartDate).ToList();
+                        Console.WriteLine("Отсортировано по дате (возрастание)");
                         break;
                     case "Убывание":
                         filteredProjects = filteredProjects.OrderByDescending(p => p.ProjectStartDate).ToList();
+                        Console.WriteLine("Отсортировано по дате (убывание)");
+                        break;
+                    case "Сортировка по дате":
+                        filteredProjects = filteredProjects.OrderBy(p => p.ProjectID).ToList();
+                        Console.WriteLine("Отсортировано по ProjectID");
                         break;
                 }
             }
@@ -113,7 +205,7 @@ namespace GeotekMetallCompleteDesktop
             SearchToggleButton.Content = "Поиск";
             SearchTextBox.Text = "Поиск по названию работы";
             SearchTextBox.Foreground = Brushes.Gray;
-            ProjectsDataGrid.ItemsSource = _projectViewModels; 
+            ProjectsDataGrid.ItemsSource = _projectViewModels;
         }
 
         private void ProjectsDataGrid_SelectionChanged(object sender, MouseButtonEventArgs e)
@@ -133,6 +225,7 @@ namespace GeotekMetallCompleteDesktop
         {
             FilterStackPanel.Visibility = Visibility.Collapsed;
             ProjectsDataGrid.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
             ProjectDetailsStackPanel.Visibility = Visibility.Visible;
 
             var requestDetails = new List<KeyValuePair<string, string>>
@@ -140,25 +233,209 @@ namespace GeotekMetallCompleteDesktop
                 new KeyValuePair<string, string>("Название работы", _selectedProject.Requests.ObjectName),
                 new KeyValuePair<string, string>("Адрес", _selectedProject.Requests.Address),
                 new KeyValuePair<string, string>("Дата начала", _selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")),
+                new KeyValuePair<string, string>("Дата окончания", _selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")),
                 new KeyValuePair<string, string>("Описание", _selectedProject.Requests.Description),
                 new KeyValuePair<string, string>("Количество этапов", _selectedProject.ProjectStages.Count.ToString())
             };
 
             RequestDetailsItemsControl.ItemsSource = requestDetails;
 
-            // Загружаем акты и договоры
-            ActsOfWorkItemsControl.ItemsSource = _selectedProject.ActsOfWork.ToList();
-            ContractsItemsControl.ItemsSource = _selectedProject.Contracts.ToList();
+            var acts = _selectedProject.ActsOfWork.ToList();
+            ActsOfWorkItemsControl.ItemsSource = acts;
+            ActsOfWorkTitle.Visibility = acts.Any() ? Visibility.Visible : Visibility.Collapsed;
+            ActsOfWorkItemsControl.Visibility = acts.Any() ? Visibility.Visible : Visibility.Collapsed;
 
+            var contracts = _selectedProject.Contracts.ToList();
+            ContractsItemsControl.ItemsSource = contracts;
+            ContractsTitle.Visibility = contracts.Any() ? Visibility.Visible : Visibility.Collapsed;
+            ContractsItemsControl.Visibility = contracts.Any() ? Visibility.Visible : Visibility.Collapsed;
+
+            ShowMainProjectDetails();
             LoadProjectStages();
         }
 
+
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            FilterStackPanel.Visibility = Visibility.Visible;
-            ProjectsDataGrid.Visibility = Visibility.Visible;
-            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            if (TaskDetailsPanel.Visibility == Visibility.Visible)
+            {
+                TaskDetailsPanel.Visibility = Visibility.Collapsed;
+                TasksItemsControl.Visibility = Visibility.Visible;
+                StageDetailsTitle.Visibility = Visibility.Visible;
+                AddTaskButton.Visibility = Visibility.Visible;
+            }
+            else if (StageDetailsStackPanel.Visibility == Visibility.Visible)
+            {
+                StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+                StageButtonsStackPanel.Visibility = Visibility.Visible;
+                ShowMainProjectDetails();
+            }
+            else if (AddStagePanel.Visibility == Visibility.Visible)
+            {
+                AddStagePanel.Visibility = Visibility.Collapsed;
+                ShowMainProjectDetails();
+            }
+            else
+            {
+                FilterStackPanel.Visibility = Visibility.Visible;
+                ProjectsDataGrid.Visibility = Visibility.Visible;
+                ProjectsDataGrid2.Visibility = Visibility.Visible;
+                ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+                LoadProjects();
+            }
         }
+
+        private void ShowMainProjectDetails()
+        {
+            ProjectDetailsTitle.Visibility = Visibility.Visible;
+            RequestDetailsItemsControl.Visibility = Visibility.Visible;
+            ActsOfWorkTitle.Visibility = Visibility.Visible;
+            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
+            ContractsTitle.Visibility = Visibility.Visible;
+            ContractsItemsControl.Visibility = Visibility.Visible;
+            StageButtonsStackPanel.Visibility = Visibility.Visible;
+            AddStageButton.Visibility = Visibility.Visible;
+            CancelProjectButton.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Visible;
+        }
+
+        private void StageButton_Click(object sender, RoutedEventArgs e)
+        {
+            var stage = (sender as Button)?.Tag as ProjectStages;
+            if (stage != null)
+            {
+                StageDetailsStackPanel.Tag = stage;
+
+                ProjectDetailsTitle.Visibility = Visibility.Collapsed;
+                RequestDetailsItemsControl.Visibility = Visibility.Collapsed;
+                ActsOfWorkTitle.Visibility = Visibility.Collapsed;
+                ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
+                ContractsTitle.Visibility = Visibility.Collapsed;
+                ContractsItemsControl.Visibility = Visibility.Collapsed;
+                StageButtonsStackPanel.Visibility = Visibility.Collapsed;
+                AddStageButton.Visibility = Visibility.Collapsed;
+                CancelProjectButton.Visibility = Visibility.Collapsed;
+
+                StageDetailsStackPanel.Visibility = Visibility.Visible;
+                StageDetailsTitle.Visibility = Visibility.Visible;
+                AddTaskButton.Visibility = Visibility.Visible;
+                TasksTitle.Visibility = Visibility.Visible;
+                TasksItemsControl.Visibility = Visibility.Visible;
+                CompleteStageButton.Visibility = Visibility.Visible;
+                CancelStageButton.Visibility = Visibility.Visible;
+
+                StageNameTextBlock.Text = $"Название: {stage.StageName}";
+                StageStartDateTextBlock.Text = $"Дата начала: {stage.StartDate?.ToString("dd.MM.yyyy")}";
+                StageEndDateTextBlock.Text = $"Дата окончания: {stage.EndDate?.ToString("dd.MM.yyyy")}";
+                StageStatusTextBlock.Text = $"Статус: {stage.Statuses?.StatusName}";
+
+                LoadTasks(stage);
+            }
+        }
+
+        private void AddStageButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectDATETextBlock.Text = $"Даты проекта: {_selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")} - {_selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")}";
+            var stagesText = "Этапы:\n";
+            int stageNumber = 1;
+
+            foreach (var stage in _selectedProject.ProjectStages.OrderBy(s => s.StartDate))
+            {
+                stagesText += $"{stage.StageName} с {stage.StartDate?.ToString("dd.MM.yyyy")} до {stage.EndDate?.ToString("dd.MM.yyyy")}\n";
+                stageNumber++;
+            }
+            StagesInfoTextBlock.Text = stagesText;
+
+            ProjectDetailsTitle.Visibility = Visibility.Collapsed;
+            RequestDetailsItemsControl.Visibility = Visibility.Collapsed;
+            ActsOfWorkTitle.Visibility = Visibility.Collapsed;
+            ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
+            ContractsTitle.Visibility = Visibility.Collapsed;
+            ContractsItemsControl.Visibility = Visibility.Collapsed;
+            StageButtonsStackPanel.Visibility = Visibility.Collapsed;
+            AddStageButton.Visibility = Visibility.Collapsed;
+            CancelProjectButton.Visibility = Visibility.Collapsed;
+
+            AddStagePanel.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Visible;
+            StageDescriptionTextBox.Clear();
+            StageStartDatePicker.SelectedDate = null;
+            StageEndDatePicker.SelectedDate = null;
+
+            StageStartDatePicker.DisplayDateStart = _selectedProject.ProjectStartDate > DateTime.Today
+                ? _selectedProject.ProjectStartDate
+                : DateTime.Today.AddDays(1);
+            StageStartDatePicker.DisplayDateEnd = _selectedProject.ProjectEndDate;
+
+            StageEndDatePicker.DisplayDateStart = _selectedProject.ProjectStartDate > DateTime.Today
+                ? _selectedProject.ProjectStartDate?.AddDays(1)
+                : DateTime.Today.AddDays(2);
+            StageEndDatePicker.DisplayDateEnd = _selectedProject.ProjectEndDate;
+        }
+
+        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var stage = StageDetailsStackPanel.Tag as ProjectStages;
+            ProjectDATETextBlock.Text = $"Даты проекта: {_selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")} - {_selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")}";
+            StagesInfoTextBlock2.Text = $"Даты выбранного этапа: {stage.StartDate?.ToString("dd.MM.yyyy")} -  {stage.EndDate?.ToString("dd.MM.yyyy")}";
+            
+            StageDetailsTitle.Visibility = Visibility.Collapsed;
+            StageNameTextBlock.Visibility = Visibility.Collapsed;
+            StageStartDateTextBlock.Visibility = Visibility.Collapsed;
+            StageEndDateTextBlock.Visibility = Visibility.Collapsed;
+            StageStatusTextBlock.Visibility = Visibility.Collapsed;
+            TasksTitle.Visibility = Visibility.Collapsed;
+            TasksItemsControl.Visibility = Visibility.Collapsed;
+            CompleteStageButton.Visibility = Visibility.Collapsed;
+            CancelStageButton.Visibility = Visibility.Collapsed;
+            AddTaskButton.Visibility = Visibility.Collapsed;
+
+            AddTaskPanel.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Visible;
+            TaskDescriptionTextBox.Clear();
+            TaskDueDatePicker.SelectedDate = null;
+
+            
+            if (stage != null)
+            {
+                TaskDueDatePicker.DisplayDateStart = stage.StartDate > DateTime.Today
+                    ? stage.StartDate?.AddDays(1)
+                    : DateTime.Today.AddDays(1);
+                TaskDueDatePicker.DisplayDateEnd = stage.EndDate;
+            }
+        }
+
+        private void DownloadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                var fileData = button.Tag as dynamic;
+                if (fileData != null && fileData.FilePath != null && fileData.FileType != null)
+                {
+                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                    {
+                        FileName = $"Документ_{DateTime.Now:yyyyMMddHHmmss}",
+                        DefaultExt = fileData.FileType,
+                        Filter = $"Файлы {fileData.FileType}|*.{fileData.FileType.ToLower()}"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        try
+                        {
+                            File.WriteAllBytes(saveFileDialog.FileName, fileData.FilePath);
+                            MessageBox.Show("Файл успешно сохранен!");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}");
+                        }
+                    }
+                }
+            }
+        }
+
 
         private void LoadProjectStages()
         {
@@ -167,7 +444,7 @@ namespace GeotekMetallCompleteDesktop
             {
                 var stageButton = new Button
                 {
-                    Content = $"Этап {stage.StageID}: {stage.StageName}",
+                    Content = $"{stage.StageName}",
                     Tag = stage,
                     Background = Brushes.LightGray,
                     Margin = new Thickness(5, 0, 5, 0)
@@ -177,76 +454,260 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        private void StageButton_Click(object sender, RoutedEventArgs e)
-        {
-            var stage = (sender as Button)?.Tag as ProjectStages;
-            if (stage != null)
-            {
-                // Скрываем другие элементы
-                RequestDetailsItemsControl.Visibility = Visibility.Collapsed;
-                StageButtonsStackPanel.Visibility = Visibility.Collapsed;
-
-                // Показываем информацию о этапе
-                StageDetailsStackPanel.Visibility = Visibility.Visible;
-
-                // Заполняем информацию о этапе
-                StageNameTextBlock.Text = $"Название: {stage.StageName}";
-                StageStartDateTextBlock.Text = $"Дата начала: {stage.StartDate?.ToString("dd.MM.yyyy")}";
-                StageEndDateTextBlock.Text = $"Дата окончания: {stage.EndDate?.ToString("dd.MM.yyyy")}";
-                StageStatusTextBlock.Text = $"Статус: {stage.Statuses?.StatusName}";
-
-                // Загружаем задачи
-                LoadTasks(stage);
-            }
-        }
 
         private void LoadTasks(ProjectStages stage)
         {
             TasksItemsControl.ItemsSource = stage.Tasks.ToList();
         }
 
+        private void CancelAddStageButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            StageButtonsStackPanel.Visibility = Visibility.Visible;
+            RequestDetailsItemsControl.Visibility = Visibility.Visible;
+            ProjectDetailsTitle.Visibility = Visibility.Visible; 
+            ActsOfWorkTitle.Visibility = Visibility.Visible;
+            ContractsTitle.Visibility = Visibility.Visible; 
+            AddStageButton.Visibility = Visibility.Visible;
+            CancelProjectButton.Visibility = Visibility.Visible;
+            ActsOfWorkTitle.Visibility = Visibility.Visible;
+            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
+            ContractsTitle.Visibility = Visibility.Visible;
+            ContractsItemsControl.Visibility = Visibility.Visible;
+            ProjectDetailsTitle.Visibility = Visibility.Visible;
+        }
+
+
+
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
             var task = (sender as Button)?.Tag as Tasks;
             if (task != null)
             {
-                MessageBox.Show($"Задача: {task.TaskDescription}\nСрок: {task.DueDate?.ToString("dd.MM.yyyy")}\nСтатус: {task.Statuses?.StatusName}");
+                TasksItemsControl.Visibility = Visibility.Collapsed;
+                TasksTitle.Visibility = Visibility.Collapsed;
+                AddTaskButton.Visibility = Visibility.Collapsed;
+                CompleteStageButton.Visibility = Visibility.Collapsed;
+                CancelStageButton.Visibility = Visibility.Collapsed;
+                TaskDetailsPanel.Visibility = Visibility.Visible;
+
+                TaskDescriptionText.Text = $"Описание: {task.TaskDescription}";
+                TaskDueDateText.Text = $"Срок: {task.DueDate?.ToString("dd.MM.yyyy")}";
+                TaskStatusText.Text = $"Статус: {task.Statuses?.StatusName}";
+
+                var taskUsers = _db.TaskUsers.Include("Users").Where(tu => tu.TaskID == task.TaskID).ToList();
+                TaskWorkersItemsControl.ItemsSource = taskUsers;
+                TaskWorkersTitle.Visibility = taskUsers.Any() ? Visibility.Visible : Visibility.Collapsed;
+                TaskWorkersItemsControl.Visibility = taskUsers.Any() ? Visibility.Visible : Visibility.Collapsed;
+
+                var taskReports = _db.TaskReports.Where(tr => tr.TaskID == task.TaskID).ToList();
+                TaskReportsItemsControl.ItemsSource = taskReports;
+                TaskReportsTitle.Visibility = taskReports.Any() ? Visibility.Visible : Visibility.Collapsed;
+                TaskReportsItemsControl.Visibility = taskReports.Any() ? Visibility.Visible : Visibility.Collapsed;
+
+                CompleteTaskButton.Visibility = taskReports.Any() ? Visibility.Visible : Visibility.Collapsed;
+                ResetTaskButton.Visibility = taskReports.Any() ? Visibility.Visible : Visibility.Collapsed;
+                CancelTaskButton.Visibility = Visibility.Visible;
+
+                CompleteTaskButton.Tag = task;
+                ResetTaskButton.Tag = task;
+                CancelTaskButton.Tag = task;
             }
         }
 
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        private void CancelAddTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            var stage = (StageDetailsStackPanel.Tag as ProjectStages);
-            if (stage != null)
-            {
-                var newTask = new Tasks
-                {
-                    StageID = stage.StageID,
-                    TaskDescription = "Новая задача",
-                    DueDate = DateTime.Now,
-                    StatusID = 1 // Статус "Новый"
-                };
-
-                _db.Tasks.Add(newTask);
-                _db.SaveChanges();
-                LoadTasks(stage);
-            }
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            AddTaskButton.Visibility = Visibility.Visible;
+            StageDetailsTitle.Visibility = Visibility.Visible;
+            StageNameTextBlock.Visibility = Visibility.Visible;
+            StageStartDateTextBlock.Visibility = Visibility.Visible;
+            StageEndDateTextBlock.Visibility = Visibility.Visible;
+            StageStatusTextBlock.Visibility = Visibility.Visible;
+            TasksTitle.Visibility = Visibility.Visible; 
+            TasksItemsControl.Visibility = Visibility.Visible;
+            CompleteStageButton.Visibility = Visibility.Visible;
+            CancelStageButton.Visibility = Visibility.Visible;
+            ActsOfWorkTitle.Visibility = Visibility.Visible;
+            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
+            ContractsTitle.Visibility = Visibility.Visible;
+            ContractsItemsControl.Visibility = Visibility.Visible;
+            ProjectDetailsTitle.Visibility = Visibility.Visible;
         }
 
-        private void AddStageButton_Click(object sender, RoutedEventArgs e)
+        private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            var newStage = new ProjectStages
+            var stage = StageDetailsStackPanel.Tag as ProjectStages;
+            if (stage == null)
             {
-                ProjectID = _selectedProject.ProjectID,
-                StageName = "Новый этап",
-                StageDescription = "Описание нового этапа",
-                StartDate = DateTime.Now,
-                StatusID = 6 // Статус "Новый"
+                MessageBox.Show("Этап не выбран");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(TaskDescriptionTextBox.Text))
+            {
+                MessageBox.Show("Введите описание задачи");
+                return;
+            }
+
+            if (!TaskDueDatePicker.SelectedDate.HasValue)
+            {
+                MessageBox.Show("Выберите дату выполнения");
+                return;
+            }
+
+            var dueDate = TaskDueDatePicker.SelectedDate.Value;
+
+            if (dueDate <= DateTime.Today)
+            {
+                MessageBox.Show("Дата выполнения задачи не может быть сегодня или в прошлом");
+                return;
+            }
+
+            if (dueDate < stage.StartDate || dueDate > stage.EndDate)
+            {
+                MessageBox.Show("Дата выполнения задачи должна быть в рамках дат этапа");
+                return;
+            }
+
+            var newTask = new Tasks
+            {
+                StageID = stage.StageID,
+                TaskDescription = TaskDescriptionTextBox.Text,
+                DueDate = dueDate,
+                StatusID = 1 // Статус "Новый"
             };
 
-            _db.ProjectStages.Add(newStage);
-            _db.SaveChanges();
-            LoadProjectStages();
+            var workers = _db.Users
+                .Where(u => u.UserRoles.Any(ur => ur.Roles.RoleName == "Работник"))
+                .ToList();
+
+            var selectWorkersWindow = new SelectWorkersWindow(workers);
+            if (selectWorkersWindow.ShowDialog() == true)
+            {
+                try
+                {
+                    foreach (var worker in selectWorkersWindow.SelectedWorkers)
+                    {
+                        _db.TaskUsers.Add(new TaskUsers
+                        {
+                            TaskID = newTask.TaskID,
+                            UserID = worker.UserID
+                        });
+                    }
+
+                    _db.Tasks.Add(newTask);
+                    _db.SaveChanges();
+
+                    LoadTasks(stage);
+                    AddTaskPanel.Visibility = Visibility.Collapsed;
+                    StageDetailsTitle.Visibility = Visibility.Visible;
+                    StageNameTextBlock.Visibility = Visibility.Visible;
+                    StageStartDateTextBlock.Visibility = Visibility.Visible;
+                    StageEndDateTextBlock.Visibility = Visibility.Visible;
+                    StageStatusTextBlock.Visibility = Visibility.Visible;
+                    TasksTitle.Visibility = Visibility.Visible;
+                    TasksItemsControl.Visibility = Visibility.Visible;
+                    AddTaskButton.Visibility = Visibility.Visible;
+
+                    TaskDescriptionTextBox.Clear();
+                    TaskDueDatePicker.SelectedDate = null;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при сохранении задачи: {ex.Message}");
+                }
+            }
+        }
+
+        private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = (Tasks)((Button)sender).Tag;
+            if (task != null)
+            {
+                task.StatusID = 3; // Статус "Выполнено"
+                _db.SaveChanges();
+                LoadTasks(task.ProjectStages);
+                TaskDetailsPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ResetTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = (Tasks)((Button)sender).Tag;
+            if (task != null)
+            {
+                task.StatusID = 2; // Статус "В работе"
+                _db.SaveChanges();
+                LoadTasks(task.ProjectStages);
+                TaskDetailsPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = (Tasks)((Button)sender).Tag;
+            if (task != null)
+            {
+                task.StatusID = 4; // Статус "Отменено"
+                _db.SaveChanges();
+                LoadTasks(task.ProjectStages);
+                TaskDetailsPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void CancelStageButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Visible;
+        }
+
+        private void SaveStageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(StageDescriptionTextBox.Text) &&
+                StageStartDatePicker.SelectedDate.HasValue &&
+                StageEndDatePicker.SelectedDate.HasValue)
+            {
+                var startDate = StageStartDatePicker.SelectedDate.Value;
+                var endDate = StageEndDatePicker.SelectedDate.Value;
+
+                bool hasOverlap = _selectedProject.ProjectStages.Any(existingStage =>
+          (startDate >= existingStage.StartDate && startDate <= existingStage.EndDate) ||
+          (endDate >= existingStage.StartDate && endDate <= existingStage.EndDate) ||
+          (startDate <= existingStage.StartDate && endDate >= existingStage.EndDate));
+
+                if (hasOverlap)
+                {
+                    MessageBox.Show("Новый этап пересекается по датам с существующим этапом");
+                    return;
+                }
+
+                if (startDate >= _selectedProject.ProjectStartDate && endDate <= _selectedProject.ProjectEndDate &&
+                    startDate < endDate)
+                {
+                    var newStage = new ProjectStages
+                    {
+                        ProjectID = _selectedProject.ProjectID,
+                        StageName = $"{_selectedProject.ProjectStages.Count + 1} этап",
+                        StageDescription = StageDescriptionTextBox.Text,
+                        StartDate = startDate,
+                        EndDate = endDate,
+                        StatusID = 6 // Статус "Новый"
+                    };
+
+                    _db.ProjectStages.Add(newStage);
+                    _db.SaveChanges();
+
+                    LoadProjectStages();
+                    AddStagePanel.Visibility = Visibility.Collapsed;
+                    ShowMainProjectDetails();
+                    StageDescriptionTextBox.Clear();
+                }
+                else
+                {
+                    MessageBox.Show("Даты этапа должны быть в рамках дат проекта и корректными.");
+                }
+            }
         }
 
         private void CancelProjectButton_Click(object sender, RoutedEventArgs e)
@@ -257,21 +718,35 @@ namespace GeotekMetallCompleteDesktop
                 foreach (var stage in _selectedProject.ProjectStages)
                 {
                     stage.StatusID = 5; // Статус "Отменен"
+                    foreach (var task in stage.Tasks)
+                    {
+                        task.StatusID = 4; // Статус "Отменено"
+                    }
                 }
                 _db.SaveChanges();
                 LoadProjectStages();
             }
         }
 
+        private void BackToUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.GoBack();
+        }
+
         private void CompleteStageButton_Click(object sender, RoutedEventArgs e)
         {
-            //var selectedStage = ProjectStagesStackPanel.Children.OfType<Button>().FirstOrDefault(b => b.IsFocused)?.Tag as ProjectStages;
-            //if (selectedStage != null)
-            //{
-            //    selectedStage.StatusID = 7; // Статус "Завершен"
-            //    _db.SaveChanges();
-            //    LoadProjectStages();
-            //}
+            var selectedStage = StageDetailsStackPanel.Tag as ProjectStages;
+            if (selectedStage != null)
+            {
+                selectedStage.StatusID = 7; // Статус "Завершен"
+                var nextStage = _selectedProject.ProjectStages.FirstOrDefault(s => s.StageID > selectedStage.StageID);
+                if (nextStage != null)
+                {
+                    nextStage.StatusID = 4; // Статус "В работе"
+                }
+                _db.SaveChanges();
+                LoadProjectStages();
+            }
         }
     }
 
@@ -284,6 +759,6 @@ namespace GeotekMetallCompleteDesktop
         public Nullable<int> ProjectManagerID { get; set; }
         public string WorkName { get; set; }
         public int StageCount { get; set; }
+        public string Status { get; set; }
     }
-    
 }

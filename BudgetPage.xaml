@@ -5,48 +5,97 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="700"
+      d:DesignHeight="700" d:DesignWidth="700"
       Title="Управление бюджетом">
     <Grid Background="White">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
-            <Button Content="Добавить транзакцию" Click="AddTransactionButton_Click" Margin="0,0,10,0" />
-            <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
-            <Button Content="Сбросить проект" Click="ResetProjectButton_Click" />
+        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <Button Content="Добавить транзакцию" x:Name="AddBtm" Click="AddTransactionButton_Click" Margin="0,0,10,0"  Style="{StaticResource ButtonPageStyle}"/>
+            <Button Content="Выбрать проект" x:Name="SelectBtm" Click="SelectProjectButton_Click" Margin="0,0,10,0" Style="{StaticResource ButtStyle}"/>
+            <Button x:Name="ResetProjectButton" Content="Сбросить проект" Click="ResetProjectButton_Click" Margin="0,0,10,0" Visibility="Collapsed" Style="{StaticResource ButtStyle}"/>
         </StackPanel>
+        <StackPanel Grid.Row="1" >
+            <ScrollViewer VerticalScrollBarVisibility="Auto" >
+                <ListView x:Name="TransactionsListView" Margin="10" 
+                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding TransactionID}" Width="50" />
+                            <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding TransactionDate, StringFormat=dd.MM.yyyy}" Width="100" />
+                            <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="100" />
+                            <GridViewColumn Header="Описание" DisplayMemberBinding="{Binding Description}" Width="200" />
+                            <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+            <Border x:Name="AddTransactionPanel" CornerRadius="4" Background="White" 
+                    Padding="20" Margin="10" Effect="{StaticResource ShadowEffect}" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Добавление транзакции" Style="{StaticResource TextBlockStyle}" 
+                               Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
-        <ListView x:Name="TransactionsListView" Grid.Row="1" Margin="10">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding TransactionID}" Width="50" />
-                    <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding TransactionDate, StringFormat=dd.MM.yyyy}" Width="100" />
-                    <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="100" />
-                    <GridViewColumn Header="Описание" DisplayMemberBinding="{Binding Description}" Width="200" />
-                    <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
-                </GridView>
-            </ListView.View>
-        </ListView>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-        <StackPanel x:Name="AddTransactionPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
-            <TextBlock Text="Добавление транзакции" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+                        <TextBlock Text="Выбранный проект:" Grid.Row="0" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock x:Name="SelectedProjectTextBlock" Style="{StaticResource ValueStyle}" 
+                                      VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+                            <Button Content="Выбрать проект" Click="ChangeProjectButton_Click" 
+                                    Style="{StaticResource AccentButtonStyle}" Margin="40,0,0,10" Width="150"/>
+                        </StackPanel>
 
-            <TextBlock Text="Выбранный проект:" />
-            <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
-            <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
+                        <TextBlock Text="Сумма:" Grid.Row="1" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="AmountTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
+                                 Style="{StaticResource ModernTextBoxStyle}" Height="35"
+                                 PreviewTextInput="AmountTextBox_PreviewTextInput" 
+                                 PreviewKeyDown="AmountTextBox_PreviewKeyDown"/>
 
-            <TextBlock Text="Сумма:" />
-            <TextBox x:Name="AmountTextBox" Margin="0,5,0,4" 
-         PreviewTextInput="AmountTextBox_PreviewTextInput" 
-         PreviewKeyDown="AmountTextBox_PreviewKeyDown"  />
-            <TextBlock Text="Описание:" />
-            <TextBox x:Name="DescriptionTextBox" Margin="0,5,0,4" />
+                        <TextBlock Text="Тип транзакции:" Grid.Row="2" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="TransactionTypeComboBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"
+                                  Height="35"
+                                  SelectionChanged="TransactionTypeComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Закупка материалов" />
+                            <ComboBoxItem Content="Оплата труда" />
+                            <ComboBoxItem Content="Аренда оборудования" />
+                            <ComboBoxItem Content="Транспортные расходы" />
+                            <ComboBoxItem Content="Другое" />
+                        </ComboBox>
 
-            <Button Content="Сохранить" Click="SaveTransactionButton_Click" Margin="0,10,0,0" />
-            <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
+                        <StackPanel x:Name="CustomDescriptionPanel" Grid.Row="3" Grid.Column="1" 
+                                    Visibility="Collapsed" Margin="0,0,0,10">
+                            <TextBlock Text="Введите название транзакции:" Style="{StaticResource InputLabelStyle}"/>
+                            <TextBox x:Name="DescriptionTextBox" Style="{StaticResource ModernTextBoxStyle}" Height="35"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                            <Button Content="Сохранить" Click="SaveTransactionButton_Click" 
+                                    Style="{StaticResource PrimaryButtonStyle}" Width="120" Margin="0,0,10,0"/>
+                            <Button Content="Отмена" Click="CancelButton_Click" 
+                                    Style="{StaticResource CancleButtonStyle}" Width="120"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </Page>
