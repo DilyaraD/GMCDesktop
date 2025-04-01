@@ -21,7 +21,8 @@
         <StackPanel Grid.Row="1" >
             <ScrollViewer VerticalScrollBarVisibility="Auto" >
                 <ListView x:Name="TransactionsListView" Margin="10" 
-                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}"
+                      MouseDoubleClick="TransactionsListView_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="ID" DisplayMemberBinding="{Binding TransactionID}" Width="50" />
@@ -36,7 +37,7 @@
             <Border x:Name="AddTransactionPanel" CornerRadius="4" Background="White" 
                     Padding="20" Margin="10" Effect="{StaticResource ShadowEffect}" Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="Добавление транзакции" Style="{StaticResource TextBlockStyle}" 
+                    <TextBlock Text="Добавление транзакции" FontSize="26" FontWeight="Bold"
                                Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
                     <Grid>
@@ -85,6 +86,18 @@
                                     Visibility="Collapsed" Margin="0,0,0,10">
                             <TextBlock Text="Введите название транзакции:" Style="{StaticResource InputLabelStyle}"/>
                             <TextBox x:Name="DescriptionTextBox" Style="{StaticResource ModernTextBoxStyle}" Height="35"/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="AttachedFilesStackPanel" Grid.Row="4" Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Text="Прикрепленные документы:" Style="{StaticResource InputLabelStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Добавить файл" Click="AddFileButton_Click" 
+                                    Style="{StaticResource AccentButtonStyle}" Width="120" Margin="0,5,5,5"/>
+                                <Button Content="Удалить" Click="RemoveFileButton_Click" 
+                                    Style="{StaticResource CancleButtonStyle}" Width="80" Margin="0,5,0,5"
+                                    Visibility="Collapsed"/>        
+                            </StackPanel>
+                            <ListBox x:Name="AttachedFilesListBox" Height="100"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">

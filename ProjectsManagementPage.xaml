@@ -51,7 +51,6 @@
                 <Button x:Name="BackToUserButton" Content="Назад к пользователю" Click="BackToUserButton_Click" Margin="0,10,0,5"/>
                 <TextBlock x:Name="ProjectDetailsTitle" Text="Детали проекта" FontSize="26" FontWeight="Bold" Margin="0,0,0,10" />
 
-                <!-- Информация о проекте -->
                 <ItemsControl x:Name="RequestDetailsItemsControl">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

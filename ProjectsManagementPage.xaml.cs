@@ -252,6 +252,7 @@ namespace GeotekMetallCompleteDesktop
 
             ShowMainProjectDetails();
             LoadProjectStages();
+            UpdateButtonsVisibility();
         }
 
 
@@ -283,6 +284,7 @@ namespace GeotekMetallCompleteDesktop
                 ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
                 LoadProjects();
             }
+            //UpdateButtonsVisibility();
         }
 
         private void ShowMainProjectDetails()
@@ -331,6 +333,8 @@ namespace GeotekMetallCompleteDesktop
 
                 LoadTasks(stage);
             }
+
+            UpdateButtonsVisibility();
         }
 
         private void AddStageButton_Click(object sender, RoutedEventArgs e)
@@ -371,6 +375,8 @@ namespace GeotekMetallCompleteDesktop
                 ? _selectedProject.ProjectStartDate?.AddDays(1)
                 : DateTime.Today.AddDays(2);
             StageEndDatePicker.DisplayDateEnd = _selectedProject.ProjectEndDate;
+
+            UpdateButtonsVisibility();
         }
 
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
@@ -403,6 +409,7 @@ namespace GeotekMetallCompleteDesktop
                     : DateTime.Today.AddDays(1);
                 TaskDueDatePicker.DisplayDateEnd = stage.EndDate;
             }
+            UpdateButtonsVisibility();
         }
 
         private void DownloadFileButton_Click(object sender, RoutedEventArgs e)
@@ -475,6 +482,7 @@ namespace GeotekMetallCompleteDesktop
             ContractsTitle.Visibility = Visibility.Visible;
             ContractsItemsControl.Visibility = Visibility.Visible;
             ProjectDetailsTitle.Visibility = Visibility.Visible;
+            UpdateButtonsVisibility();
         }
 
 
@@ -512,6 +520,8 @@ namespace GeotekMetallCompleteDesktop
                 CompleteTaskButton.Tag = task;
                 ResetTaskButton.Tag = task;
                 CancelTaskButton.Tag = task;
+
+                UpdateButtonsVisibility();
             }
         }
 
@@ -533,6 +543,7 @@ namespace GeotekMetallCompleteDesktop
             ContractsTitle.Visibility = Visibility.Visible;
             ContractsItemsControl.Visibility = Visibility.Visible;
             ProjectDetailsTitle.Visibility = Visibility.Visible;
+            UpdateButtonsVisibility();
         }
 
         private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
@@ -618,6 +629,7 @@ namespace GeotekMetallCompleteDesktop
                     MessageBox.Show($"Ошибка при сохранении задачи: {ex.Message}");
                 }
             }
+            UpdateButtonsVisibility();
         }
 
         private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
@@ -630,6 +642,7 @@ namespace GeotekMetallCompleteDesktop
                 LoadTasks(task.ProjectStages);
                 TaskDetailsPanel.Visibility = Visibility.Collapsed;
             }
+            UpdateButtonsVisibility();
         }
 
         private void ResetTaskButton_Click(object sender, RoutedEventArgs e)
@@ -642,6 +655,7 @@ namespace GeotekMetallCompleteDesktop
                 LoadTasks(task.ProjectStages);
                 TaskDetailsPanel.Visibility = Visibility.Collapsed;
             }
+            UpdateButtonsVisibility();
         }
 
         private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
@@ -654,12 +668,14 @@ namespace GeotekMetallCompleteDesktop
                 LoadTasks(task.ProjectStages);
                 TaskDetailsPanel.Visibility = Visibility.Collapsed;
             }
+            UpdateButtonsVisibility();
         }
 
         private void CancelStageButton_Click(object sender, RoutedEventArgs e)
         {
             AddStagePanel.Visibility = Visibility.Collapsed;
             StageDetailsStackPanel.Visibility = Visibility.Visible;
+            UpdateButtonsVisibility();
         }
 
         private void SaveStageButton_Click(object sender, RoutedEventArgs e)
@@ -708,6 +724,7 @@ namespace GeotekMetallCompleteDesktop
                     MessageBox.Show("Даты этапа должны быть в рамках дат проекта и корректными.");
                 }
             }
+            UpdateButtonsVisibility();
         }
 
         private void CancelProjectButton_Click(object sender, RoutedEventArgs e)
@@ -726,11 +743,13 @@ namespace GeotekMetallCompleteDesktop
                 _db.SaveChanges();
                 LoadProjectStages();
             }
+            UpdateButtonsVisibility();
         }
 
         private void BackToUserButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.GoBack();
+            UpdateButtonsVisibility();
         }
 
         private void CompleteStageButton_Click(object sender, RoutedEventArgs e)
@@ -747,6 +766,125 @@ namespace GeotekMetallCompleteDesktop
                 _db.SaveChanges();
                 LoadProjectStages();
             }
+            UpdateButtonsVisibility();
+        }
+
+        private void UpdateButtonsVisibility()
+        {
+            if (_selectedProject == null) return;
+
+            // Проверяем статусы всех этапов и задач
+            bool allStagesAndTasksCancelled = _selectedProject.ProjectStages.All(s => s.StatusID == 5) &&
+                                             _selectedProject.ProjectStages.SelectMany(s => s.Tasks)
+                                                                          .All(t => t.StatusID == 4);
+
+            bool allStagesAndTasksCompleted = _selectedProject.ProjectStages.All(s => s.StatusID == 7) &&
+                                             _selectedProject.ProjectStages.SelectMany(s => s.Tasks)
+                                                                          .All(t => t.StatusID == 3);
+
+            // Проверяем даты проекта
+            bool projectDatesOutsideCurrent = _selectedProject.ProjectEndDate < DateTime.Today ||
+                                             _selectedProject.ProjectStartDate > DateTime.Today;
+
+            // Проверяем наличие свободных дат для этапа
+            bool hasFreeDatesForStage = CheckFreeDatesForNewStage();
+
+            // Обновляем видимость основных кнопок
+            AddStageButton.Visibility = !allStagesAndTasksCancelled &&
+                                       !allStagesAndTasksCompleted &&
+                                       !projectDatesOutsideCurrent &&
+                                       hasFreeDatesForStage
+                                       ? Visibility.Visible : Visibility.Collapsed;
+
+            CancelProjectButton.Visibility = !allStagesAndTasksCancelled &&
+                                            !allStagesAndTasksCompleted
+                                            ? Visibility.Visible : Visibility.Collapsed;
+
+            // Для кнопок этапа
+            if (StageDetailsStackPanel.Tag is ProjectStages currentStage)
+            {
+                bool stageDatesOutsideCurrent = currentStage.EndDate < DateTime.Today ||
+                                               currentStage.StartDate > DateTime.Today;
+                bool stageCompletedOrCancelled = currentStage.StatusID == 7 || currentStage.StatusID == 5;
+
+                AddTaskButton.Visibility = !allStagesAndTasksCancelled &&
+                                          !allStagesAndTasksCompleted &&
+                                          !projectDatesOutsideCurrent &&
+                                          !stageDatesOutsideCurrent &&
+                                          !stageCompletedOrCancelled
+                                          ? Visibility.Visible : Visibility.Collapsed;
+
+                CompleteStageButton.Visibility = !allStagesAndTasksCancelled &&
+                                                !allStagesAndTasksCompleted &&
+                                                !stageCompletedOrCancelled &&
+                                                currentStage.Tasks.All(t => t.StatusID == 3)
+                                                ? Visibility.Visible : Visibility.Collapsed;
+
+                CancelStageButton.Visibility = !allStagesAndTasksCancelled &&
+                                              !allStagesAndTasksCompleted &&
+                                              !stageCompletedOrCancelled
+                                              ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                AddTaskButton.Visibility = Visibility.Collapsed;
+                CompleteStageButton.Visibility = Visibility.Collapsed;
+                CancelStageButton.Visibility = Visibility.Collapsed;
+            }
+
+            // Для кнопок задачи
+            if (TaskDetailsPanel.Tag is Tasks currentTask)
+            {
+                bool taskCompletedOrCancelled = currentTask.StatusID == 3 || currentTask.StatusID == 4;
+
+                CompleteTaskButton.Visibility = !allStagesAndTasksCancelled &&
+                                               !allStagesAndTasksCompleted &&
+                                               !taskCompletedOrCancelled
+                                               ? Visibility.Visible : Visibility.Collapsed;
+
+                ResetTaskButton.Visibility = !allStagesAndTasksCancelled &&
+                                            !allStagesAndTasksCompleted &&
+                                            !taskCompletedOrCancelled
+                                            ? Visibility.Visible : Visibility.Collapsed;
+
+                CancelTaskButton.Visibility = !allStagesAndTasksCancelled &&
+                                             !allStagesAndTasksCompleted &&
+                                             !taskCompletedOrCancelled
+                                             ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private bool CheckFreeDatesForNewStage()
+        {
+            if (_selectedProject.ProjectStages.Count == 0)
+                return true;
+
+            var sortedStages = _selectedProject.ProjectStages.OrderBy(s => s.StartDate).ToList();
+
+            // Проверяем промежуток до первого этапа
+            if (_selectedProject.ProjectStartDate < sortedStages[0].StartDate &&
+                (sortedStages[0].StartDate - _selectedProject.ProjectStartDate).Value.TotalDays >= 1)
+            {
+                return true;
+            }
+
+            // Проверяем промежутки между этапами
+            for (int i = 0; i < sortedStages.Count - 1; i++)
+            {
+                if ((sortedStages[i + 1].StartDate - sortedStages[i].EndDate).Value.TotalDays >= 1)
+                {
+                    return true;
+                }
+            }
+
+            // Проверяем промежуток после последнего этапа
+            if (sortedStages.Last().EndDate < _selectedProject.ProjectEndDate &&
+                (_selectedProject.ProjectEndDate - sortedStages.Last().EndDate).Value.TotalDays >= 1)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 

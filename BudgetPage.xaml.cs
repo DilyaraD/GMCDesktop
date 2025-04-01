@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -13,6 +15,14 @@ namespace GeotekMetallCompleteDesktop
         public Users _user;
         private GeotekMetallCompleteEntities1 _db;
         private Projects _selectedProject;
+        private List<AttachedFile> _attachedFiles = new List<AttachedFile>();
+
+        public class AttachedFile
+        {
+            public byte[] FileData { get; set; }
+            public string FileName { get; set; }
+            public string FileExtension { get; set; }
+        }
 
         public BudgetPage(Users user)
         {
@@ -25,7 +35,11 @@ namespace GeotekMetallCompleteDesktop
 
         private void LoadTransactions()
         {
-            TransactionsListView.ItemsSource = _db.BudgetTransactions.Include("Projects").Include("Users").ToList();
+            TransactionsListView.ItemsSource = _db.BudgetTransactions
+                .Include("Projects")
+                .Include("Users")
+                .Include("FinancialReports")
+                .ToList();
         }
 
         private void AddTransactionButton_Click(object sender, RoutedEventArgs e)
@@ -34,6 +48,8 @@ namespace GeotekMetallCompleteDesktop
             AddTransactionPanel.Visibility = Visibility.Visible;
             ResetProjectButton.Visibility = Visibility.Collapsed;
             SelectBtm.Visibility = Visibility.Collapsed;
+            _attachedFiles.Clear();
+            UpdateAttachedFilesList();
         }
 
         private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
@@ -95,7 +111,6 @@ namespace GeotekMetallCompleteDesktop
                     return;
                 }
 
-               
                 if (string.IsNullOrEmpty(AmountTextBox.Text) || !decimal.TryParse(AmountTextBox.Text, out decimal amount))
                 {
                     ShowMessage("Ошибка", "Введите корректную сумму.", MessageBoxImage.Warning);
@@ -138,6 +153,19 @@ namespace GeotekMetallCompleteDesktop
                     description = selectedType.Content.ToString();
                 }
 
+                if (!_attachedFiles.Any())
+                {
+                    var result = MessageBox.Show("К транзакции не прикреплено ни одного документа. Продолжить сохранение?",
+                                               "Нет прикрепленных документов",
+                                               MessageBoxButton.YesNo,
+                                               MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                }
+
                 var newTransaction = new BudgetTransactions
                 {
                     ProjectID = _selectedProject.ProjectID,
@@ -148,6 +176,22 @@ namespace GeotekMetallCompleteDesktop
                 };
 
                 _db.BudgetTransactions.Add(newTransaction);
+                _db.SaveChanges();
+
+                foreach (var file in _attachedFiles)
+                {
+                    var report = new FinancialReports
+                    {
+                        ProjectID = _selectedProject.ProjectID,
+                        ReportType = $"Документ к транзакции N{newTransaction.TransactionID}: {description}",
+                        ReportDate = DateTime.Now,
+                        FilePath = file.FileData,
+                        FileType = file.FileExtension,
+                        TransactionID = newTransaction.TransactionID
+                    };
+                    _db.FinancialReports.Add(report);
+                }
+
                 _db.SaveChanges();
 
                 ShowMessage("Успешно", "Транзакция успешно добавлена!", MessageBoxImage.Information);
@@ -161,6 +205,94 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
+        private void AddFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "Документы и изображения (*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg)|*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg|Все файлы (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                foreach (var fileName in openFileDialog.FileNames)
+                {
+                    _attachedFiles.Add(new AttachedFile
+                    {
+                        FileData = File.ReadAllBytes(fileName),
+                        FileName = Path.GetFileNameWithoutExtension(fileName),
+                        FileExtension = Path.GetExtension(fileName).TrimStart('.')
+                    });
+                }
+                UpdateAttachedFilesList();
+            }
+        }
+
+        private void RemoveFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (AttachedFilesListBox.SelectedIndex >= 0)
+            {
+                _attachedFiles.RemoveAt(AttachedFilesListBox.SelectedIndex);
+                UpdateAttachedFilesList();
+            }
+        }
+
+        private void UpdateAttachedFilesList()
+        {
+            AttachedFilesListBox.ItemsSource = _attachedFiles.Select(f => $"{f.FileName}.{f.FileExtension}").ToList();
+
+            var removeButton = FindRemoveButton();
+            if (removeButton != null)
+            {
+                removeButton.Visibility = _attachedFiles.Any() ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private Button FindRemoveButton()
+        {
+            var stackPanel = AddTransactionPanel.FindName("AttachedFilesStackPanel") as StackPanel;
+            if (stackPanel != null)
+            {
+                foreach (var child in stackPanel.Children)
+                {
+                    if (child is StackPanel innerPanel)
+                    {
+                        foreach (var innerChild in innerPanel.Children)
+                        {
+                            if (innerChild is Button button && button.Content.ToString() == "Удалить")
+                            {
+                                return button;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void TransactionsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selectedTransaction = TransactionsListView.SelectedItem as BudgetTransactions;
+            if (selectedTransaction != null)
+            {
+                // Получаем количество прикрепленных файлов
+                int attachedFilesCount = _db.FinancialReports
+                    .Count(fr => fr.TransactionID == selectedTransaction.TransactionID);
+
+                if (attachedFilesCount == 0)
+                {
+                    MessageBox.Show("К выбранной транзакции не прикреплено ни одного документа.",
+                                  "Нет прикрепленных документов",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Information);
+                    return;
+                }
+
+                // Если файлы есть - переходим на страницу управления финансами
+                NavigationService.Navigate(new FinanceManagementPage(_user, selectedTransaction.ProjectID));
+            }
+        }
+
         private void ShowMessage(string title, string message, MessageBoxImage icon)
         {
             MessageBox.Show(message, title, MessageBoxButton.OK, icon);
@@ -171,7 +303,7 @@ namespace GeotekMetallCompleteDesktop
             TransactionsListView.Visibility = Visibility.Visible;
             AddTransactionPanel.Visibility = Visibility.Collapsed;
             FilterPanel.Visibility = Visibility.Visible;
-            ResetProjectButton.Visibility = Visibility.Visible;
+            //ResetProjectButton.Visibility = Visibility.Visible;
             SelectBtm.Visibility = Visibility.Visible;
             _selectedProject = null;
             SelectedProjectTextBlock.Text = string.Empty;
@@ -179,6 +311,8 @@ namespace GeotekMetallCompleteDesktop
             DescriptionTextBox.Text = string.Empty;
             TransactionTypeComboBox.SelectedIndex = -1;
             CustomDescriptionPanel.Visibility = Visibility.Collapsed;
+            _attachedFiles.Clear();
+            AttachedFilesListBox.ItemsSource = null;
         }
 
         private void AmountTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -188,7 +322,7 @@ namespace GeotekMetallCompleteDesktop
             {
                 e.Handled = true;
             }
-        
+
             TextBox textBox = sender as TextBox;
 
             if (!char.IsDigit(e.Text, 0))
@@ -210,6 +344,5 @@ namespace GeotekMetallCompleteDesktop
                 e.Handled = true;
             }
         }
-
     }
 }

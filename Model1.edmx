@@ -46,6 +46,7 @@
           <Property Name="ReportDate" Type="datetime" />
           <Property Name="FilePath" Type="varbinary(max)" />
           <Property Name="FileType" Type="nvarchar" MaxLength="50" />
+          <Property Name="TransactionID" Type="int" />
         </EntityType>
         <EntityType Name="Projects">
           <Key>
@@ -233,6 +234,18 @@
             </Principal>
             <Dependent Role="FinancialReports">
               <PropertyRef Name="ProjectID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Financial__Trans__73852659">
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="0..1" />
+          <End Role="FinancialReports" Type="Self.FinancialReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BudgetTransactions">
+              <PropertyRef Name="TransactionID" />
+            </Principal>
+            <Dependent Role="FinancialReports">
+              <PropertyRef Name="TransactionID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -467,6 +480,10 @@
             <End Role="Projects" EntitySet="Projects" />
             <End Role="FinancialReports" EntitySet="FinancialReports" />
           </AssociationSet>
+          <AssociationSet Name="FK__Financial__Trans__73852659" Association="Self.FK__Financial__Trans__73852659">
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+            <End Role="FinancialReports" EntitySet="FinancialReports" />
+          </AssociationSet>
           <AssociationSet Name="FK__Projects__Projec__0B91BA14" Association="Self.FK__Projects__Projec__0B91BA14">
             <End Role="Users" EntitySet="Users" />
             <End Role="Projects" EntitySet="Projects" />
@@ -556,6 +573,7 @@
           <Property Name="RecordedBy" Type="Int32" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__BudgetTra__Proje__3864608B" FromRole="BudgetTransactions" ToRole="Projects" />
           <NavigationProperty Name="Users" Relationship="Self.FK__BudgetTra__Recor__395884C4" FromRole="BudgetTransactions" ToRole="Users" />
+          <NavigationProperty Name="FinancialReports" Relationship="Self.FK__Financial__Trans__73852659" FromRole="BudgetTransactions" ToRole="FinancialReports" />
         </EntityType>
         <EntityType Name="Contracts">
           <Key>
@@ -578,6 +596,8 @@
           <Property Name="ReportDate" Type="DateTime" Precision="3" />
           <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TransactionID" Type="Int32" />
+          <NavigationProperty Name="BudgetTransactions" Relationship="Self.FK__Financial__Trans__73852659" FromRole="FinancialReports" ToRole="BudgetTransactions" />
           <NavigationProperty Name="Projects" Relationship="Self.FK__Financial__Proje__2BFE89A6" FromRole="FinancialReports" ToRole="Projects" />
         </EntityType>
         <EntityType Name="Projects">
@@ -773,6 +793,18 @@
             </Principal>
             <Dependent Role="BudgetTransactions">
               <PropertyRef Name="RecordedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Financial__Trans__73852659">
+          <End Role="BudgetTransactions" Type="Self.BudgetTransactions" Multiplicity="0..1" />
+          <End Role="FinancialReports" Type="Self.FinancialReports" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BudgetTransactions">
+              <PropertyRef Name="TransactionID" />
+            </Principal>
+            <Dependent Role="FinancialReports">
+              <PropertyRef Name="TransactionID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1027,6 +1059,10 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
           </AssociationSet>
+          <AssociationSet Name="FK__Financial__Trans__73852659" Association="Self.FK__Financial__Trans__73852659">
+            <End Role="BudgetTransactions" EntitySet="BudgetTransactions" />
+            <End Role="FinancialReports" EntitySet="FinancialReports" />
+          </AssociationSet>
           <AssociationSet Name="FK__Contracts__Proje__31B762FC" Association="Self.FK__Contracts__Proje__31B762FC">
             <End Role="Projects" EntitySet="Projects" />
             <End Role="Contracts" EntitySet="Contracts" />
@@ -1145,6 +1181,7 @@
                 <ScalarProperty Name="ReportDate" ColumnName="ReportDate" />
                 <ScalarProperty Name="FilePath" ColumnName="FilePath" />
                 <ScalarProperty Name="FileType" ColumnName="FileType" />
+                <ScalarProperty Name="TransactionID" ColumnName="TransactionID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

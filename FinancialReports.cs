@@ -20,7 +20,9 @@ namespace GeotekMetallCompleteDesktop
         public Nullable<System.DateTime> ReportDate { get; set; }
         public byte[] FilePath { get; set; }
         public string FileType { get; set; }
+        public Nullable<int> TransactionID { get; set; }
     
+        public virtual BudgetTransactions BudgetTransactions { get; set; }
         public virtual Projects Projects { get; set; }
     }
 }

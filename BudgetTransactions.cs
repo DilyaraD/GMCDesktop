@@ -14,6 +14,12 @@ namespace GeotekMetallCompleteDesktop
     
     public partial class BudgetTransactions
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public BudgetTransactions()
+        {
+            this.FinancialReports = new HashSet<FinancialReports>();
+        }
+    
         public int TransactionID { get; set; }
         public int ProjectID { get; set; }
         public System.DateTime TransactionDate { get; set; }
@@ -23,5 +29,7 @@ namespace GeotekMetallCompleteDesktop
     
         public virtual Projects Projects { get; set; }
         public virtual Users Users { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<FinancialReports> FinancialReports { get; set; }
     }
 }
