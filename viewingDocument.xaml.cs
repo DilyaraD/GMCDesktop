@@ -61,11 +61,6 @@ namespace GeotekMetallCompleteDesktop
                         LoadWordFile(flowDocument);
                         break;
 
-                    case ".xls":
-                    case ".xlsx":
-                        LoadExcelFile(flowDocument);
-                        break;
-
                     default:
                         TryLoadAsText(flowDocument);
                         break;
@@ -146,39 +141,6 @@ namespace GeotekMetallCompleteDesktop
             catch (Exception ex)
             {
                 flowDocument.Blocks.Add(new Paragraph(new Run($"Ошибка чтения Word документа: {ex.Message}")));
-            }
-        }
-
-        private void LoadExcelFile(FlowDocument flowDocument)
-        {
-            try
-            {
-                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; 
-                using (var package = new ExcelPackage(new FileInfo(_filePath)))
-                {
-                    foreach (var worksheet in package.Workbook.Worksheets)
-                    {
-                        var paragraph = new Paragraph();
-                        paragraph.Inlines.Add(new Run($"Лист: {worksheet.Name}"));
-                        paragraph.Inlines.Add(new LineBreak());
-
-                        for (int row = 1; row <= worksheet.Dimension.Rows; row++)
-                        {
-                            for (int col = 1; col <= worksheet.Dimension.Columns; col++)
-                            {
-                                var cellValue = worksheet.Cells[row, col].Text;
-                                paragraph.Inlines.Add(new Run($"{cellValue}\t"));
-                            }
-                            paragraph.Inlines.Add(new LineBreak());
-                        }
-
-                        flowDocument.Blocks.Add(paragraph);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                flowDocument.Blocks.Add(new Paragraph(new Run($"Ошибка чтения Excel файла: {ex.Message}")));
             }
         }
 
