@@ -51,7 +51,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void Button_FinanceManagementPage_Click(object sender, RoutedEventArgs e)
         {
-            ContentName.Text = "Управление финансами";
+            ContentName.Text = "Управление финансовыми отчётами";
             ContentFrame.Navigate(new FinanceManagementPage(_user));
         }
 

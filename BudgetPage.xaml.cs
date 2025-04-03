@@ -180,10 +180,13 @@ namespace GeotekMetallCompleteDesktop
 
                 foreach (var file in _attachedFiles)
                 {
+                    string safeReportType = $"Документ к транзакции N{newTransaction.TransactionID}_{description}"
+                        .Replace(":", "_");
+
                     var report = new FinancialReports
                     {
                         ProjectID = _selectedProject.ProjectID,
-                        ReportType = $"Документ к транзакции N{newTransaction.TransactionID}: {description}",
+                        ReportType = safeReportType,
                         ReportDate = DateTime.Now,
                         FilePath = file.FileData,
                         FileType = file.FileExtension,
@@ -275,21 +278,7 @@ namespace GeotekMetallCompleteDesktop
             var selectedTransaction = TransactionsListView.SelectedItem as BudgetTransactions;
             if (selectedTransaction != null)
             {
-                // Получаем количество прикрепленных файлов
-                int attachedFilesCount = _db.FinancialReports
-                    .Count(fr => fr.TransactionID == selectedTransaction.TransactionID);
-
-                if (attachedFilesCount == 0)
-                {
-                    MessageBox.Show("К выбранной транзакции не прикреплено ни одного документа.",
-                                  "Нет прикрепленных документов",
-                                  MessageBoxButton.OK,
-                                  MessageBoxImage.Information);
-                    return;
-                }
-
-                // Если файлы есть - переходим на страницу управления финансами
-                NavigationService.Navigate(new FinanceManagementPage(_user, selectedTransaction.ProjectID));
+                NavigationService.Navigate(new FinanceManagementPage(_user, selectedTransaction.TransactionID));
             }
         }
 
@@ -303,7 +292,6 @@ namespace GeotekMetallCompleteDesktop
             TransactionsListView.Visibility = Visibility.Visible;
             AddTransactionPanel.Visibility = Visibility.Collapsed;
             FilterPanel.Visibility = Visibility.Visible;
-            //ResetProjectButton.Visibility = Visibility.Visible;
             SelectBtm.Visibility = Visibility.Visible;
             _selectedProject = null;
             SelectedProjectTextBlock.Text = string.Empty;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -154,7 +155,15 @@ namespace GeotekMetallCompleteDesktop
                     act.FilePath = editor.DocumentData;
                     act.FileType = editor.FileType;
                     _db.SaveChanges();
-                    LoadActs();
+                    if (_selectedProject != null)
+                    {
+                        var filteredActs = _acts.Where(c => c.ProjectID == _selectedProject.ProjectID).ToList();
+                        ActsListView.ItemsSource = filteredActs;
+                    }
+                    else
+                    {
+                        ActsListView.ItemsSource = _acts;
+                    }
                 }
             }
         }
@@ -166,7 +175,7 @@ namespace GeotekMetallCompleteDesktop
             {
                 var saveFileDialog = new SaveFileDialog
                 {
-                    FileName = $"Акт_{act.ActID}.{act.FileType}",
+                    FileName = $"Акт_N{act.ActID}{act.FileType}",
                     Filter = GetFilterForFileType(act.FileType)
                 };
 
@@ -191,9 +200,9 @@ namespace GeotekMetallCompleteDesktop
         {
             switch (fileType.ToLower())
             {
-                case "docx": return "Word Document (*.docx)|*.docx";
-                case "pdf": return "PDF File (*.pdf)|*.pdf";
-                case "txt": return "Text File (*.txt)|*.txt";
+                case ".docx": return "Word Document (*.docx)|*.docx";
+                case ".pdf": return "PDF File (*.pdf)|*.pdf";
+                case ".txt": return "Text File (*.txt)|*.txt";
                 default: return "All Files (*.*)|*.*";
             }
         }

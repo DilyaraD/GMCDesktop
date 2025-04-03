@@ -12,21 +12,22 @@ namespace GeotekMetallCompleteDesktop
     {
         public Users _user;
         private GeotekMetallCompleteEntities1 _db;
-        private Projects _selectedProject;
+        private int? _transactionId;
 
-        public FinanceManagementPage(Users user, int? projectId = null)
+        public FinanceManagementPage(Users user, int? transactionId = null)
         {
             InitializeComponent();
             _user = user;
             _db = new GeotekMetallCompleteEntities1();
-            if (projectId.HasValue)
+            _transactionId = transactionId;
+
+            if (transactionId.HasValue)
             {
-                _selectedProject = _db.Projects.Find(projectId);
                 var filteredReports = _db.FinancialReports
-                    .Where(r => r.ProjectID == projectId)
+                    .Where(r => r.TransactionID == transactionId)
                     .ToList();
                 FinancialReportsListView.ItemsSource = filteredReports;
-                Filter.Visibility= Visibility.Collapsed;
+                Filter.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -38,10 +39,7 @@ namespace GeotekMetallCompleteDesktop
         private void LoadFinancialReports()
         {
             FinancialReportsListView.ItemsSource = _db.FinancialReports.Include("Projects").ToList();
-            if (_selectedProject == null)
-            {
-                ResetProjectButton.Visibility = Visibility.Collapsed;
-            }
+            ResetProjectButton.Visibility = Visibility.Collapsed;
         }
 
         private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
@@ -50,9 +48,9 @@ namespace GeotekMetallCompleteDesktop
             var selectProjectWindow = new SelectProjectWindow(projects);
             if (selectProjectWindow.ShowDialog() == true)
             {
-                _selectedProject = selectProjectWindow.SelectedProject;
+                var selectedProject = selectProjectWindow.SelectedProject;
                 var filteredReports = _db.FinancialReports
-                    .Where(r => r.ProjectID == _selectedProject.ProjectID)
+                    .Where(r => r.ProjectID == selectedProject.ProjectID)
                     .ToList();
                 FinancialReportsListView.ItemsSource = filteredReports;
                 ResetProjectButton.Visibility = Visibility.Visible;
@@ -61,7 +59,6 @@ namespace GeotekMetallCompleteDesktop
 
         private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
         {
-            _selectedProject = null;
             LoadFinancialReports();
         }
 
@@ -72,9 +69,11 @@ namespace GeotekMetallCompleteDesktop
             {
                 try
                 {
+                    string safeFileName = $"{report.ReportType}.{report.FileType}";
+
                     var saveFileDialog = new SaveFileDialog
                     {
-                        FileName = $"{report.ReportType}_{report.ReportID}.{report.FileType}",
+                        FileName = safeFileName,
                         Filter = $"{report.FileType} files (*.{report.FileType})|*.{report.FileType}"
                     };
 

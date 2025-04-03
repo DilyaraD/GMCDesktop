@@ -16,7 +16,7 @@
             <Image Source="img/llogo.png" Margin="0,100,0,20"/>
             <Label x:Name="role" Style="{StaticResource LabelStyle}">Бухгалтер</Label>
             <Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансовые отчёты</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_BudgetPage_Click">бюджет</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_ActsOfWorkPage_Click">акты выполненных работ</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_ContractsPage_Click">договора</Button>

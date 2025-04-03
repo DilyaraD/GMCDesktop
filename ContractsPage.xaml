@@ -5,34 +5,68 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="700" 
-      Title="Управление договорами">
-        <Grid Background="White">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+      d:DesignHeight="700" d:DesignWidth="900"
+      Title="Управление договорами"
+      Background="White">
 
-            <!-- Кнопки управления -->
-            <StackPanel Orientation="Horizontal" Grid.Row="0">
-                <Button Content="Добавить договор" Click="AddContractButton_Click" Margin="0,0,10,0" />
-                <Button Content="Выбрать проект" Click="SelectProjectButton_Click" Margin="0,0,10,0" />
-                <Button Content="Сбросить проект" Click="ResetProjectButton_Click" Margin="0,0,10,0" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="ToolbarPanel" Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <Button Content="Добавить договор" 
+                    x:Name="AddButton" 
+                    Click="AddContractButton_Click" 
+                    Margin="0,0,10,0"  
+                    Style="{StaticResource ButtonPageStyle}"/>
+
+            <StackPanel x:Name="FilterPanel" Orientation="Horizontal">
+                <Button Content="Выбрать проект" 
+                        x:Name="SelectButton" 
+                        Click="SelectProjectButton_Click" 
+                        Margin="0,0,10,0" 
+                        Style="{StaticResource ButtStyle}"/>
+
+                <Button x:Name="ResetProjectButton" 
+                        Content="Сбросить проект" 
+                        Click="ResetProjectButton_Click" 
+                        Margin="0,0,10,0" 
+                        Visibility="Collapsed"
+                        Style="{StaticResource ButtStyle}"/>
             </StackPanel>
-        <StackPanel Grid.Row="1" >
+        </StackPanel>
 
+        <StackPanel Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="ContractsListView" 
+                <ListView x:Name="ContractsListView" Margin="10"
                           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ContractID}" Width="50" />
-                            <GridViewColumn Header="Дата договора" DisplayMemberBinding="{Binding ContractDate, StringFormat={}{0:dd.MM.yyyy}}" Width="100" />
-                            <GridViewColumn Header="Тип файла" DisplayMemberBinding="{Binding FileType}" Width="100" />
-                            <GridViewColumn Header="Действия" Width="100">
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ContractID}" Width="50"/>
+                            <GridViewColumn Header="Дата загрузки" DisplayMemberBinding="{Binding ContractDate, StringFormat=dd.MM.yyyy}" Width="120"/>
+                            <GridViewColumn Header="Тип файла" DisplayMemberBinding="{Binding FileType}" Width="100"/>
+                            <GridViewColumn Header="Действия" Width="auto">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Скачать" Click="DownloadContractButton_Click" />
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="Скачать" 
+                                                    Click="DownloadContractButton_Click" 
+                                                    Margin="2" 
+                                                     Style="{StaticResource ButtonPageStyle}"
+                                                    Width="80"/>
+                                            <Button Content="Просмотр" 
+                                                    Click="ViewContractButton_Click" 
+                                                    Margin="2" 
+                                                    Style="{StaticResource ButtonPageStyle}"
+                                                    Width="auto"/>
+                                            <Button Content="Редактировать" 
+                                                    Click="EditContractButton_Click" 
+                                                    Margin="2" 
+                                                    Style="{StaticResource ButtonPageStyle}"
+                                                    Width="auto"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -40,17 +74,93 @@
                     </ListView.View>
                 </ListView>
             </ScrollViewer>
-            <!-- Панель добавления договора -->
-            <StackPanel x:Name="AddContractPanel" Grid.Row="1" Margin="10" Visibility="Collapsed">
-                <Label Content="Выбранный проект:" />
-                <TextBlock x:Name="SelectedProjectTextBlock" Margin="0,0,0,10" />
-                <Button Content="Сменить проект" Click="ChangeProjectButton_Click" Margin="0,0,0,10" />
-                <Label Content="Выбранный файл:" />
-                <TextBlock x:Name="SelectedFileTextBlock" Margin="0,0,0,10" />
-                <Button Content="Выбрать файл" Click="SelectFileButton_Click" />
-                <Button Content="Сохранить" Click="SaveContractButton_Click" Margin="0,10,0,0" />
-                <Button Content="Отмена" Click="CancelButton_Click" Margin="0,5,0,0" />
-            </StackPanel>
+
+            <Border x:Name="AddContractPanel" 
+                    CornerRadius="4" 
+                    Background="White" 
+                    Padding="20" 
+                    Margin="10" 
+                    Effect="{StaticResource ShadowEffect}" 
+                    Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Добавление договора" 
+                               FontSize="26" 
+                               FontWeight="Bold"
+                               Margin="0,0,0,20" 
+                               HorizontalAlignment="Center"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Выбранный проект:" 
+                                   Grid.Row="0" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" 
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock x:Name="SelectedProjectTextBlock" 
+                                      Style="{StaticResource ValueStyle}" 
+                                      VerticalAlignment="Center" 
+                                      Margin="10,0,0,0" 
+                                      FontWeight="Bold"/>
+                            <Button Content="Выбрать проект" 
+                                    Click="ChangeProjectButton_Click" 
+                                    Style="{StaticResource AccentButtonStyle}" 
+                                    Margin="60,0,0,20" 
+                                    Width="150"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Способ добавления:" 
+                                   Grid.Row="1" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" 
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Выбрать файл" 
+                                    Click="SelectFileButton_Click" 
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Width="150"
+                                    Margin="30,10,25,10"/>
+                            <Button Content="Создать новый" 
+                                    Click="CreateNewContractButton_Click" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="150"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Файл:" 
+                                   Grid.Row="2" Grid.Column="0" 
+                                   Style="{StaticResource InputLabelStyle}" 
+                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="SelectedFileTextBlock" 
+                                   Grid.Row="2" Grid.Column="1" 
+                                   Style="{StaticResource ValueStyle}"
+                                   Margin="10,0,0,10"/>
+
+                        <StackPanel Grid.Row="4" Grid.Column="1" 
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Right" 
+                                    Margin="0,20,0,0">
+                            <Button Content="Сохранить" 
+                                    Click="SaveContractButton_Click" 
+                                    Style="{StaticResource PrimaryButtonStyle}" 
+                                    Width="120" 
+                                    Margin="0,0,10,0"/>
+                            <Button Content="Отмена" 
+                                    Click="CancelButton_Click" 
+                                    Style="{StaticResource CancleButtonStyle}" 
+                                    Width="120"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </Page>
