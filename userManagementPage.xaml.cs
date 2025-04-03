@@ -635,40 +635,109 @@ namespace GeotekMetallCompleteDesktop
                 return;
             }
 
-            MessageBoxResult result = MessageBox.Show($"Вы уверены в удалении пользователя ({_currentUser.Login})?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                try
+                using (var db = new GeotekMetallCompleteEntities1())
                 {
-                    using (var db = new GeotekMetallCompleteEntities1())
+                    var managedProjects = db.Projects
+                        .Where(p => p.ProjectManagerID == _currentUser.UserID)
+                        .Join(db.ProjectStages.Where(ps => ps.StatusID != 5 && ps.StatusID != 7), //статусы сменить
+                            p => p.ProjectID,
+                            ps => ps.ProjectID,
+                            (p, ps) => new
+                            {
+                                ProjectID = (int?)p.ProjectID, 
+                                ProjectName = p.Requests.ObjectName,
+                                Role = "Руководитель проекта"
+                            })
+                        .Distinct()
+                        .ToList();
+
+                    var assignedTasks = db.TaskUsers
+                        .Where(tu => tu.UserID == _currentUser.UserID)
+                        .Join(db.Tasks,
+                            tu => tu.TaskID,
+                            t => t.TaskID,
+                            (tu, t) => new { tu.UserID, t.TaskID, t.ProjectStages })
+                        .Where(x => x.ProjectStages.StatusID != 5 && x.ProjectStages.StatusID != 7) //статусы сменить
+                        .Select(x => new
+                        {
+                            ProjectID = (int?)x.ProjectStages.ProjectID, 
+                            ProjectName = x.ProjectStages.Projects.Requests.ObjectName,
+                            Role = "Исполнитель"
+                        })
+                        .Distinct()
+                        .ToList();
+
+                    var allProjects = new List<dynamic>();
+                    allProjects.AddRange(managedProjects);
+                    allProjects.AddRange(assignedTasks);
+
+                    if (allProjects.Any())
+                    {
+                        var message = new StringBuilder();
+                        message.AppendLine("Невозможно удалить пользователя, так как он участвует в следующих проектах:");
+                        message.AppendLine();
+
+                        foreach (dynamic project in allProjects)
+                        {
+                            message.AppendLine($"- ID: {project.ProjectID}, Название: {project.ProjectName}, Роль: {project.Role}");
+                        }
+
+                        message.AppendLine();
+                        message.AppendLine("Пользователь должен быть снят со всех проектов перед удалением.");
+
+                        MessageBox.Show(message.ToString(),
+                            "Ошибка удаления",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    MessageBoxResult result = MessageBox.Show(
+                        $"Вы уверены в удалении пользователя ({_currentUser.Login})?",
+                        "Подтверждение удаления",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
                     {
                         var userToDelete = db.Users.FirstOrDefault(u => u.UserID == _currentUser.UserID);
 
                         if (userToDelete != null)
                         {
-                            var userRoles = db.UserRoles.Where(ur => ur.UserID == userToDelete.UserID);
-                            db.Users.Remove(userToDelete);
+                            var taskUsers = db.TaskUsers.Where(tu => tu.UserID == userToDelete.UserID);
+                            db.TaskUsers.RemoveRange(taskUsers);
 
+                            var userRoles = db.UserRoles.Where(ur => ur.UserID == userToDelete.UserID);
+                            db.UserRoles.RemoveRange(userRoles);
+
+                            db.Users.Remove(userToDelete);
                             db.SaveChanges();
 
-                            MessageBox.Show("Пользователь успешно удален!");
+                            MessageBox.Show("Пользователь успешно удален!",
+                                "Успех",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+
                             ShowUserList();
                             ClearForm();
                         }
-                        else
-                        {
-                            MessageBox.Show("Пользователь не найден.");
-                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка удаления пользователя: {ex.Message}");
-                }
             }
-            UpdateSearchVisibility();
-            _currentUser = null;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка удаления пользователя: {ex.Message}",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                UpdateSearchVisibility();
+                _currentUser = null;
+            }
         }
     }
 }
