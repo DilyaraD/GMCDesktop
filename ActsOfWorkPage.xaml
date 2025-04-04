@@ -4,8 +4,9 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
+      xmlns:converters="clr-namespace:GeotekMetallCompleteDesktop.Converters"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="900"
+      d:DesignHeight="700" d:DesignWidth="700" 
       Title="Управление актами"
       Background="White">
 
@@ -50,20 +51,26 @@
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                             <Button Content="Скачать" 
-                                                    Click="DownloadActButton_Click" 
-                                                    Margin="2" 
-                                                   Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
+                        Click="DownloadActButton_Click" 
+                        Margin="2" 
+                        Style="{StaticResource ButtonPageStyle}"
+                        Width="auto"/>
                                             <Button Content="Просмотр" 
-                                                    Click="ViewActButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
+                        Click="ViewActButton_Click" 
+                        Margin="2" 
+                        Style="{StaticResource ButtonPageStyle}"
+                        Width="auto"/>
                                             <Button Content="Редактировать" 
-                                                    Click="EditActButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
+                        Click="EditActButton_Click" 
+                        Margin="2" 
+                        Style="{StaticResource ButtonPageStyle}"
+                        Width="auto"
+                                                  />
+                                            <Button Content="Удалить" 
+                        Click="DeleteActButton_Click" 
+                        Margin="2" 
+                        Style="{StaticResource DangerButtonStyle}"
+                        Width="auto"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -81,7 +88,7 @@
                     Effect="{StaticResource ShadowEffect}" 
                     Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="Добавление акта" 
+                    <TextBlock Text="Добавление акта"  x:Name="HeaderTextBlock" 
                                FontSize="26" 
                                FontWeight="Bold"
                                Margin="0,0,0,20" 
@@ -110,7 +117,7 @@
                                       VerticalAlignment="Center" 
                                       Margin="10,0,0,0" 
                                       FontWeight="Bold"/>
-                            <Button Content="Выбрать проект" 
+                            <Button Content="Выбрать проект"  x:Name="ChangeProjectButton" 
                                     Click="ChangeProjectButton_Click" 
                                     Style="{StaticResource AccentButtonStyle}" 
                                     Margin="60,0,0,20" 
@@ -146,7 +153,7 @@
                                     Orientation="Horizontal" 
                                     HorizontalAlignment="Right" 
                                     Margin="0,30,0,0">
-                            <Button Content="Сохранить" 
+                            <Button Content="Сохранить"  x:Name="SaveActButton"
                                     Click="SaveActButton_Click" 
                                     Style="{StaticResource PrimaryButtonStyle}" 
                                     Width="120" 

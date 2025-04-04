@@ -3,17 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
         mc:Ignorable="d"
-        Title="Просмотр документа" Height="800" Width="1000"  MaxHeight="800" MaxWidth="1200" 
-        WindowStartupLocation="CenterScreen" MinHeight="800" MinWidth="1000">
+        Title="Редактор документов" Height="800" Width="1000"
+        WindowStartupLocation="CenterScreen" MinHeight="600" MinWidth="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <RichTextBox x:Name="DocumentEditor" Grid.Row="0" Margin="10" 
+        <ToolBar Grid.Row="0">
+            <Button Content="Вставить изображение" Click="InsertImage_Click" 
+                    ToolTip="Вставить изображение в документ" Padding="10,3"/>
+        </ToolBar>
+
+        <RichTextBox x:Name="DocumentEditor" Grid.Row="1" Margin="10" 
                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
@@ -22,9 +27,9 @@
             </RichTextBox.Resources>
         </RichTextBox>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="10">
-                <Button Content="Отмена" Click="Cancel_Click" Width="100" Margin="5"/>
-                <Button Content="Сохранить" Click="Save_Click" Width="100" Margin="5"/>
-            </StackPanel>
-        </Grid>
-    </Window>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="Отмена" Click="Cancel_Click" Width="100" Margin="5"/>
+            <Button Content="Сохранить" Click="Save_Click" Width="100" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

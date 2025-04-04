@@ -1,0 +1,100 @@
+﻿<Page x:Class="GeotekMetallCompleteDesktop.TasksManagementPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="700" 
+      Title="Мои задачи">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,10,10,5" x:Name="Filter">
+            <Button x:Name="FilterByProjectBtn" Content="Выбрать проект" 
+                    Style="{StaticResource ButtonPageStyle}" Click="FilterByProjectBtn_Click"  Margin="0,0,10,0" />
+
+            <ComboBox x:Name="StatusFilterComboBox"  Width="150" Margin="5"  SelectionChanged="StatusFilterComboBox_SelectionChanged">
+                <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+            </ComboBox>
+
+            <ComboBox x:Name="DueDateFilterComboBox"  Width="150" Margin="5"   SelectionChanged="DueDateFilterComboBox_SelectionChanged">
+                <ComboBoxItem Content="Сортировка по дате" IsSelected="True"/>
+                <ComboBoxItem Content="По возрастанию"/>
+                <ComboBoxItem Content="По убыванию"/>
+            </ComboBox>
+
+            <Button x:Name="ResetFiltersBtn" Content="Сбросить фильтры"  Margin="0,0,10,0" 
+                   Style="{StaticResource ButtStyle}" Click="ResetFiltersBtn_Click" Visibility="Collapsed"/>
+        </StackPanel>
+
+        <ListView x:Name="TasksListView" Grid.Row="1" Margin="20,0,20,20" SelectionChanged="TasksListView_SelectionChanged"
+                   Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding TaskDescription}" Width="200"/>
+                    <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding ProjectStages.Projects.Requests.ObjectName}" Width="auto"/>
+                    <GridViewColumn Header="Стадия" DisplayMemberBinding="{Binding ProjectStages.StageName}" Width="auto"/>
+                    <GridViewColumn Header="Срок" DisplayMemberBinding="{Binding DueDate, StringFormat={}{0:dd.MM.yyyy}}" Width="auto"/>
+                    <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding Statuses.StatusName}" Width="auto"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Border x:Name="TaskDetailsPanel" Background="White" 
+                Visibility="Collapsed" Margin="20" Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Детали задачи" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Название:" Style="{StaticResource LabelStyle12}" Grid.Row="0" Grid.Column="0"/>
+                        <TextBlock x:Name="TaskNameText" Style="{StaticResource ValueStyle}" Grid.Row="0" Grid.Column="1"  TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Описание:" Style="{StaticResource LabelStyle12}" Grid.Row="1" Grid.Column="0"/>
+                        <TextBlock x:Name="TaskDescriptionText" Style="{StaticResource ValueStyle}" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Проект:" Style="{StaticResource LabelStyle12}" Grid.Row="2" Grid.Column="0"/>
+                        <TextBlock x:Name="ProjectNameText" Style="{StaticResource ValueStyle}" Grid.Row="2" Grid.Column="1"  TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Стадия:" Style="{StaticResource LabelStyle12}" Grid.Row="3" Grid.Column="0"/>
+                        <TextBlock x:Name="StageNameText" Style="{StaticResource ValueStyle}" Grid.Row="3" Grid.Column="1"/>
+
+                        <TextBlock Text="Срок выполнения:" Style="{StaticResource LabelStyle12}" Grid.Row="4" Grid.Column="0"/>
+                        <TextBlock x:Name="DueDateText" Style="{StaticResource ValueStyle}" Grid.Row="4" Grid.Column="1"/>
+
+                        <TextBlock Text="Статус:" Style="{StaticResource LabelStyle12}" Grid.Row="5" Grid.Column="0"/>
+                        <TextBlock x:Name="StatusText" Style="{StaticResource ValueStyle}" Grid.Row="5" Grid.Column="1"/>
+
+                        <TextBlock Text="Адрес объекта:" Style="{StaticResource LabelStyle12}" Grid.Row="6" Grid.Column="0"/>
+                        <TextBlock x:Name="AddressText" Style="{StaticResource ValueStyle}" Grid.Row="6" Grid.Column="1"/>
+
+                        <TextBlock Text="Тип работ:" Style="{StaticResource LabelStyle12}" Grid.Row="7" Grid.Column="0"/>
+                        <TextBlock x:Name="WorkTypeText" Style="{StaticResource ValueStyle}" Grid.Row="7" Grid.Column="1"/>
+                    </Grid>
+
+                    <Button x:Name="BackButton" Content="Назад" Style="{StaticResource PrimaryButtonStyle}" 
+                            HorizontalAlignment="Right" Margin="0,20,0,0" Click="BackButton_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

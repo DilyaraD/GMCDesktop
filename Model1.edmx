@@ -112,6 +112,15 @@
           <Property Name="version" Type="int" />
           <Property Name="definition" Type="varbinary(max)" />
         </EntityType>
+        <EntityType Name="TaskReportFiles">
+          <Key>
+            <PropertyRef Name="FileID" />
+          </Key>
+          <Property Name="FileID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ReportID" Type="int" Nullable="false" />
+          <Property Name="FilePath" Type="varbinary(max)" Nullable="false" />
+          <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="TaskReports">
           <Key>
             <PropertyRef Name="ReportID" />
@@ -119,10 +128,8 @@
           <Property Name="ReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TaskID" Type="int" Nullable="false" />
           <Property Name="UploadedBy" Type="int" />
-          <Property Name="FileType" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="UploadDate" Type="datetime" Nullable="false" />
-          <Property Name="FilePath" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="Tasks">
           <Key>
@@ -325,6 +332,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK__TaskRepor__Repor__01D345B0">
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="1" />
+          <End Role="TaskReportFiles" Type="Self.TaskReportFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaskReports">
+              <PropertyRef Name="ReportID" />
+            </Principal>
+            <Dependent Role="TaskReportFiles">
+              <PropertyRef Name="ReportID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__TaskRepor__TaskI__282DF8C2">
           <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -454,6 +473,7 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Statuses" EntityType="Self.Statuses" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaskReportFiles" EntityType="Self.TaskReportFiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaskReports" EntityType="Self.TaskReports" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tasks" EntityType="Self.Tasks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" Schema="dbo" store:Type="Tables" />
@@ -507,6 +527,10 @@
           <AssociationSet Name="FK__Requests__UserID__03F0984C" Association="Self.FK__Requests__UserID__03F0984C">
             <End Role="Users" EntitySet="Users" />
             <End Role="Requests" EntitySet="Requests" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__Repor__01D345B0" Association="Self.FK__TaskRepor__Repor__01D345B0">
+            <End Role="TaskReports" EntitySet="TaskReports" />
+            <End Role="TaskReportFiles" EntitySet="TaskReportFiles" />
           </AssociationSet>
           <AssociationSet Name="FK__TaskRepor__TaskI__282DF8C2" Association="Self.FK__TaskRepor__TaskI__282DF8C2">
             <End Role="Tasks" EntitySet="Tasks" />
@@ -682,6 +706,16 @@
           <Property Name="version" Type="Int32" />
           <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
+        <EntityType Name="TaskReportFiles">
+          <Key>
+            <PropertyRef Name="FileID" />
+          </Key>
+          <Property Name="FileID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ReportID" Type="Int32" Nullable="false" />
+          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TaskReports" Relationship="Self.FK__TaskRepor__Repor__01D345B0" FromRole="TaskReportFiles" ToRole="TaskReports" />
+        </EntityType>
         <EntityType Name="TaskReports">
           <Key>
             <PropertyRef Name="ReportID" />
@@ -689,10 +723,9 @@
           <Property Name="ReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TaskID" Type="Int32" Nullable="false" />
           <Property Name="UploadedBy" Type="Int32" />
-          <Property Name="FileType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="UploadDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="FilePath" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <NavigationProperty Name="TaskReportFiles" Relationship="Self.FK__TaskRepor__Repor__01D345B0" FromRole="TaskReports" ToRole="TaskReportFiles" />
           <NavigationProperty Name="Tasks" Relationship="Self.FK__TaskRepor__TaskI__282DF8C2" FromRole="TaskReports" ToRole="Tasks" />
           <NavigationProperty Name="Users" Relationship="Self.FK__TaskRepor__Uploa__29221CFB" FromRole="TaskReports" ToRole="Users" />
         </EntityType>
@@ -964,6 +997,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK__TaskRepor__Repor__01D345B0">
+          <End Role="TaskReports" Type="Self.TaskReports" Multiplicity="1" />
+          <End Role="TaskReportFiles" Type="Self.TaskReportFiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaskReports">
+              <PropertyRef Name="ReportID" />
+            </Principal>
+            <Dependent Role="TaskReportFiles">
+              <PropertyRef Name="ReportID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__TaskRepor__TaskI__282DF8C2">
           <End Role="Tasks" Type="Self.Tasks" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -1041,6 +1086,7 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" />
           <EntitySet Name="Statuses" EntityType="Self.Statuses" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
+          <EntitySet Name="TaskReportFiles" EntityType="Self.TaskReportFiles" />
           <EntitySet Name="TaskReports" EntityType="Self.TaskReports" />
           <EntitySet Name="Tasks" EntityType="Self.Tasks" />
           <EntitySet Name="TaskUsers" EntityType="Self.TaskUsers" />
@@ -1110,6 +1156,10 @@
           <AssociationSet Name="FK__Tasks__StatusID__1BC821DD" Association="Self.FK__Tasks__StatusID__1BC821DD">
             <End Role="Statuses" EntitySet="Statuses" />
             <End Role="Tasks" EntitySet="Tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK__TaskRepor__Repor__01D345B0" Association="Self.FK__TaskRepor__Repor__01D345B0">
+            <End Role="TaskReports" EntitySet="TaskReports" />
+            <End Role="TaskReportFiles" EntitySet="TaskReportFiles" />
           </AssociationSet>
           <AssociationSet Name="FK__TaskRepor__TaskI__282DF8C2" Association="Self.FK__TaskRepor__TaskI__282DF8C2">
             <End Role="Tasks" EntitySet="Tasks" />
@@ -1255,16 +1305,24 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TaskReportFiles">
+            <EntityTypeMapping TypeName="GeotekMetallCompleteModel.TaskReportFiles">
+              <MappingFragment StoreEntitySet="TaskReportFiles">
+                <ScalarProperty Name="FileID" ColumnName="FileID" />
+                <ScalarProperty Name="ReportID" ColumnName="ReportID" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="FileType" ColumnName="FileType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="TaskReports">
             <EntityTypeMapping TypeName="GeotekMetallCompleteModel.TaskReports">
               <MappingFragment StoreEntitySet="TaskReports">
                 <ScalarProperty Name="ReportID" ColumnName="ReportID" />
                 <ScalarProperty Name="TaskID" ColumnName="TaskID" />
                 <ScalarProperty Name="UploadedBy" ColumnName="UploadedBy" />
-                <ScalarProperty Name="FileType" ColumnName="FileType" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="UploadDate" ColumnName="UploadDate" />
-                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

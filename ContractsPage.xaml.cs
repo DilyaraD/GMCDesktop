@@ -10,13 +10,14 @@ namespace GeotekMetallCompleteDesktop
 {
     public partial class ContractsPage : Page
     {
-        public Users _user;
-        private List<Contracts> _contracts;
+        private Users _user;
+        private GeotekMetallCompleteEntities1 _db;
+        private Projects _selectedProject;
         private byte[] _selectedFile;
         private string _selectedFileType;
-        private string _selectedFileName;
-        private Projects _selectedProject;
-        private GeotekMetallCompleteEntities1 _db;
+        private List<Contracts> _contracts;
+        private Contracts _currentEditingContract;
+        private Contracts _currEditingContract;
 
         public ContractsPage(Users user)
         {
@@ -34,9 +35,11 @@ namespace GeotekMetallCompleteDesktop
 
         private void AddContractButton_Click(object sender, RoutedEventArgs e)
         {
+            ResetFormState();
             ContractsListView.Visibility = Visibility.Collapsed;
             AddContractPanel.Visibility = Visibility.Visible;
-            FilterPanel.Visibility = Visibility.Collapsed;
+            SelectButton.Visibility = Visibility.Collapsed;
+            HeaderTextBlock.Text = "Добавление договора";
         }
 
         private void CreateNewContractButton_Click(object sender, RoutedEventArgs e)
@@ -45,7 +48,7 @@ namespace GeotekMetallCompleteDesktop
             if (editor.ShowDialog() == true)
             {
                 _selectedFile = editor.DocumentData;
-                _selectedFileType = editor.FileType;
+                _selectedFileType = NormalizeFileType(editor.FileType);
                 SelectedFileTextBlock.Text = "Новый документ" + _selectedFileType;
             }
         }
@@ -54,64 +57,27 @@ namespace GeotekMetallCompleteDesktop
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Документы (*.docx;*.pdf;*.txt)|*.docx;*.pdf;*.txt|Word (*.docx)|*.docx|PDF (*.pdf)|*.pdf|Текстовые файлы (*.txt)|*.txt"
+                Filter = "Документы (*.docx;*.pdf)|*.docx;*.pdf|Word (*.docx)|*.docx|PDF (*.pdf)|*.pdf"
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
                 _selectedFile = File.ReadAllBytes(openFileDialog.FileName);
-                _selectedFileType = Path.GetExtension(openFileDialog.FileName).TrimStart('.');
-                _selectedFileName = Path.GetFileName(openFileDialog.FileName);
-                SelectedFileTextBlock.Text = _selectedFileName;
+                _selectedFileType = NormalizeFileType(Path.GetExtension(openFileDialog.FileName));
+                SelectedFileTextBlock.Text = Path.GetFileName(openFileDialog.FileName);
             }
         }
 
-        private void SaveContractButton_Click(object sender, RoutedEventArgs e)
+        private string NormalizeFileType(string fileType)
         {
-            if (_selectedProject == null)
+            if (string.IsNullOrEmpty(fileType)) return ".unknown";
+
+            if (!fileType.StartsWith("."))
             {
-                var projects = _db.Projects.ToList();
-                var selectProjectWindow = new SelectProjectWindow(projects);
-                if (selectProjectWindow.ShowDialog() != true)
-                {
-                    MessageBox.Show("Необходимо выбрать проект", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                _selectedProject = selectProjectWindow.SelectedProject;
-                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
+                fileType = "." + fileType;
             }
 
-            if (_selectedFile == null || _selectedFile.Length == 0)
-            {
-                MessageBox.Show("Выберите файл для загрузки", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                var newContract = new Contracts
-                {
-                    ProjectID = _selectedProject.ProjectID,
-                    ContractDate = DateTime.Now,
-                    FilePath = _selectedFile,
-                    FileType = _selectedFileType
-                };
-
-                _db.Contracts.Add(newContract);
-                _db.SaveChanges();
-
-                LoadContracts();
-                CancelButton_Click(sender, e);
-                MessageBox.Show("Договор успешно добавлен", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при сохранении договора: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            return fileType.ToLower();
         }
 
         private void ViewContractButton_Click(object sender, RoutedEventArgs e)
@@ -121,7 +87,7 @@ namespace GeotekMetallCompleteDesktop
             {
                 try
                 {
-                    var tempFilePath = Path.GetTempFileName() + "." + contract.FileType;
+                    var tempFilePath = Path.GetTempFileName() + contract.FileType;
                     File.WriteAllBytes(tempFilePath, contract.FilePath);
 
                     var viewer = new viewingDocument(tempFilePath, $"Договор N{contract.ContractID}");
@@ -145,27 +111,143 @@ namespace GeotekMetallCompleteDesktop
             var contract = (sender as Button)?.DataContext as Contracts;
             if (contract?.FilePath != null)
             {
-                var editor = new DocumentEditorWindow(
-                    documentData: contract.FilePath,
-                    fileName: $"Договор N{contract.ContractID}.{contract.FileType}",
-                    fileType: contract.FileType,
-                    isNewDocument: false);
-
-                if (editor.ShowDialog() == true)
+                if (contract.FileType.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    contract.FilePath = editor.DocumentData;
-                    contract.FileType = editor.FileType;
-                    _db.SaveChanges();
-                    if (_selectedProject != null)
+                    OpenPdfEditForm(contract);
+                }
+                else
+                {
+                    var editor = new DocumentEditorWindow(
+                        documentData: contract.FilePath,
+                        fileName: $"Договор N{contract.ContractID}{contract.FileType}",
+                        fileType: contract.FileType,
+                        isNewDocument: false);
+                    _currEditingContract = contract;
+
+                    if (editor.ShowDialog() == true)
                     {
-                        var filteredContracts = _contracts.Where(c => c.ProjectID == _selectedProject.ProjectID).ToList();
-                        ContractsListView.ItemsSource = filteredContracts;
-                    }
-                    else
-                    {
-                        ContractsListView.ItemsSource = _contracts;
+                        contract.FilePath = editor.DocumentData;
+                        contract.FileType = NormalizeFileType(editor.FileType);
+                        contract.ContractDate = DateTime.Now;
+                        _db.SaveChanges();
+                        LoadContracts();
                     }
                 }
+            }
+        }
+
+        private void OpenPdfEditForm(Contracts contract)
+        {
+            _currentEditingContract = contract;
+
+            ResetFormState();
+            ContractsListView.Visibility = Visibility.Collapsed;
+            AddContractPanel.Visibility = Visibility.Visible;
+            SelectButton.Visibility = Visibility.Collapsed;
+
+            HeaderTextBlock.Text = "Редактирование договора";
+
+            _selectedProject = _db.Projects.FirstOrDefault(p => p.ProjectID == contract.ProjectID);
+            if (_selectedProject != null)
+            {
+                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
+            }
+
+            ChangeProjectButton.Visibility = Visibility.Collapsed;
+
+            _selectedFile = contract.FilePath;
+            _selectedFileType = contract.FileType;
+            SelectedFileTextBlock.Text = $"Договор N{contract.ContractID}{contract.FileType}";
+            _currEditingContract = contract;
+            SaveContractButton.Content = "Обновить";
+        }
+
+        private void DeleteContractButton_Click(object sender, RoutedEventArgs e)
+        {
+            var contract = (sender as Button)?.DataContext as Contracts;
+            if (contract != null)
+            {
+                var result = MessageBox.Show("Вы уверены, что хотите удалить этот документ? Это действие нельзя отменить.",
+                                            "Подтверждение удаления",
+                                            MessageBoxButton.YesNo,
+                                            MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _db.Contracts.Remove(contract);
+                        _db.SaveChanges();
+                        LoadContracts();
+                        MessageBox.Show("Документ успешно удален", "Успех",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении документа: {ex.Message}", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void SaveContractButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currEditingContract == null && _selectedProject == null)
+            {
+                var projects = _db.Projects.ToList();
+                var selectProjectWindow = new SelectProjectWindow(projects);
+                if (selectProjectWindow.ShowDialog() != true)
+                {
+                    MessageBox.Show("Необходимо выбрать проект", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                _selectedProject = selectProjectWindow.SelectedProject;
+                SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
+            }
+
+            if (_selectedFile == null || _selectedFile.Length == 0)
+            {
+                MessageBox.Show("Выберите файл для загрузки", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var currentEditingContract = _currEditingContract;
+            try
+            {
+                if (currentEditingContract != null)
+                {
+                    // Редактирование существующего договора
+                    currentEditingContract.FilePath = _selectedFile;
+                    currentEditingContract.FileType = _selectedFileType;
+                    currentEditingContract.ContractDate = DateTime.Now;
+                }
+                else
+                {
+                    // Создание нового договора
+                    var newContract = new Contracts
+                    {
+                        ProjectID = _selectedProject.ProjectID,
+                        ContractDate = DateTime.Now,
+                        FilePath = _selectedFile,
+                        FileType = _selectedFileType
+                    };
+                    _db.Contracts.Add(newContract);
+                }
+
+                _db.SaveChanges();
+                LoadContracts();
+                CancelButton_Click(sender, e);
+
+                MessageBox.Show(_currentEditingContract != null ? "Договор успешно обновлен" : "Договор успешно добавлен",
+                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении договора: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -203,20 +285,30 @@ namespace GeotekMetallCompleteDesktop
             {
                 case ".docx": return "Word Document (*.docx)|*.docx";
                 case ".pdf": return "PDF File (*.pdf)|*.pdf";
-                case ".txt": return "Text File (*.txt)|*.txt";
                 default: return "All Files (*.*)|*.*";
             }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            ResetFormState();
+            _currentEditingContract = null;
+            _currEditingContract = null;
             ContractsListView.Visibility = Visibility.Visible;
             AddContractPanel.Visibility = Visibility.Collapsed;
-            FilterPanel.Visibility = Visibility.Visible;
+            SelectButton.Visibility = Visibility.Visible;
+            HeaderTextBlock.Text = "Добавление договора";
+        }
+
+        private void ResetFormState()
+        {
+            _currentEditingContract = null;
             _selectedFile = null;
             _selectedFileType = null;
-            _selectedFileName = null;
             _selectedProject = null;
+            _currEditingContract = null;
+            ChangeProjectButton.Visibility = Visibility.Visible;
+            SaveContractButton.Content = "Сохранить";
             SelectedProjectTextBlock.Text = string.Empty;
             SelectedFileTextBlock.Text = string.Empty;
         }

@@ -15,13 +15,11 @@
         <StackPanel x:Name="menu" Style="{StaticResource StackPanelStyle}" Grid.Column="0">
             <Image Source="img/llogo.png" Margin="0,100,0,20"/>
             <Label x:Name="role" Style="{StaticResource LabelStyle}">Работник</Label>
-            <!--<Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_FinanceManagementPage_Click">финансы</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_BudgetPage_Click">бюджет</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_ActsOfWorkPage_Click">акты выполненных работ</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_ContractsPage_Click">договора</Button>
+            <Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_TasksManagementPage_Click">задачи</Button>
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_ProjectsPage_Click">проекты</Button>
             <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>-->
+            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>
         </StackPanel>
 
         <Border Grid.Column="1">

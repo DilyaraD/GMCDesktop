@@ -35,6 +35,7 @@ namespace GeotekMetallCompleteDesktop
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<Statuses> Statuses { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
+        public virtual DbSet<TaskReportFiles> TaskReportFiles { get; set; }
         public virtual DbSet<TaskReports> TaskReports { get; set; }
         public virtual DbSet<Tasks> Tasks { get; set; }
         public virtual DbSet<TaskUsers> TaskUsers { get; set; }
