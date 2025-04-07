@@ -82,7 +82,7 @@ namespace GeotekMetallCompleteDesktop
                         ProjectManagerID = p.ProjectManagerID,
                         WorkName = p.Requests.WorkTypes?.WorkTypeName ?? "Не найдено",
                         StageCount = p.ProjectStages?.Count ?? 0,
-                        Status = GetProjectStatus(p) // Определяем статус проекта
+                        Status = GetProjectStatus(p) 
                     }).ToList();
 
                 ProjectsDataGrid.ItemsSource = _projectViewModels;
@@ -94,34 +94,50 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        // Метод для определения статуса проекта
         private string GetProjectStatus(Projects project)
         {
+            // Если нет этапов, статус "Новый"
             if (project.ProjectStages == null || !project.ProjectStages.Any())
                 return "Новый";
 
-            // Проверяем, все ли этапы и задачи отменены
+            // Проверяем, все ли этапы отменены (StatusID = 5) и все ли задачи отменены (StatusID = 5)
             bool allCancelled = project.ProjectStages.All(s => s.StatusID == 5) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
-                                                    .All(t => t.StatusID == 4);
+                                                   .All(t => t.StatusID == 5);
             if (allCancelled)
-                return "Закрыт";
+                return "Отменен";
 
-            // Проверяем, все ли этапы и задачи завершены
+            // Проверяем, все ли этапы завершены (StatusID = 7) и все ли задачи завершены (3) или отменены (5)
             bool allCompleted = project.ProjectStages.All(s => s.StatusID == 7) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
-                                                    .All(t => t.StatusID == 3);
+                                                   .All(t => t.StatusID == 3 || t.StatusID == 5);
             if (allCompleted)
                 return "Завершен";
 
-            // Проверяем, есть ли хотя бы один этап или задача в работе
-            bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6) ||
+            // Проверяем задержки: этапы с истекшим сроком, но не завершенные и не отмененные
+            bool anyDelayed = project.ProjectStages.Any(s =>
+                s.EndDate.HasValue &&
+                s.EndDate.Value < DateTime.Now &&
+                s.StatusID != 7 &&
+                s.StatusID != 5);
+            if (anyDelayed)
+                return "Задерживается";
+
+            // Проверяем этапы без задач, у которых истек срок
+            bool stagesWithoutTasksCompleted = project.ProjectStages
+                .Where(s => !s.Tasks.Any())
+                .All(s => s.EndDate.HasValue && s.EndDate.Value <= DateTime.Now);
+            if (stagesWithoutTasksCompleted)
+                return "Завершен";
+
+            // Проверяем, есть ли этапы в работе (StatusID = 4, 6, 8) или задачи в работе (StatusID = 2, 4)
+            bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 8) ||
                                 project.ProjectStages.SelectMany(s => s.Tasks)
-                                                     .Any(t => t.StatusID == 2);
+                                                    .Any(t => t.StatusID == 2 || t.StatusID == 4);
             if (anyInProgress)
                 return "В работе";
 
-            // Если ни одна из проверок не сработала
+            // Если ничего не подошло
             return "Не определен";
         }
 
@@ -235,7 +251,8 @@ namespace GeotekMetallCompleteDesktop
                 new KeyValuePair<string, string>("Дата начала", _selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")),
                 new KeyValuePair<string, string>("Дата окончания", _selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")),
                 new KeyValuePair<string, string>("Описание", _selectedProject.Requests.Description),
-                new KeyValuePair<string, string>("Количество этапов", _selectedProject.ProjectStages.Count.ToString())
+                new KeyValuePair<string, string>("Количество этапов", _selectedProject.ProjectStages.Count.ToString()),
+                new KeyValuePair<string, string>("Количество этапов", GetProjectStatus(_selectedProject))
             };
 
             RequestDetailsItemsControl.ItemsSource = requestDetails;
@@ -586,7 +603,7 @@ namespace GeotekMetallCompleteDesktop
                 StageID = stage.StageID,
                 TaskDescription = TaskDescriptionTextBox.Text,
                 DueDate = dueDate,
-                StatusID = 1 // Статус "Новый"
+                StatusID = 8 // Статус "В работе"
             };
 
             var workers = _db.Users
@@ -637,7 +654,7 @@ namespace GeotekMetallCompleteDesktop
             var task = (Tasks)((Button)sender).Tag;
             if (task != null)
             {
-                task.StatusID = 3; // Статус "Выполнено"
+                task.StatusID = 7; // Статус "Завершен"
                 _db.SaveChanges();
                 LoadTasks(task.ProjectStages);
                 TaskDetailsPanel.Visibility = Visibility.Collapsed;
