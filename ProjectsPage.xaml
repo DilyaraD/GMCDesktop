@@ -298,15 +298,14 @@
                                    FontSize="14"  FontWeight="Bold"
                                    Margin="0,5,0,0"
                                    Visibility="Collapsed"/>
+
+                        <Button x:Name="SendReportButton" 
+                            Content="Отправить отчет"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Click="SendReportButton_Click" 
+                            HorizontalAlignment="Left" Margin="0,10,0,0" Width="150"/>
                     </StackPanel>
                 </ScrollViewer>
-
-                <Button x:Name="SendReportButton" 
-                        Grid.Row="2"
-                        Content="Отправить отчет" Width="auto"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="SendReportButton_Click"
-                        HorizontalAlignment="Stretch"/>
             </Grid>
         </Grid>
 
@@ -335,13 +334,13 @@
         <Border x:Name="ReportFormOverlay" 
                 Visibility="Collapsed" 
                 Background="#80000000"
-                Panel.ZIndex="1001">
+                Panel.ZIndex="1001" >
             <Border Background="White" 
                     CornerRadius="5"
                     BorderBrush="#DDD"
                     BorderThickness="1"
-                    Width="500"
-                    Padding="20">
+                    Width="650"
+                    Padding="20" Height="550">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -349,7 +348,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Отправить отчет" 
+                    <TextBlock Text="Отправка отчет" 
                                FontSize="18" 
                                FontWeight="Bold"
                                Margin="0,0,0,15"/>
@@ -370,7 +369,7 @@
 
                         <Button Content="Добавить фото" 
                                 Style="{StaticResource PrimaryButtonStyle}"
-                                Click="AddPhotosButton_Click" Width="auto"
+                                Click="AddPhotosButton_Click"
                                 HorizontalAlignment="Left"
                                 Margin="0,5,0,10"/>
 
