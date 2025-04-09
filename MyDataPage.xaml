@@ -77,7 +77,8 @@
                     <TextBlock x:Name="PhoneNumberErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
 
                     <TextBlock Text="Email:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="EmailTextBox" Text="Email" Tag="Email" Style="{StaticResource ModernTextBoxStyle}" MaxLength="50"/>
+                    <TextBox x:Name="EmailTextBox" Text="Email" Tag="Email" Style="{StaticResource ModernTextBoxStyle}" MaxLength="50" PreviewTextInput="EmailTextBox_PreviewTextInput" 
+                                 LostFocus="EmailTextBox_LostFocus"/>
                     <TextBlock x:Name="EmailErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
 
                     <TextBlock Text="Должность:  " Style="{StaticResource InputLabelStyle}"><TextBlock x:Name="RoleComboBox" Style="{StaticResource InputLabelStyle}" /></TextBlock>

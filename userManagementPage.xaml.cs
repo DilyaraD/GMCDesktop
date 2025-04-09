@@ -296,9 +296,7 @@ namespace GeotekMetallCompleteDesktop
 
             using (var db = new GeotekMetallCompleteEntities1())
             {
-                var userRole = db.UserRoles
-    .Where(ur => ur.UserID == user.UserID && ur.RoleID != 2)
-    .FirstOrDefault();
+                var userRole = db.UserRoles.Where(ur => ur.UserID == user.UserID && ur.RoleID != 2).FirstOrDefault();
                 if (userRole != null)
                 {
                     RoleComboBox.SelectedValue = userRole.RoleID;
@@ -517,11 +515,42 @@ namespace GeotekMetallCompleteDesktop
 
         }
 
+        private void EmailTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(EmailTextBox.Text) || EmailTextBox.Text != (string)EmailTextBox.Tag)
+            {
+                if (!Regex.IsMatch(e.Text, @"^[\x20-\x7E]*$"))
+                {
+                    e.Handled = true;
+                    EmailErrorTextBlock.Text = "Допускаются только латинские символы";
+                    EmailErrorTextBlock.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    EmailErrorTextBlock.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
         private void EmailTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(EmailTextBox.Text) || EmailTextBox.Text == (string)EmailTextBox.Tag)
+            {
+                EmailErrorTextBlock.Text = "Введите email";
+                EmailErrorTextBlock.Visibility = Visibility.Visible;
+                return;
+            }
+
+            if (!Regex.IsMatch(EmailTextBox.Text, @"^[\x20-\x7E]*$"))
+            {
+                EmailErrorTextBlock.Text = "Допускаются только латинские символы";
+                EmailErrorTextBlock.Visibility = Visibility.Visible;
+                return;
+            }
+
             if (!IsValidEmail(EmailTextBox.Text))
             {
-                EmailErrorTextBlock.Text = "Неверный формат электронной почты.";
+                EmailErrorTextBlock.Text = "Неверный формат электронной почты";
                 EmailErrorTextBlock.Visibility = Visibility.Visible;
             }
             else
@@ -529,7 +558,7 @@ namespace GeotekMetallCompleteDesktop
                 EmailErrorTextBlock.Visibility = Visibility.Collapsed;
             }
         }
-
+       
         private void PhoneNumberTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (PhoneNumberTextBox.Text.Length != 11 || !PhoneNumberTextBox.Text.StartsWith("89"))
@@ -556,6 +585,7 @@ namespace GeotekMetallCompleteDesktop
                 PasswordErrorTextBlock.Visibility = Visibility.Collapsed;
             }
         }
+
         private bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -564,7 +594,7 @@ namespace GeotekMetallCompleteDesktop
             try
             {
                 return Regex.IsMatch(email,
-                    @"^(([^<>()[\]\\.,;:\s@\""]+(\.[^<>()[\]\\.,;:\s@\""]+)*)|(\"".+\""))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$",
+                   @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
                     RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
             }
             catch (RegexMatchTimeoutException)

@@ -17,6 +17,7 @@ namespace GeotekMetallCompleteDesktop
         private List<Projects> _projects;
         private List<ProjectViewModel> _projectViewModels;
         private Projects _selectedProject;
+        private ProjectStages _selectedStage;
 
         public ProjectsManagementPage(Users user, Projects selectedProject = null)
         {
@@ -56,23 +57,33 @@ namespace GeotekMetallCompleteDesktop
                 LoadProjects();
             }
         }
-        private string GetProjectStatus(Projects project) //получение статуса проекта
+        private string GetProjectStatus(Projects project)
         {
             if (project.ProjectStages == null || !project.ProjectStages.Any())
-                return "Новый";
+            {
+                // Если проект еще не начался (дата начала в будущем)
+                if (project.ProjectStartDate > DateTime.Today)
+                    return "В разработке";
 
+                // Если проект должен был начаться, но этапов нет
+                return "Новый";
+            }
+
+            // Проверка на полностью отмененный проект
             bool allCancelled = project.ProjectStages.All(s => s.StatusID == 5) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 5);
             if (allCancelled)
                 return "Отменен";
 
+            // Проверка на полностью завершенный проект
             bool allCompleted = project.ProjectStages.All(s => s.StatusID == 7) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 3 || t.StatusID == 5);
             if (allCompleted)
                 return "Завершен";
 
+            // Проверка на задержку (есть этапы с просроченной датой и не завершены/не отменены)
             bool anyDelayed = project.ProjectStages.Any(s =>
                 s.EndDate.HasValue &&
                 s.EndDate.Value < DateTime.Now &&
@@ -81,22 +92,39 @@ namespace GeotekMetallCompleteDesktop
             if (anyDelayed)
                 return "Задерживается";
 
+            // Проверка этапов без задач, которые должны быть завершены по дате
             bool stagesWithoutTasksCompleted = project.ProjectStages
                 .Where(s => !s.Tasks.Any())
                 .All(s => s.EndDate.HasValue && s.EndDate.Value <= DateTime.Now);
-            if (stagesWithoutTasksCompleted)
+            if (stagesWithoutTasksCompleted && project.ProjectStages.All(s => s.StatusID == 7 || s.StatusID == 5))
                 return "Завершен";
 
+            // Проверка, если проект еще не начался (все даты этапов в будущем)
+            bool projectNotStarted = project.ProjectStartDate > DateTime.Today ||
+                                   (project.ProjectStages.All(s => s.StartDate > DateTime.Today) &&
+                                    project.ProjectStages.All(s => s.StatusID != 4 && s.StatusID != 6 && s.StatusID != 8));
+            if (projectNotStarted)
+                return "В разработке";
+
+            // Проверка на активную работу (есть этапы или задачи в работе)
             bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 8) ||
                                 project.ProjectStages.SelectMany(s => s.Tasks)
                                                     .Any(t => t.StatusID == 2 || t.StatusID == 4);
             if (anyInProgress)
                 return "В работе";
 
+            // Если ни одно из условий не подошло, но проект должен быть активным
+            if (project.ProjectEndDate >= DateTime.Today)
+                return "В работе";
+
+            // Если все этапы завершены, но не все задачи (например, некоторые отменены)
+            if (project.ProjectStages.All(s => s.StatusID == 7))
+                return "Завершен";
+
             return "Не определен";
         }
 
-        private void LoadProjects() //загрузка всех проектов в список
+        private void LoadProjects()
         {
             if (_db == null)
             {
@@ -106,7 +134,8 @@ namespace GeotekMetallCompleteDesktop
 
             try
             {
-                var stagesToComplete = _db.ProjectStages
+                // 1. Проверяем этапы без задач, у которых истек срок
+                var stagesWithoutTasksToComplete = _db.ProjectStages
                     .Where(s => !s.Tasks.Any() &&
                            s.EndDate.HasValue &&
                            s.EndDate.Value <= DateTime.Now &&
@@ -114,21 +143,61 @@ namespace GeotekMetallCompleteDesktop
                            s.StatusID != 5)
                     .ToList();
 
-                foreach (var stage in stagesToComplete)
+                foreach (var stage in stagesWithoutTasksToComplete)
                 {
-                    stage.StatusID = 7;
+                    stage.StatusID = 5; // Завершен
                 }
 
-                if (stagesToComplete.Any())
+                // 2. Проверяем этапы с задачами, где все задачи завершены/отменены и дата этапа истекла
+                var stagesWithTasksToComplete = _db.ProjectStages
+                    .Where(s => s.Tasks.Any() &&
+                           s.EndDate.HasValue &&
+                           s.EndDate.Value <= DateTime.Now &&
+                           s.StatusID != 7 &&
+                           s.StatusID != 5)
+                    .ToList()
+                    .Where(s => s.Tasks.All(t => t.StatusID == 7 || t.StatusID == 5))
+                    .ToList();
+
+                foreach (var stage in stagesWithTasksToComplete)
+                {
+                    stage.StatusID = 7; // Завершен
+                }
+
+                // 3. Проверяем этапы, которые отмечены как завершенные/отмененные, но имеют активные задачи
+                var stagesWithIncorrectStatus = _db.ProjectStages
+                    .Where(s => (s.StatusID == 7 || s.StatusID == 5) && // Этап завершен или отменен
+                           s.Tasks.Any(t => t.StatusID == 8)) // Но есть задачи в работе
+                    .ToList();
+
+                foreach (var stage in stagesWithIncorrectStatus)
+                {
+                    // Возвращаем этап в работу, если есть активные задачи
+                    stage.StatusID = 4; // В работе
+
+                    // Дополнительно можно обновить статус активных задач
+                    foreach (var task in stage.Tasks.Where(t => t.StatusID == 8))
+                    {
+                        task.StatusID = 8; // Подтверждаем статус "В работе"
+                    }
+                }
+
+                // Сохраняем все изменения
+                if (stagesWithoutTasksToComplete.Any() ||
+                    stagesWithTasksToComplete.Any() ||
+                    stagesWithIncorrectStatus.Any())
                 {
                     _db.SaveChanges();
                 }
 
-                _projects = _db.Projects.Include("Requests")
-                                       .Include("ProjectStages")
-                                       .Include("ProjectStages.Tasks")
-                                       .ToList();
+                // Загружаем проекты с связанными данными
+                _projects = _db.Projects
+                    .Include("Requests")
+                    .Include("ProjectStages")
+                    .Include("ProjectStages.Tasks")
+                    .ToList();
 
+                // Создаем модели представления
                 _projectViewModels = _projects
                     .Select(p => new ProjectViewModel
                     {
@@ -151,7 +220,7 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        private void ApplyFiltersAndSort() //объединение фильтрации
+        private void ApplyFiltersAndSort()
         {
             if (_projectViewModels == null)
             {
@@ -192,7 +261,7 @@ namespace GeotekMetallCompleteDesktop
             ProjectsDataGrid.ItemsSource = filteredProjects;
         }
 
-        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e) // фильтр по поиску
+        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             General.AddText(sender, e);
 
@@ -202,12 +271,12 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e) // изменение списка по поиску
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ApplyFiltersAndSort();
         }
 
-        private void SortByDeadlineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) //фильтр по дедлайну
+        private void SortByDeadlineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) 
         {
             if (SortByDeadlineComboBox?.SelectedItem != null)
             {
@@ -215,13 +284,13 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        private void SearchToggleButton_Checked(object sender, RoutedEventArgs e) //вывод поля для ввода поиска
+        private void SearchToggleButton_Checked(object sender, RoutedEventArgs e) 
         {
             SearchTextBox.Visibility = Visibility.Visible;
             SearchToggleButton.Content = "Скрыть";
         }
 
-        private void SearchToggleButton_Unchecked(object sender, RoutedEventArgs e) //закрытие поля для ввода поиска
+        private void SearchToggleButton_Unchecked(object sender, RoutedEventArgs e) 
         {
             SearchTextBox.Visibility = Visibility.Collapsed;
             SearchToggleButton.Content = "Поиск";
@@ -230,7 +299,7 @@ namespace GeotekMetallCompleteDesktop
             ProjectsDataGrid.ItemsSource = _projectViewModels;
         }
 
-        private void ProjectsDataGrid_SelectionChanged(object sender, MouseButtonEventArgs e) //вывод деталей проекта
+        private void ProjectsDataGrid_SelectionChanged(object sender, MouseButtonEventArgs e)
         {
             var selectedProjectViewModel = ProjectsDataGrid.SelectedItem as ProjectViewModel;
             if (selectedProjectViewModel != null)
@@ -243,22 +312,15 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-        private void ShowProjectDetails() //вывод данных проекта
+        private void ShowProjectDetails() 
         {
             FilterStackPanel.Visibility = Visibility.Collapsed;
-            ProjectsDataGrid.Visibility = Visibility.Collapsed;
             ProjectsDataGrid2.Visibility = Visibility.Collapsed;
             ProjectDetailsStackPanel.Visibility = Visibility.Visible;
-            RequestDetailsItemsControl.Visibility = Visibility.Visible;
-            ActsOfWorkTitle.Visibility = Visibility.Visible;
-            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
-            ContractsTitle.Visibility = Visibility.Visible;
-            ContractsItemsControl.Visibility = Visibility.Visible;
-            ProjectDetailsTitle.Visibility = Visibility.Visible;
-            BackButton.Visibility = Visibility.Visible;
-            AddStageButton.Visibility = Visibility.Visible;
-            CancelProjectButton.Visibility = Visibility.Visible;
-            MainButtonsPanel.Visibility = Visibility.Visible;
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
 
             var requestDetails = new List<KeyValuePair<string, string>>
             {
@@ -285,27 +347,12 @@ namespace GeotekMetallCompleteDesktop
             ContractsTitle.Visibility = Visibility.Visible;
             ContractsItemsControl.Visibility = contracts.Any() ? Visibility.Visible : Visibility.Collapsed;
 
-            ShowMainProjectDetails();
             LoadProjectStages();
             UpdateButtonsVisibility();
         }
 
-        private void ShowMainProjectDetails() //вывод подробностей проекта
-        {
-            ProjectDetailsTitle.Visibility = Visibility.Visible;
-            RequestDetailsItemsControl.Visibility = Visibility.Visible;
-            ActsOfWorkTitle.Visibility = Visibility.Visible;
-            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
-            ContractsTitle.Visibility = Visibility.Visible;
-            ContractsItemsControl.Visibility = Visibility.Visible;
-            StageButtonsStackPanel.Visibility = Visibility.Visible;
-            AddStageButton.Visibility = Visibility.Visible;
-            CancelProjectButton.Visibility = Visibility.Visible;
-            MainButtonsPanel.Visibility = Visibility.Visible;
-            BackButton.Visibility = Visibility.Visible;
-        }
 
-        private void LoadProjectStages() //вывод всех этапов
+        private void LoadProjectStages()
         {
             StageButtonsStackPanel.Children.Clear();
             foreach (var stage in _selectedProject.ProjectStages)
@@ -321,262 +368,59 @@ namespace GeotekMetallCompleteDesktop
                 StageButtonsStackPanel.Children.Add(stageButton);
             }
         }
-        private void UpdateButtonsVisibility() // Обновление видимости кнопок в зависимости от текущего контекста
+
+        private void StageButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedProject == null) return; // Если проект не выбран, выходим из метода
+            var stage = (sender as Button)?.Tag as ProjectStages;
 
-            // --- Случай 1: Просмотр деталей этапа ---
-            if (StageDetailsStackPanel.Visibility == Visibility.Visible)
+            if (stage != null) { _selectedStage = stage; } else return;
+            
+            if (_selectedStage != null)
             {
-                // В этом режиме:
-                AddTaskButton.Visibility = Visibility.Visible; // Кнопка добавления задачи видна
-                CancelProjectButton.Visibility = Visibility.Collapsed; // Кнопка отмены проекта скрыта
-                CompleteStageButton.Visibility = Visibility.Collapsed; // Кнопка завершения этапа скрыта
+                StageDetailsStackPanel.Tag = _selectedStage;
+                LoadTasksAndDetails(stage);
             }
 
-            // --- Случай 2: Просмотр деталей задачи ---
-            if (TaskDetailsPanel.Visibility == Visibility.Visible)
-            {
-                // В этом режиме:
-                AddStageButton.Visibility = Visibility.Collapsed; // Кнопка добавления этапа скрыта
-                CancelProjectButton.Visibility = Visibility.Collapsed; // Кнопка отмены проекта скрыта
-                MainButtonsPanel.Visibility = Visibility.Collapsed; // Основная панель кнопок скрыта
-
-                // Скрываем разделы с актами и договорами
-                ActsOfWorkTitle.Visibility = Visibility.Collapsed;
-                ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
-                ContractsTitle.Visibility = Visibility.Collapsed;
-                ContractsItemsControl.Visibility = Visibility.Collapsed;
-            }
-
-            // --- Случай 3: Форма добавления задачи ---
-            if (AddTaskPanel.Visibility == Visibility.Visible)
-            {
-                // В этом режиме скрываем все кнопки навигации:
-                BackButton.Visibility = Visibility.Collapsed;
-                CancelStageButton.Visibility = Visibility.Collapsed;
-                AddStageButton.Visibility = Visibility.Collapsed;
-                CancelProjectButton.Visibility = Visibility.Collapsed;
-                AddTaskButton.Visibility = Visibility.Collapsed;
-                MainButtonsPanel.Visibility = Visibility.Collapsed;
-            }
-
-            // Проверяем условия для отображения кнопок добавления этапа и отмены проекта
-            bool projectDatesValid = _selectedProject.ProjectEndDate >= DateTime.Today;
-            bool hasValidStageStatuses = _selectedProject.ProjectStages.Count == 0 ||
-                _selectedProject.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 7);
-            bool hasFreeTimeForNewStage = CheckFreeDatesForNewStage();
-
-            // --- Режим просмотра деталей этапа ---
-            if (StageDetailsStackPanel.Visibility == Visibility.Visible &&
-                StageDetailsStackPanel.Tag is ProjectStages currentStage)
-            {
-                bool stageNotStarted = currentStage.StartDate > DateTime.Today;
-                bool stageEnded = currentStage.EndDate < DateTime.Today;
-                bool stageInProgress = !stageNotStarted && !stageEnded;
-                bool stageCompletedOrCancelled = currentStage.StatusID == 7 || currentStage.StatusID == 5;
-                bool hasUncompletedTasks = currentStage.Tasks.Any(t => t.StatusID != 3 && t.StatusID != 5);
-
-                // Кнопка "Добавить задачу" видна когда:
-                // 1. Этап не завершен/не отменен
-                // 2. И выполняется одно из:
-                //    - Этап в процессе
-                //    - Этап еще не начался (можно заранее создать задачи)
-                //    - Этап закончился, но есть незавершенные задачи
-                AddTaskButton.Visibility = !stageCompletedOrCancelled &&
-                                         (stageInProgress || stageNotStarted ||
-                                         (stageEnded && hasUncompletedTasks))
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-
-                // Кнопка "Завершить этап" видна когда:
-                // - Все задачи завершены или отменены
-                // - И этап не завершен/не отменен
-                CompleteStageButton.Visibility = !stageCompletedOrCancelled &&
-                                               currentStage.Tasks.All(t => t.StatusID == 3 || t.StatusID == 5)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-
-                // Кнопка "Отменить этап" видна всегда, кроме завершенных/отмененных этапов
-                CancelStageButton.Visibility = !stageCompletedOrCancelled
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-
-
-            // --- Основной режим (не детали задачи/этапа, не формы добавления) ---
-            if (StageDetailsStackPanel.Visibility != Visibility.Visible &&
-                TaskDetailsPanel.Visibility != Visibility.Visible &&
-                AddTaskPanel.Visibility != Visibility.Visible)
-            {
-                // Кнопка добавления этапа видна только если:
-                // - даты проекта валидны
-                // - статусы этапов позволяют добавить новый
-                // - есть свободное время для нового этапа
-                AddStageButton.Visibility = projectDatesValid && hasValidStageStatuses && hasFreeTimeForNewStage
-                    ? Visibility.Visible : Visibility.Collapsed;
-
-                // Кнопка отмены проекта видна только если:
-                // - нет этапов ИЛИ
-                // - не все этапы отменены или завершены
-                bool showCancelButton = _selectedProject.ProjectStages.Count == 0 ||
-                              !_selectedProject.ProjectStages.All(s => s.StatusID == 5 || s.StatusID == 7);
-
-                CancelProjectButton.Visibility = showCancelButton
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
+            UpdateButtonsVisibility();
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private void LoadTasks(ProjectStages stage)
+        private void LoadTasksAndDetails(ProjectStages stage)
         {
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Visible;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+
+
+            var StageDetails = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("Название",_selectedStage.StageName),
+                new KeyValuePair<string, string>("Дата начала", _selectedStage.StartDate?.ToString("dd.MM.yyyy")),
+                new KeyValuePair<string, string>("Дата окончания", _selectedStage.EndDate?.ToString("dd.MM.yyyy")),
+                new KeyValuePair<string, string>("Описание", _selectedStage.StageDescription),
+                new KeyValuePair<string, string>("Статус проекта", _selectedStage.Statuses?.StatusName)
+            };
+
+            StageDetailsItemsControl.ItemsSource = StageDetails;
+
             TasksItemsControl.ItemsSource = stage.Tasks.ToList();
             NoTasksText.Visibility = stage.Tasks.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             TasksItemsControl.Visibility = stage.Tasks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void CancelProjectButton_Click(object sender, RoutedEventArgs e)
+        private void BackFromStageButton_Click(object sender, RoutedEventArgs e) //ok
         {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить проект? Все этапы и задачи будут отменены.",
-                                       "Подтверждение",
-                                       MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    foreach (var stage in _selectedProject.ProjectStages)
-                    {
-                        stage.StatusID = 5; // Статус "Отменен" для этапа
-                        foreach (var task in stage.Tasks)
-                        {
-                            task.StatusID = 5; // Статус "Отменено" для задачи
-                        }
-                    }
-                    _db.SaveChanges();
-                    LoadProjectStages();
-                    MessageBox.Show("Проект и все его этапы/задачи отменены.");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при отмене проекта: {ex.Message}");
-                }
-            }
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Visible;
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
         }
-
-        private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            var task = TaskDetailsPanel.Tag as Tasks;
-            if (task != null && task.StatusID != 7)
-            {
-                var result = MessageBox.Show("Завершить задачу?", "Подтверждение",
-                                           MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        task.StatusID = 7; // Статус "Завершен"
-
-                        var stage = StageDetailsStackPanel.Tag as ProjectStages;
-                        if (stage != null)
-                        {
-                            bool allTasksCompletedOrCancelled = stage.Tasks.All(t =>
-                                t.StatusID == 7 || t.StatusID == 5);
-
-                            if (allTasksCompletedOrCancelled)
-                            {
-                                stage.StatusID = 7; // Автоматически завершаем этап
-                            }
-
-                            _db.SaveChanges();
-                            LoadTasks(stage);
-                            TaskDetailsPanel.Visibility = Visibility.Collapsed;
-
-                            if (allTasksCompletedOrCancelled)
-                            {
-                                MessageBox.Show("Задача завершена. Этап автоматически завершен, так как все задачи завершены или отменены.");
-                            }
-                            else
-                            {
-                                MessageBox.Show("Задача завершена.");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при завершении задачи: {ex.Message}");
-                    }
-                }
-            }
-        }
-
-        private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            var task = TaskDetailsPanel.Tag as Tasks;
-            if (task != null && task.StatusID != 5)
-            {
-                var result = MessageBox.Show("Отменить задачу?", "Подтверждение",
-                                           MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        task.StatusID = 5; // Статус "Отменено"
-                        _db.SaveChanges();
-
-                        var stage = StageDetailsStackPanel.Tag as ProjectStages;
-                        if (stage != null)
-                        {
-                            LoadTasks(stage);
-                        }
-                        TaskDetailsPanel.Visibility = Visibility.Collapsed;
-                        MessageBox.Show("Задача отменена.");
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при отмене задачи: {ex.Message}");
-                    }
-                }
-            }
-        }
-
 
         private void TaskButton_Click(object sender, RoutedEventArgs e)
         {
@@ -585,21 +429,22 @@ namespace GeotekMetallCompleteDesktop
             {
                 TaskDetailsPanel.Tag = task;
 
-                StageDetailsTitle.Visibility = Visibility.Collapsed;
-                StageNameTextBlock.Visibility = Visibility.Collapsed;
-                StageStartDateTextBlock.Visibility = Visibility.Collapsed;
-                StageEndDateTextBlock.Visibility = Visibility.Collapsed;
-                StageStatusTextBlock.Visibility = Visibility.Collapsed;
-                TasksItemsControl.Visibility = Visibility.Collapsed;
-                TasksTitle.Visibility = Visibility.Collapsed;
-                AddTaskButton.Visibility = Visibility.Collapsed;
-                CompleteStageButton.Visibility = Visibility.Collapsed;
-                CancelStageButton.Visibility = Visibility.Collapsed;
+                FilterStackPanel.Visibility = Visibility.Collapsed;
+                ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+                ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+                AddStagePanel.Visibility = Visibility.Collapsed;
+                AddTaskPanel.Visibility = Visibility.Collapsed;
+                StageDetailsStackPanel.Visibility = Visibility.Collapsed;
                 TaskDetailsPanel.Visibility = Visibility.Visible;
 
-                TaskDescriptionText.Text = "Описание задачи: " + task.TaskDescription;
-                TaskDueDateText.Text = "Дата готовности: " + task.DueDate?.ToString("dd.MM.yyyy HH:mm") ?? "Не указан";
-                TaskStatusText.Text = "Статус: " + task.Statuses?.StatusName ?? "Не определен";
+                var taskDetails = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("Описание задачи", task.TaskDescription),
+                    new KeyValuePair<string, string>("Дата готовности",  task.DueDate?.ToString("dd.MM.yyyy") ?? "Не указан"),
+                    new KeyValuePair<string, string>("Статус",task.Statuses?.StatusName ?? "Не определен")
+                };
+
+                TaskDetailsItemsControl.ItemsSource = taskDetails;
 
                 var taskUsers = _db.TaskUsers.Include("Users").Where(tu => tu.TaskID == task.TaskID).ToList();
                 TaskWorkersItemsControl.ItemsSource = taskUsers;
@@ -612,101 +457,24 @@ namespace GeotekMetallCompleteDesktop
 
                 CompleteTaskButton.Visibility = (task.StatusID == 8 && reports.Any()) ? Visibility.Visible : Visibility.Collapsed;
                 CancelTaskButton.Visibility = task.StatusID == 8 ? Visibility.Visible : Visibility.Collapsed;
-                BackFromTaskButton.Visibility = task.StatusID != 5 ? Visibility.Visible : Visibility.Collapsed;
             }
 
             UpdateButtonsVisibility();
         }
 
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void BackFromTaskButton_Click(object sender, RoutedEventArgs e) //ok
         {
-            if (TaskDetailsPanel.Visibility == Visibility.Visible)
-            {
-                BackFromTaskButton_Click(sender, e);
-            }
-            else if (StageDetailsStackPanel.Visibility == Visibility.Visible)
-            {
-                StageDetailsStackPanel.Visibility = Visibility.Collapsed;
-                StageButtonsStackPanel.Visibility = Visibility.Visible;
-                ShowMainProjectDetails();
-                UpdateButtonsVisibility();
-            }
-            else if (AddStagePanel.Visibility == Visibility.Visible)
-            {
-                AddStagePanel.Visibility = Visibility.Collapsed;
-                ShowMainProjectDetails();
-                UpdateButtonsVisibility();
-            }
-            else if (AddTaskPanel.Visibility == Visibility.Visible)
-            {
-                AddTaskPanel.Visibility = Visibility.Collapsed;
-                StageDetailsStackPanel.Visibility = Visibility.Visible;
-                UpdateButtonsVisibility();
-            }
-            else
-            {
-                FilterStackPanel.Visibility = Visibility.Visible;
-                ProjectsDataGrid.Visibility = Visibility.Visible;
-                ProjectsDataGrid2.Visibility = Visibility.Visible;
-                ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
-                LoadProjects();
-            }
-        }
-
-        private void BackFromTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            TaskDetailsPanel.Visibility = Visibility.Collapsed;
-
-            TasksTitle.Visibility = Visibility.Visible;
-            TasksItemsControl.Visibility = Visibility.Visible;
+            FilterStackPanel.Visibility=Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            AddStagePanel.Visibility=Visibility.Collapsed;
+            AddTaskPanel.Visibility= Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Visible;
             NoTasksText.Visibility = TasksItemsControl.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-
-            AddTaskButton.Visibility = Visibility.Visible;
-            CompleteStageButton.Visibility = Visibility.Visible;
-            CancelStageButton.Visibility = Visibility.Visible;
-
-            MainButtonsPanel.Visibility = Visibility.Visible;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
         }
 
-
-        private void StageButton_Click(object sender, RoutedEventArgs e)
-        {
-            var stage = (sender as Button)?.Tag as ProjectStages;
-            if (stage != null)
-            {
-                StageDetailsStackPanel.Tag = stage;
-
-                ProjectDetailsTitle.Visibility = Visibility.Collapsed;
-                RequestDetailsItemsControl.Visibility = Visibility.Collapsed;
-                ActsOfWorkTitle.Visibility = Visibility.Collapsed;
-                ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
-                ContractsTitle.Visibility = Visibility.Collapsed;
-                ContractsItemsControl.Visibility = Visibility.Collapsed;
-                StageButtonsStackPanel.Visibility = Visibility.Collapsed;
-                AddStageButton.Visibility = Visibility.Collapsed;
-                CancelProjectButton.Visibility = Visibility.Collapsed;
-
-                StageDetailsStackPanel.Visibility = Visibility.Visible;
-                StageDetailsTitle.Visibility = Visibility.Visible;
-                AddTaskButton.Visibility = Visibility.Visible;
-                TasksTitle.Visibility = Visibility.Visible;
-                TasksItemsControl.Visibility = Visibility.Visible;
-                CompleteStageButton.Visibility = Visibility.Visible;
-                CancelStageButton.Visibility = Visibility.Visible;
-
-                StageNameTextBlock.Text = $"Название: {stage.StageName} \n Описание: {stage.StageDescription}";
-                StageStartDateTextBlock.Text = $"Дата начала: {stage.StartDate?.ToString("dd.MM.yyyy")}";
-                StageEndDateTextBlock.Text = $"Дата окончания: {stage.EndDate?.ToString("dd.MM.yyyy")}";
-                StageStatusTextBlock.Text = $"Статус: {stage.Statuses?.StatusName}";
-
-                LoadTasks(stage);
-            }
-
-            UpdateButtonsVisibility();
-        }
-
-        private void AddStageButton_Click(object sender, RoutedEventArgs e)
+        private void AddStageButton_Click(object sender, RoutedEventArgs e) //работает норм
         {
             ProjectDATETextBlock.Text = $"Даты проекта: {_selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")} - {_selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")}";
             var stagesText = "Этапы:\n";
@@ -719,19 +487,16 @@ namespace GeotekMetallCompleteDesktop
             }
             StagesInfoTextBlock.Text = stagesText;
 
-            ProjectDetailsTitle.Visibility = Visibility.Collapsed;
-            RequestDetailsItemsControl.Visibility = Visibility.Collapsed;
-            ActsOfWorkTitle.Visibility = Visibility.Collapsed;
-            ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
-            ContractsTitle.Visibility = Visibility.Collapsed;
-            ContractsItemsControl.Visibility = Visibility.Collapsed;
-            StageButtonsStackPanel.Visibility = Visibility.Collapsed;
-            AddStageButton.Visibility = Visibility.Collapsed;
-            CancelProjectButton.Visibility = Visibility.Collapsed;
-            MainButtonsPanel.Visibility = Visibility.Collapsed;
 
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
             AddStagePanel.Visibility = Visibility.Visible;
-            BackButton.Visibility = Visibility.Visible;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+
+
             StageDescriptionTextBox.Clear();
             StageStartDatePicker.SelectedDate = null;
             StageEndDatePicker.SelectedDate = null;
@@ -748,27 +513,85 @@ namespace GeotekMetallCompleteDesktop
 
             UpdateButtonsVisibility();
         }
+        private void CancelAddStageButton_Click(object sender, RoutedEventArgs e)//работает норм
+        {
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Visible;
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+            UpdateButtonsVisibility();
+        }
 
+        private void SaveStageButton_Click(object sender, RoutedEventArgs e)//работает норм
+        {
+            if (!string.IsNullOrWhiteSpace(StageDescriptionTextBox.Text) &&
+                StageStartDatePicker.SelectedDate.HasValue &&
+                StageEndDatePicker.SelectedDate.HasValue)
+            {
+                var startDate = StageStartDatePicker.SelectedDate.Value;
+                var endDate = StageEndDatePicker.SelectedDate.Value;
+
+                bool hasOverlap = _selectedProject.ProjectStages.Any(existingStage =>
+                  (startDate >= existingStage.StartDate && startDate <= existingStage.EndDate) ||
+                  (endDate >= existingStage.StartDate && endDate <= existingStage.EndDate) ||
+                  (startDate <= existingStage.StartDate && endDate >= existingStage.EndDate));
+
+                if (hasOverlap)
+                {
+                    MessageBox.Show("Новый этап пересекается по датам с существующим этапом");
+                    return;
+                }
+
+                if (startDate >= _selectedProject.ProjectStartDate && endDate <= _selectedProject.ProjectEndDate &&
+                    startDate < endDate)
+                {
+                    var newStage = new ProjectStages
+                    {
+                        ProjectID = _selectedProject.ProjectID,
+                        StageName = $"{_selectedProject.ProjectStages.Count + 1} этап",
+                        StageDescription = StageDescriptionTextBox.Text,
+                        StartDate = startDate,
+                        EndDate = endDate,
+                        StatusID = 4 // Статус "Выполняется"
+                    };
+
+                    _db.ProjectStages.Add(newStage);
+                    _db.SaveChanges();
+
+                    ShowProjectDetails();
+                    LoadProjectStages();
+                    AddStagePanel.Visibility = Visibility.Collapsed;
+                    ProjectDetailsStackPanel.Visibility = Visibility.Visible;
+                    StageDescriptionTextBox.Clear();
+                }
+                else
+                {
+                    MessageBox.Show("Даты этапа должны быть в рамках дат проекта и корректными.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Заполните все поля.");
+            }
+            UpdateButtonsVisibility();
+        }
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var stage = StageDetailsStackPanel.Tag as ProjectStages;
             ProjectDATETextBlock.Text = $"Даты проекта: {_selectedProject.ProjectStartDate?.ToString("dd.MM.yyyy")} - {_selectedProject.ProjectEndDate?.ToString("dd.MM.yyyy")}";
             StagesInfoTextBlock2.Text = $"Даты выбранного этапа: {stage.StartDate?.ToString("dd.MM.yyyy")} -  {stage.EndDate?.ToString("dd.MM.yyyy")}";
 
-            StageDetailsTitle.Visibility = Visibility.Collapsed;
-            StageNameTextBlock.Visibility = Visibility.Collapsed;
-            StageStartDateTextBlock.Visibility = Visibility.Collapsed;
-            StageEndDateTextBlock.Visibility = Visibility.Collapsed;
-            StageStatusTextBlock.Visibility = Visibility.Collapsed;
-            TasksTitle.Visibility = Visibility.Collapsed;
-            TasksItemsControl.Visibility = Visibility.Collapsed;
-            CompleteStageButton.Visibility = Visibility.Collapsed;
-            CancelStageButton.Visibility = Visibility.Collapsed;
-            AddTaskButton.Visibility = Visibility.Collapsed;
-            MainButtonsPanel.Visibility = Visibility.Collapsed;
-
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            AddStagePanel.Visibility = Visibility.Collapsed;
             AddTaskPanel.Visibility = Visibility.Visible;
-            BackButton.Visibility = Visibility.Visible;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+
             TaskDescriptionTextBox.Clear();
             TaskDueDatePicker.SelectedDate = null;
 
@@ -782,75 +605,15 @@ namespace GeotekMetallCompleteDesktop
             UpdateButtonsVisibility();
         }
 
-        private void DownloadFileButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button != null)
-            {
-                var fileData = button.Tag as dynamic;
-                if (fileData != null && fileData.FilePath != null && fileData.FileType != null)
-                {
-                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
-                    {
-                        FileName = $"Документ_{DateTime.Now:yyyyMMddHHmmss}",
-                        DefaultExt = fileData.FileType,
-                        Filter = $"Файлы {fileData.FileType}|*.{fileData.FileType.ToLower()}"
-                    };
-
-                    if (saveFileDialog.ShowDialog() == true)
-                    {
-                        try
-                        {
-                            File.WriteAllBytes(saveFileDialog.FileName, fileData.FilePath);
-                            MessageBox.Show("Файл успешно сохранен!");
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}");
-                        }
-                    }
-                }
-            }
-        }
-
-        private void CancelAddStageButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddStagePanel.Visibility = Visibility.Collapsed;
-            StageButtonsStackPanel.Visibility = Visibility.Visible;
-            RequestDetailsItemsControl.Visibility = Visibility.Visible;
-            ProjectDetailsTitle.Visibility = Visibility.Visible;
-            ActsOfWorkTitle.Visibility = Visibility.Visible;
-            ContractsTitle.Visibility = Visibility.Visible;
-            AddStageButton.Visibility = Visibility.Visible;
-            CancelProjectButton.Visibility = Visibility.Visible;
-            MainButtonsPanel.Visibility = Visibility.Visible;
-            ActsOfWorkTitle.Visibility = Visibility.Visible;
-            ActsOfWorkItemsControl.Visibility = Visibility.Visible;
-            ContractsTitle.Visibility = Visibility.Visible;
-            ContractsItemsControl.Visibility = Visibility.Visible;
-            ProjectDetailsTitle.Visibility = Visibility.Visible;
-            UpdateButtonsVisibility();
-        }
-
         private void CancelAddTaskButton_Click(object sender, RoutedEventArgs e)
         {
+            FilterStackPanel.Visibility = Visibility.Collapsed;
+            ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            AddStagePanel.Visibility = Visibility.Collapsed;
             AddTaskPanel.Visibility = Visibility.Collapsed;
-            AddTaskButton.Visibility = Visibility.Visible;
-            StageDetailsTitle.Visibility = Visibility.Visible;
-            StageNameTextBlock.Visibility = Visibility.Visible;
-            StageStartDateTextBlock.Visibility = Visibility.Visible;
-            StageEndDateTextBlock.Visibility = Visibility.Visible;
-            StageStatusTextBlock.Visibility = Visibility.Visible;
-            TasksTitle.Visibility = Visibility.Visible;
-            TasksItemsControl.Visibility = Visibility.Visible;
-            CompleteStageButton.Visibility = Visibility.Visible;
-            CancelStageButton.Visibility = Visibility.Visible;
-            MainButtonsPanel.Visibility = Visibility.Visible;
-            ActsOfWorkTitle.Visibility = Visibility.Collapsed;
-            ActsOfWorkItemsControl.Visibility = Visibility.Collapsed;
-            ContractsTitle.Visibility = Visibility.Collapsed;
-            ContractsItemsControl.Visibility = Visibility.Collapsed;
-            ProjectDetailsTitle.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Visible;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
             UpdateButtonsVisibility();
         }
 
@@ -918,17 +681,14 @@ namespace GeotekMetallCompleteDesktop
                     _db.Tasks.Add(newTask);
                     _db.SaveChanges();
 
-                    LoadTasks(stage);
+                    LoadTasksAndDetails(stage);
+                    FilterStackPanel.Visibility = Visibility.Collapsed;
+                    ProjectsDataGrid2.Visibility = Visibility.Collapsed;
+                    ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+                    AddStagePanel.Visibility = Visibility.Collapsed;
                     AddTaskPanel.Visibility = Visibility.Collapsed;
-                    StageDetailsTitle.Visibility = Visibility.Visible;
-                    StageNameTextBlock.Visibility = Visibility.Visible;
-                    StageStartDateTextBlock.Visibility = Visibility.Visible;
-                    StageEndDateTextBlock.Visibility = Visibility.Visible;
-                    StageStatusTextBlock.Visibility = Visibility.Visible;
-                    TasksTitle.Visibility = Visibility.Visible;
-                    TasksItemsControl.Visibility = Visibility.Visible;
-                    AddTaskButton.Visibility = Visibility.Visible;
-                    MainButtonsPanel.Visibility = Visibility.Visible;
+                    StageDetailsStackPanel.Visibility = Visibility.Visible;
+                    TaskDetailsPanel.Visibility = Visibility.Collapsed;
 
                     TaskDescriptionTextBox.Clear();
                     TaskDueDatePicker.SelectedDate = null;
@@ -941,171 +701,306 @@ namespace GeotekMetallCompleteDesktop
             UpdateButtonsVisibility();
         }
 
-        private void DeleteReportButton_Click(object sender, RoutedEventArgs e)
+        private void DownloadFileButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if (button?.Tag is TaskReportFiles reportFile)
+            if (button != null)
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить этот отчет?", "Подтверждение удаления",
-                                           MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
+                var fileData = button.Tag as dynamic;
+                if (fileData != null && fileData.FilePath != null && fileData.FileType != null)
                 {
-                    try
+                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
                     {
-                        var report = _db.TaskReports.FirstOrDefault(r => r.TaskReportFiles.Any(f => f.FileID == reportFile.FileID));
+                        FileName = $"Документ_{DateTime.Now:yyyyMMddHHmmss}",
+                        DefaultExt = fileData.FileType,
+                        Filter = $"Файлы {fileData.FileType}|*.{fileData.FileType.ToLower()}"
+                    };
 
-                        if (report != null)
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        try
                         {
-                            _db.TaskReportFiles.Remove(reportFile);
-
-                            if (report.TaskReportFiles.Count == 1)
-                            {
-                                _db.TaskReports.Remove(report);
-                            }
-
-                            _db.SaveChanges();
-
-                            var task = TaskDetailsPanel.Tag as Tasks;
-                            if (task != null)
-                            {
-                                LoadTaskReports(task);
-                            }
+                            File.WriteAllBytes(saveFileDialog.FileName, fileData.FilePath);
+                            MessageBox.Show("Файл успешно сохранен!");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении отчета: {ex.Message}");
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}");
+                        }
                     }
                 }
             }
         }
 
-        private void LoadTaskReports(Tasks task)
+        private void CancelProjectButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            var result = MessageBox.Show("Вы уверены, что хотите отменить проект? Все этапы и задачи будут отменены.",  "Подтверждение", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
             {
-                var reports = _db.TaskReports.Where(tr => tr.TaskID == task.TaskID).ToList();
-                TaskReportsItemsControl.ItemsSource = reports;
+                try
+                {
+                    foreach (var stage in _selectedProject.ProjectStages)
+                    {
+                        stage.StatusID = 5; // Статус "Отменен" для этапа
+                        foreach (var task in stage.Tasks)
+                        {
+                            task.StatusID = 5; // Статус "Отменено" для задачи
+                        }
+                    }
+                    _db.SaveChanges();
+                    LoadProjectStages();
+                    MessageBox.Show("Проект отменен.");
+                    ShowProjectDetails();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при отмене проекта: {ex.Message}");
+                }
+            }
+        }
 
-                NoReportsText.Visibility = reports.Any() ? Visibility.Collapsed : Visibility.Visible;
-                TaskReportsItemsControl.Visibility = reports.Any() ? Visibility.Visible : Visibility.Collapsed;
-            }
-            catch (Exception ex)
+        private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = TaskDetailsPanel.Tag as Tasks;
+            if (task != null && task.StatusID != 7)
             {
-                MessageBox.Show($"Ошибка при загрузке отчетов: {ex.Message}");
+                var result = MessageBox.Show("Завершить задачу?", "Подтверждение",
+                                           MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        task.StatusID = 7; // Статус "Завершен"
+
+                        var stage = StageDetailsStackPanel.Tag as ProjectStages;
+                        if (stage != null)
+                        {
+                            bool allTasksCompletedOrCancelled = stage.Tasks.All(t =>
+                                t.StatusID == 7 || t.StatusID == 5);
+
+                            // Проверяем, что дата окончания этапа уже прошла
+                            bool stageEndDatePassed = stage.EndDate.HasValue &&
+                                                   stage.EndDate.Value.Date <= DateTime.Today;
+
+                            if (allTasksCompletedOrCancelled && stageEndDatePassed)
+                            {
+                                stage.StatusID = 7; // Автоматически завершаем этап
+                            }
+
+                            _db.SaveChanges();
+                            LoadTasksAndDetails(stage);
+                            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+
+                            if (allTasksCompletedOrCancelled && stageEndDatePassed)
+                            {
+                                MessageBox.Show("Задача завершена. Этап также завершен, так как все задачи завершены.");
+                            }
+                            else if (allTasksCompletedOrCancelled)
+                            {
+                                MessageBox.Show("Задача завершена.");
+                            }
+                            else
+                            {
+                                MessageBox.Show("Задача завершена.");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при завершении задачи: {ex.Message}");
+                    }
+                }
             }
+        }
+
+        private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = TaskDetailsPanel.Tag as Tasks;
+            if (task != null && task.StatusID != 5)
+            {
+                var result = MessageBox.Show("Отменить задачу?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        task.StatusID = 5; // Статус "Отменено"
+                        _db.SaveChanges();
+
+                        var stage = StageDetailsStackPanel.Tag as ProjectStages;
+                        if (stage != null)
+                        {
+                            LoadTasksAndDetails(stage);
+                        }
+                        TaskDetailsPanel.Visibility = Visibility.Collapsed;
+                        MessageBox.Show("Задача отменена.");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при отмене задачи: {ex.Message}");
+                    }
+                }
+            }
+        }
+      
+        //private void CancelStageButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var result = MessageBox.Show("Вы уверены, что хотите отменить этап? Все задачи также будут отменены.", "Подтверждение",  MessageBoxButton.YesNo);
+        //    if (result == MessageBoxResult.Yes)
+        //    {
+        //        try
+        //        {
+        //                _selectedStage.StatusID = 5; // Статус "Отменен" для этапа
+        //                foreach (var task in _selectedStage.Tasks)
+        //                {
+        //                    task.StatusID = 5; // Статус "Отменено" для задачи
+        //                }
+        //            _db.SaveChanges();
+        //            LoadProjectStages();
+        //            MessageBox.Show("Этап проекта отменен.");
+        //            LoadTasksAndDetails(_selectedStage);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MessageBox.Show($"Ошибка при отмене проекта: {ex.Message}");
+        //        }
+        //    }
+        //}
+
+        private void UpdateButtonsVisibility() // Обновление видимости кнопок в зависимости от текущего контекста                                                    
+        {
+            if (_selectedProject == null) return; // Если проект не выбран, выходим из метода
+
+            // Проверяем условия для отображения кнопок добавления этапа и отмены проекта
+            bool projectDatesValid = _selectedProject.ProjectEndDate >= DateTime.Today;
+            bool hasValidStageStatuses = _selectedProject.ProjectStages.Count == 0 ||
+                _selectedProject.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 7);
+            bool hasFreeTimeForNewStage = CheckFreeDatesForNewStage();
+
+            // --- Режим просмотра деталей этапа ---
+            if (StageDetailsStackPanel.Visibility == Visibility.Visible &&
+                StageDetailsStackPanel.Tag is ProjectStages currentStage)
+            {
+                bool stageNotStarted = currentStage.StartDate > DateTime.Today;
+                bool stageEnded = currentStage.EndDate < DateTime.Today;
+                bool stageInProgress = !stageNotStarted && !stageEnded;
+                bool stageCompletedOrCancelled = currentStage.StatusID == 7 || currentStage.StatusID == 5;
+                bool hasUncompletedTasks = currentStage.Tasks.Any(t => t.StatusID != 3 && t.StatusID != 5);
+
+                // Кнопка "Добавить задачу" видна когда:
+                // 1. Этап не завершен/не отменен
+                // 2. И выполняется одно из:
+                //    - Этап в процессе
+                //    - Этап еще не начался (можно заранее создать задачи)
+                //    - Этап закончился, но есть незавершенные задачи
+                AddTaskButton.Visibility = !stageCompletedOrCancelled &&
+                                         (stageInProgress || stageNotStarted ||
+                                         (stageEnded && hasUncompletedTasks))
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+
+                // Кнопка "Завершить этап" видна когда:
+                // - Все задачи завершены или отменены
+                // - И этап не завершен/не отменен
+                //CompleteStageButton.Visibility = !stageCompletedOrCancelled &&
+                //                               currentStage.Tasks.All(t => t.StatusID == 3 || t.StatusID == 5)
+                //    ? Visibility.Visible
+                //    : Visibility.Collapsed;
+
+                // Кнопка "Отменить этап" видна всегда, кроме завершенных/отмененных этапов
+                //CancelStageButton.Visibility = !stageCompletedOrCancelled
+                //    ? Visibility.Visible
+                //    : Visibility.Collapsed;
+            }
+
+            // --- Основной режим (не детали задачи/этапа, не формы добавления) ---
+            if (StageDetailsStackPanel.Visibility != Visibility.Visible &&
+                TaskDetailsPanel.Visibility != Visibility.Visible &&
+                AddTaskPanel.Visibility != Visibility.Visible)
+            {
+                // Кнопка добавления этапа видна только если:
+                // - даты проекта валидны
+                // - статусы этапов позволяют добавить новый
+                // - есть свободное время для нового этапа
+                AddStageButton.Visibility = projectDatesValid && hasValidStageStatuses && hasFreeTimeForNewStage
+                    ? Visibility.Visible : Visibility.Collapsed;
+
+                // Кнопка отмены проекта видна только если:
+                // - нет этапов ИЛИ
+                // - не все этапы отменены или завершены
+                bool showCancelButton = _selectedProject.ProjectStages.Count == 0 ||
+                              !_selectedProject.ProjectStages.All(s => s.StatusID == 5 || s.StatusID == 7);
+
+                CancelProjectButton.Visibility = showCancelButton
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+        }       
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectsDataGrid2.Visibility = Visibility.Visible;
+            ProjectDetailsStackPanel.Visibility = Visibility.Collapsed;
+            AddStagePanel.Visibility = Visibility.Collapsed;
+            AddTaskPanel.Visibility = Visibility.Collapsed;
+            StageDetailsStackPanel.Visibility = Visibility.Collapsed;
+            TaskDetailsPanel.Visibility = Visibility.Collapsed;
+            FilterStackPanel.Visibility = Visibility.Visible;
+            LoadProjects();
         }
 
         private void ResetReportButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button?.Tag is TaskReports report)
+            var task = TaskDetailsPanel.Tag as Tasks;
+            if (task != null)
             {
-                var result = MessageBox.Show("Вы уверены, что хотите сбросить этот отчет? Отчет будет удален.",
-                                           "Подтверждение сброса",
-                                           MessageBoxButton.YesNo,
-                                           MessageBoxImage.Warning);
+                var result = MessageBox.Show("Вы уверены, что хотите сбросить отчет для этой задачи? Все будет удалено.", "Подтверждение сброса", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
                 {
                     try
                     {
-                        foreach (var file in report.TaskReportFiles.ToList())
+                        var reports = _db.TaskReports.Where(tr => tr.TaskID == task.TaskID).ToList();
+
+                        foreach (var report in reports)
                         {
-                            _db.TaskReportFiles.Remove(file);
+                            foreach (var file in report.TaskReportFiles.ToList())
+                            {
+                                _db.TaskReportFiles.Remove(file);
+                            }
+
+                            _db.TaskReports.Remove(report);
                         }
 
-                        _db.TaskReports.Remove(report);
                         _db.SaveChanges();
+                        LoadTaskReports(task);
 
-                        var task = TaskDetailsPanel.Tag as Tasks;
-                        if (task != null)
-                        {
-                            LoadTaskReports(task);
-                        }
+                        ResetReportButton.Visibility = Visibility.Collapsed;
+                        CompleteTaskButton.Visibility = Visibility.Collapsed;
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при сбросе отчета: {ex.Message}");
+                        MessageBox.Show($"Ошибка при сбросе отчетов: {ex.Message}");
                     }
                 }
             }
         }
 
-        private void CancelStageButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddStagePanel.Visibility = Visibility.Collapsed;
-            StageDetailsStackPanel.Visibility = Visibility.Visible;
-            UpdateButtonsVisibility();
-        }
 
-        private void SaveStageButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(StageDescriptionTextBox.Text) &&
-                StageStartDatePicker.SelectedDate.HasValue &&
-                StageEndDatePicker.SelectedDate.HasValue)
-            {
-                var startDate = StageStartDatePicker.SelectedDate.Value;
-                var endDate = StageEndDatePicker.SelectedDate.Value;
 
-                bool hasOverlap = _selectedProject.ProjectStages.Any(existingStage =>
-                  (startDate >= existingStage.StartDate && startDate <= existingStage.EndDate) ||
-                  (endDate >= existingStage.StartDate && endDate <= existingStage.EndDate) ||
-                  (startDate <= existingStage.StartDate && endDate >= existingStage.EndDate));
 
-                if (hasOverlap)
-                {
-                    MessageBox.Show("Новый этап пересекается по датам с существующим этапом");
-                    return;
-                }
-
-                if (startDate >= _selectedProject.ProjectStartDate && endDate <= _selectedProject.ProjectEndDate &&
-                    startDate < endDate)
-                {
-                    var newStage = new ProjectStages
-                    {
-                        ProjectID = _selectedProject.ProjectID,
-                        StageName = $"{_selectedProject.ProjectStages.Count + 1} этап",
-                        StageDescription = StageDescriptionTextBox.Text,
-                        StartDate = startDate,
-                        EndDate = endDate,
-                        StatusID = 4 // Статус "Выполняется"
-                    };
-
-                    _db.ProjectStages.Add(newStage);
-                    _db.SaveChanges();
-
-                    LoadProjectStages();
-                    AddStagePanel.Visibility = Visibility.Collapsed;
-                    ShowMainProjectDetails();
-                    StageDescriptionTextBox.Clear();
-                }
-                else
-                {
-                    MessageBox.Show("Даты этапа должны быть в рамках дат проекта и корректными.");
-                }
-            }
-            UpdateButtonsVisibility();
-        }
-
-        private void BackToUserButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
-            UpdateButtonsVisibility();
-        }
-
-        private void CompleteStageButton_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedStage = StageDetailsStackPanel.Tag as ProjectStages;
-            if (selectedStage != null)
-            {
-                selectedStage.StatusID = 7; // Статус "Завершен"
-                _db.SaveChanges();
-                LoadProjectStages();
-            }
-            UpdateButtonsVisibility();
-        }
+        //private void CompleteStageButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var selectedStage = StageDetailsStackPanel.Tag as ProjectStages;
+        //    if (selectedStage != null)
+        //    {
+        //        selectedStage.StatusID = 7; // Статус "Завершен"
+        //        _db.SaveChanges();
+        //        LoadProjectStages();
+        //    }
+        //    UpdateButtonsVisibility();
+        //}
 
 
 
@@ -1138,11 +1033,28 @@ namespace GeotekMetallCompleteDesktop
 
             return false;
         }
+        
+        private void LoadTaskReports(Tasks task)
+        {
+            try
+            {
+                var reports = _db.TaskReports.Where(tr => tr.TaskID == task.TaskID).ToList();
+                TaskReportsItemsControl.ItemsSource = reports;
+                TaskReportsTitle.Visibility = reports.Any() ? Visibility.Visible : Visibility.Collapsed;
+                NoReportsText.Visibility = reports.Any() ? Visibility.Collapsed : Visibility.Visible;
+                TaskReportsItemsControl.Visibility = reports.Any() ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке отчетов: {ex.Message}");
+            }
+        }
 
-
-
-
-
+        private void BackToUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.GoBack();
+            UpdateButtonsVisibility();
+        }
 
         private void TaskReportImage_Loaded(object sender, RoutedEventArgs e)
         {

@@ -13,7 +13,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,10,10,5" x:Name="Filter">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="6,10,10,5" x:Name="Filter">
             <Button x:Name="FilterByProjectBtn" Content="Выбрать проект" 
                     Style="{StaticResource ButtonPageStyle}" Click="FilterByProjectBtn_Click"  Margin="0,0,10,0" />
 
@@ -31,7 +31,7 @@
                    Style="{StaticResource ButtStyle}" Click="ResetFiltersBtn_Click" Visibility="Collapsed"/>
         </StackPanel>
 
-        <ListView x:Name="TasksListView" Grid.Row="1" Margin="20,0,20,20" SelectionChanged="TasksListView_SelectionChanged"
+        <ListView x:Name="TasksListView" Grid.Row="1" Margin="5,0,20,20" SelectionChanged="TasksListView_SelectionChanged"
                    Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
             <ListView.View>
                 <GridView>

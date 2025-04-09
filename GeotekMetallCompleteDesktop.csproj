@@ -179,7 +179,6 @@
     <Compile Include="DocumentEditorWindow.xaml.cs">
       <DependentUpon>DocumentEditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EditButtonVisibilityConverter.cs" />
     <Compile Include="FinanceManagementPage.xaml.cs">
       <DependentUpon>FinanceManagementPage.xaml</DependentUpon>
     </Compile>

@@ -21,8 +21,8 @@
             <ListView x:Name="ProjectsListView" Margin="10,0,10,0">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ProjectID}" Width="20" />
-                        <GridViewColumn Header="Название проекта" DisplayMemberBinding="{Binding Requests.ObjectName}" Width="200" />
+                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ProjectID}" Width="auto" />
+                        <GridViewColumn Header="Название проекта" DisplayMemberBinding="{Binding Requests.ObjectName}" Width="auto" />
                         <GridViewColumn Header="Адрес" DisplayMemberBinding="{Binding Requests.Address}" Width="250" />
                         <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding Status}" Width="auto" />
                     </GridView>

@@ -30,6 +30,8 @@ namespace GeotekMetallCompleteDesktop
 
             login.GotFocus += General.RemoveText;
             login.LostFocus += General.AddText;
+            placeholderText.GotFocus += General.RemoveText;
+            placeholderText.LostFocus += General.AddText;
 
             passwordBox.GotFocus += (s, e) => placeholderText.Visibility = Visibility.Collapsed;
             passwordBox.LostFocus += (s, e) =>
@@ -103,9 +105,11 @@ namespace GeotekMetallCompleteDesktop
 
         private void ShowPasswordCheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            placeholderText.Visibility = Visibility.Collapsed;
             passwordTextBox.Text = passwordText;
             passwordTextBox.Visibility = Visibility.Visible;
             passwordBox.Visibility = Visibility.Collapsed;
+            passwordTextBox.Focus();
         }
 
         private void ShowPasswordCheckBox_Unchecked(object sender, RoutedEventArgs e)
@@ -113,6 +117,10 @@ namespace GeotekMetallCompleteDesktop
             passwordBox.Password = passwordText;
             passwordBox.Visibility = Visibility.Visible;
             passwordTextBox.Visibility = Visibility.Collapsed;
+            placeholderText.Visibility = string.IsNullOrEmpty(passwordText)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            passwordBox.Focus();
         }
 
         private void PasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)

@@ -187,25 +187,31 @@ namespace GeotekMetallCompleteDesktop
 
         private string GetProjectStatus(Projects project)
         {
-            // Если нет этапов, статус "Новый"
             if (project.ProjectStages == null || !project.ProjectStages.Any())
-                return "Новый";
+            {
+                // Если проект еще не начался (дата начала в будущем)
+                if (project.ProjectStartDate > DateTime.Today)
+                    return "В разработке";
 
-            // Проверяем, все ли этапы отменены (StatusID = 5) и все ли задачи отменены (StatusID = 5)
+                // Если проект должен был начаться, но этапов нет
+                return "Новый";
+            }
+
+            // Проверка на полностью отмененный проект
             bool allCancelled = project.ProjectStages.All(s => s.StatusID == 5) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 5);
             if (allCancelled)
                 return "Отменен";
 
-            // Проверяем, все ли этапы завершены (StatusID = 7) и все ли задачи завершены (3) или отменены (5)
+            // Проверка на полностью завершенный проект
             bool allCompleted = project.ProjectStages.All(s => s.StatusID == 7) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 3 || t.StatusID == 5);
             if (allCompleted)
                 return "Завершен";
 
-            // Проверяем задержки: этапы с истекшим сроком, но не завершенные и не отмененные
+            // Проверка на задержку (есть этапы с просроченной датой и не завершены/не отменены)
             bool anyDelayed = project.ProjectStages.Any(s =>
                 s.EndDate.HasValue &&
                 s.EndDate.Value < DateTime.Now &&
@@ -214,21 +220,35 @@ namespace GeotekMetallCompleteDesktop
             if (anyDelayed)
                 return "Задерживается";
 
-            // Проверяем этапы без задач, у которых истек срок
+            // Проверка этапов без задач, которые должны быть завершены по дате
             bool stagesWithoutTasksCompleted = project.ProjectStages
                 .Where(s => !s.Tasks.Any())
                 .All(s => s.EndDate.HasValue && s.EndDate.Value <= DateTime.Now);
-            if (stagesWithoutTasksCompleted)
+            if (stagesWithoutTasksCompleted && project.ProjectStages.All(s => s.StatusID == 7 || s.StatusID == 5))
                 return "Завершен";
 
-            // Проверяем, есть ли этапы в работе (StatusID = 4, 6, 8) или задачи в работе (StatusID = 2, 4)
+            // Проверка, если проект еще не начался (все даты этапов в будущем)
+            bool projectNotStarted = project.ProjectStartDate > DateTime.Today ||
+                                   (project.ProjectStages.All(s => s.StartDate > DateTime.Today) &&
+                                    project.ProjectStages.All(s => s.StatusID != 4 && s.StatusID != 6 && s.StatusID != 8));
+            if (projectNotStarted)
+                return "В разработке";
+
+            // Проверка на активную работу (есть этапы или задачи в работе)
             bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 8) ||
                                 project.ProjectStages.SelectMany(s => s.Tasks)
                                                     .Any(t => t.StatusID == 2 || t.StatusID == 4);
             if (anyInProgress)
                 return "В работе";
 
-            // Если ничего не подошло
+            // Если ни одно из условий не подошло, но проект должен быть активным
+            if (project.ProjectEndDate >= DateTime.Today)
+                return "В работе";
+
+            // Если все этапы завершены, но не все задачи (например, некоторые отменены)
+            if (project.ProjectStages.All(s => s.StatusID == 7))
+                return "Завершен";
+
             return "Не определен";
         }
         private void ResetFilters_Click(object sender, RoutedEventArgs e)

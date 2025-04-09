@@ -13,8 +13,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Margin="10,10,10,5" Width="720">
-            <Button Content="Добавить" Style="{StaticResource ButtonPageStyle}" Click="AddButton_Click" DockPanel.Dock="Left"  Width="100"/>
+        <StackPanel Orientation="Horizontal" Margin="5,10,10,5" Width="720">
+            <Button Content="Добавить" Style="{StaticResource ButtonPageStyle}" Click="AddButton_Click" DockPanel.Dock="Left"  Width="100" Margin="0,15,15,5"/>
             <TextBox x:Name="searchTextBox" Visibility="Collapsed" Tag="Введите логин или имя" Text="Введите логин или имя" Margin="10,0,0,-10" 
                           Width="400"  TextChanged="SearchTextBox_TextChanged"/>
             <ToggleButton x:Name="searchButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
@@ -22,7 +22,7 @@
         </StackPanel>
 
         <Grid Grid.Row="1" VerticalAlignment="Top">
-            <StackPanel x:Name="UserListStackPanel">
+            <StackPanel x:Name="UserListStackPanel" Margin="5,0,0,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ListView x:Name="userList" MouseDoubleClick="UserList_MouseDoubleClick"
           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
@@ -54,7 +54,8 @@
                         <TextBox x:Name="PhoneNumberTextBox" Text="Телефон" Tag="Телефон" MaxLength="11"
                              PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" Margin="0,5,0,0" />
                         <TextBlock x:Name="PhoneNumberErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}" />
-                        <TextBox x:Name="EmailTextBox" Text="Электронная почта" Tag="Электронная почта" MaxLength="50" Margin="0,5,0,0" />
+                        <TextBox x:Name="EmailTextBox" Text="Электронная почта" Tag="Электронная почта" MaxLength="50" Margin="0,5,0,0" PreviewTextInput="EmailTextBox_PreviewTextInput" 
+                                 LostFocus="EmailTextBox_LostFocus"  />
                         <TextBlock x:Name="EmailErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
                         <StackPanel>
                             <TextBlock Text="Должность:" FontSize="14" FontFamily="Leelawadee" Margin="0,5,0,0" />

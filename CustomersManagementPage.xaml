@@ -10,7 +10,7 @@
     <!--<ScrollViewer VerticalScrollBarVisibility="Auto" Height="670">-->
         <Grid Background="White">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -19,12 +19,12 @@
                 <TextBox x:Name="SearchTextBox" Tag="Поиск" Visibility="Collapsed"  Text="Поиск" 
                           Margin="0,0,0,-10" Width="250"  TextChanged="SearchTextBox_TextChanged"/>
                 <ToggleButton x:Name="SearchToggleButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
-                              Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked"/>
+                              Checked="SearchToggleButton_Checked" Unchecked="SearchToggleButton_Unchecked" Margin="5,15,15,5"/>
             </StackPanel>
 
             <!-- Основной контент -->
             <Grid Grid.Row="1">
-            <ScrollViewer x:Name="CustomersDataGrid2" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="CustomersDataGrid2" VerticalScrollBarVisibility="Auto" Margin="6,0,0,0">
                     <ListView x:Name="CustomersDataGrid" MouseDoubleClick="CustomersDataGrid_SelectionChanged"  
                           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
                         <ListView.View>
