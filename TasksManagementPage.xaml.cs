@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data.Entity;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -97,7 +97,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (StatusFilterComboBox.SelectedIndex > 0) // Not "All statuses"
+            if (StatusFilterComboBox.SelectedIndex > 0)
             {
                 _hasFiltersApplied = true;
                 ApplyFilters();
@@ -113,7 +113,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void DueDateFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DueDateFilterComboBox.SelectedIndex > 0) // Not default sorting
+            if (DueDateFilterComboBox.SelectedIndex > 0)
             {
                 _hasFiltersApplied = true;
                 ApplyFilters();
@@ -133,13 +133,11 @@ namespace GeotekMetallCompleteDesktop
             {
                 var filteredTasks = _allTasks.AsQueryable();
 
-                // Filter by project
                 if (_selectedProject != null)
                 {
                     filteredTasks = filteredTasks.Where(t => t.ProjectStages.ProjectID == _selectedProject.ProjectID);
                 }
 
-                // Filter by status
                 var selectedStatus = StatusFilterComboBox.SelectedItem as ComboBoxItem;
                 if (selectedStatus != null && selectedStatus.Tag != null)
                 {
@@ -147,21 +145,18 @@ namespace GeotekMetallCompleteDesktop
                     filteredTasks = filteredTasks.Where(t => t.StatusID == statusId);
                 }
 
-                // Sort by due date
                 switch (DueDateFilterComboBox.SelectedIndex)
                 {
-                    case 1: // Ascending
+                    case 1:
                         filteredTasks = filteredTasks.OrderBy(t => t.DueDate);
                         break;
-                    case 2: // Descending
+                    case 2:
                         filteredTasks = filteredTasks.OrderByDescending(t => t.DueDate);
                         break;
                     default:
-                        // Default sorting (perhaps by task ID or another field)
                         filteredTasks = filteredTasks.OrderBy(t => t.TaskID);
                         break;
                 }
-
                 TasksListView.ItemsSource = filteredTasks.ToList();
             }
             catch (Exception ex)
@@ -221,7 +216,7 @@ namespace GeotekMetallCompleteDesktop
         {
             TasksListView.Visibility = Visibility.Visible;
             TaskDetailsPanel.Visibility = Visibility.Collapsed;
-            Filter.Visibility= Visibility.Visible;
+            Filter.Visibility = Visibility.Visible;
             TasksListView.SelectedItem = null;
         }
     }

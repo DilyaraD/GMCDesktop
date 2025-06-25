@@ -6,69 +6,87 @@
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700"
-      Title="управление пользователями">
-    <Grid Background="White">
+      Title="Управление пользователями">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Margin="5,10,10,5" Width="720">
-            <Button Content="Добавить" Style="{StaticResource ButtonPageStyle}" Click="AddButton_Click" DockPanel.Dock="Left"  Width="100" Margin="0,15,15,5"/>
-            <TextBox x:Name="searchTextBox" Visibility="Collapsed" Tag="Введите логин или имя" Text="Введите логин или имя" Margin="10,0,0,-10" 
-                          Width="400"  TextChanged="SearchTextBox_TextChanged"/>
-            <ToggleButton x:Name="searchButton" Content="Поиск" Style="{StaticResource ToggleButtonPageStyle}"  Width="100"
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Style="{StaticResource FilterPanelStyle}" Height="60">
+            <Button Content="Добавить" Style="{StaticResource PrimaryButtonStyle}"  Height="auto" Margin="0, 10, 10, 10"
+                    Click="AddButton_Click"/>
+            <TextBox x:Name="searchTextBox" Tag="Введите логин или имя" 
+                     Style="{StaticResource TextBoxStyle}" 
+                     Visibility="Collapsed" Width="300" Margin="0, 10, 0, 10"
+                     TextChanged="SearchTextBox_TextChanged"/>
+            <ToggleButton x:Name="searchButton" Content="Поиск" 
+                          Style="{StaticResource ToggleButtonStyle}" Height="auto" Margin=" 10, 10, 0, 10"
                           Checked="SearchButton_Checked" Unchecked="SearchButton_Unchecked"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" VerticalAlignment="Top">
-            <StackPanel x:Name="UserListStackPanel" Margin="5,0,0,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ListView x:Name="userList" MouseDoubleClick="UserList_MouseDoubleClick"
-          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+        <Grid Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Height="600" x:Name="UserListStackPanel">
+                <ListView x:Name="userList" MouseDoubleClick="UserList_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" />
-                            <GridViewColumn Header="Должность" Width="100" DisplayMemberBinding="{Binding Role}" />
-                            <GridViewColumn Header="Имя"  DisplayMemberBinding="{Binding FirstName}" />
-                            <GridViewColumn Header="Фамилия" DisplayMemberBinding="{Binding LastName}" />
-                            <GridViewColumn Header="Email" Width="160" DisplayMemberBinding="{Binding Email}" />
-                            <GridViewColumn Header="Телефон" Width="100" DisplayMemberBinding="{Binding PhoneNumber}" />
+                            <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" Width="100"/>
+                            <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding Role}" Width="100"/>
+                            <GridViewColumn Header="Имя" DisplayMemberBinding="{Binding FirstName}" Width="100"/>
+                            <GridViewColumn Header="Фамилия" DisplayMemberBinding="{Binding LastName}" Width="100"/>
+                            <GridViewColumn Header="Email" DisplayMemberBinding="{Binding Email}" Width="150"/>
+                            <GridViewColumn Header="Телефон" DisplayMemberBinding="{Binding PhoneNumber}" Width="100"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
-             </ScrollViewer>
-            </StackPanel>
+            </ScrollViewer>
 
-            <Border  x:Name="AddUserStackPanel1" Visibility="Collapsed" Background="White" CornerRadius="10" Padding="10" Effect="{StaticResource ShadowEffect}" Margin="30">
-                    <StackPanel x:Name="AddUserStackPanel"  Visibility="Collapsed" Width="600">
-                        <TextBlock x:Name="NameText" Text="Добавить пользователя" Style="{StaticResource TextBlockStyle}" Margin="0,10,0,5"/>
-                        <TextBox x:Name="LoginTextBox" Text="Логин" Tag="Логин" MaxLength="50" Margin="0,5,0,0" />
-                        <TextBlock x:Name="LoginExistsTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"/>
-                        <TextBox x:Name="PasswordTextBox" Text="Пароль" Tag="Пароль" MaxLength="50" Margin="0,5,0,0"/>
-                        <TextBlock x:Name="PasswordErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                        <TextBox x:Name="FirstNameTextBox" Text="Имя" Tag="Имя" MaxLength="50" Margin="0,5,0,0"  PreviewTextInput="NameTextBox_PreviewTextInput"/>
-                        <TextBlock x:Name="FirstNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                        <TextBox x:Name="LastNameTextBox" Text="Фамилия" Tag="Фамилия" MaxLength="50" Margin="0,5,0,0"  PreviewTextInput="NameTextBox_PreviewTextInput"/>
-                        <TextBlock x:Name="LastNameErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                        <TextBox x:Name="PhoneNumberTextBox" Text="Телефон" Tag="Телефон" MaxLength="11"
-                             PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" Margin="0,5,0,0" />
-                        <TextBlock x:Name="PhoneNumberErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}" />
-                        <TextBox x:Name="EmailTextBox" Text="Электронная почта" Tag="Электронная почта" MaxLength="50" Margin="0,5,0,0" PreviewTextInput="EmailTextBox_PreviewTextInput" 
-                                 LostFocus="EmailTextBox_LostFocus"  />
-                        <TextBlock x:Name="EmailErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                        <StackPanel>
-                            <TextBlock Text="Должность:" FontSize="14" FontFamily="Leelawadee" Margin="0,5,0,0" />
-                            <ComboBox x:Name="RoleComboBox" />
-                            <TextBlock x:Name="RoleErrorTextBlock" Visibility="Collapsed" Style="{StaticResource TextBoxStyle}"  />
-                        </StackPanel>
+            <Border x:Name="AddUserStackPanel1" Style="{StaticResource BorderStyle}" Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" Height="auto" MaxHeight="550" x:Name="AddUserStackPanel">
+                    <StackPanel>
+                    <TextBlock x:Name="NameText" Text="Добавить пользователя" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
 
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="cохранить" Click="SaveButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
-                            <Button Content="удалить" x:Name="DeleteButton" Click="DeleteButton_Click"  Visibility="Collapsed" Style="{StaticResource ButtonPageStyle}" Width="100"/>
-                            <Button Content="oтмена" Click="CancelButton_Click" Style="{StaticResource ButtonPageStyle}" Width="100"/>
-                        </StackPanel>
+                        <TextBlock x:Name="LogText" Text="Логин:" Style="{StaticResource InputLabelStyle}"/>
+                        <TextBox x:Name="LoginTextBox" Tag="Логин" Style="{StaticResource TextBoxStyle}" MaxLength="20" PreviewTextInput="LoginTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="LoginExistsTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Пароль:" Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox x:Name="PasswordTextBox" Tag="Пароль" Style="{StaticResource TextBoxStyle}" MaxLength="20"/>
+                    <TextBlock x:Name="PasswordErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Имя:" Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox x:Name="FirstNameTextBox" Tag="Имя" Style="{StaticResource TextBoxStyle}" 
+                             MaxLength="20" PreviewTextInput="NameTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="FirstNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Фамилия:" Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox x:Name="LastNameTextBox" Tag="Фамилия" Style="{StaticResource TextBoxStyle}" 
+                             MaxLength="20" PreviewTextInput="NameTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="LastNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Телефон:" Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox x:Name="PhoneNumberTextBox" Tag="Телефон" Style="{StaticResource TextBoxStyle}" 
+                             MaxLength="11" PreviewTextInput="PhoneNumberTextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="PhoneNumberErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Электронная почта:" Style="{StaticResource InputLabelStyle}"/>
+                    <TextBox x:Name="EmailTextBox" Tag="Электронная почта" Style="{StaticResource TextBoxStyle}" 
+                             MaxLength="100" PreviewTextInput="EmailTextBox_PreviewTextInput" LostFocus="EmailTextBox_LostFocus"/>
+                    <TextBlock x:Name="EmailErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Должность:" Style="{StaticResource InputLabelStyle}"/>
+                    <ComboBox x:Name="RoleComboBox"  Margin="10, 0, 0, 0"/>
+                    <TextBlock x:Name="RoleErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <Button Content="Сохранить" Click="SaveButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
+                        <Button Content="Удалить" x:Name="DeleteButton" Click="DeleteButton_Click" 
+                                Style="{StaticResource DangerButtonStyle}" Visibility="Collapsed"/>
+                        <Button Content="Отмена" Click="CancelButton_Click" Style="{StaticResource CancelButtonStyle}" Margin="5,0,0,0"/>
                     </StackPanel>
+                </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>

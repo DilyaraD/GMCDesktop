@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.AccessControl;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using static GeotekMetallCompleteDesktop.requestManagementPage;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -17,26 +13,26 @@ namespace GeotekMetallCompleteDesktop
         private List<Requests> _requests;
         private Requests _selectedRequest;
         private List<WorkTypes> _workTypes;
-        //private List<RequestViewModel> _requestViewModels;
         private bool _isApproving = false;
         private readonly GeotekMetallCompleteEntities1 _context;
+        private readonly bool _isOpenedFromCustomerPage;
 
         public requestManagementPage(Users user, RequestViewModel selectedRequest = null)
         {
             InitializeComponent();
             _context = new GeotekMetallCompleteEntities1();
             _user = user;
+            _isOpenedFromCustomerPage = selectedRequest != null;
 
             if (selectedRequest != null)
             {
-                // Отображаем детали выбранной заявки
+                _selectedRequest = selectedRequest.Request;
                 ShowRequestDetails(selectedRequest);
                 FilterStackPanel.Visibility = Visibility.Collapsed;
                 BackButton.Visibility = Visibility.Collapsed;
             }
             else
             {
-                // Загружаем данные, если заявка не передана
                 LoadData();
                 ApplyFilters();
                 BackToUserButton.Visibility = Visibility.Collapsed;
@@ -51,7 +47,7 @@ namespace GeotekMetallCompleteDesktop
             using (var db = new GeotekMetallCompleteEntities1())
             {
                 _requests = db.Requests.ToList();
-                _workTypes = db.WorkTypes.ToList(); 
+                _workTypes = db.WorkTypes.ToList();
 
                 FilterByWorkTypeComboBox.Items.Clear();
                 FilterByWorkTypeComboBox.Items.Add(new ComboBoxItem { Content = "Все типы работ" });
@@ -87,22 +83,22 @@ namespace GeotekMetallCompleteDesktop
             NavigationService.GoBack();
         }
 
-        private void ShowRequestDetails(RequestViewModel selectedRequest)
+        private void ShowRequestDetails(RequestViewModel selectedRequest1)
         {
-
+            var selectedRequest = _context.Requests.FirstOrDefault(r=>r.RequestID==selectedRequest1.RequestID);
             var requestDetails = new List<KeyValuePair<string, string>>
-    {
-        new KeyValuePair<string, string>("Название объекта", selectedRequest.ObjectName),
-        new KeyValuePair<string, string>("Адрес", selectedRequest.Address),
-        new KeyValuePair<string, string>("Площадь", selectedRequest.Area.ToString()),
-        new KeyValuePair<string, string>("Этажность", selectedRequest.Floors?.ToString() ?? "Не указано"),
-        new KeyValuePair<string, string>("Тип объекта", selectedRequest.ObjectType),
-        new KeyValuePair<string, string>("Цель", selectedRequest.WorkTypeName),
-        new KeyValuePair<string, string>("Количество комнат", selectedRequest.RoomCount?.ToString() ?? "Не указано"),
-        new KeyValuePair<string, string>("Описание", selectedRequest.Description),
-        new KeyValuePair<string, string>("Дедлайн", selectedRequest.Deadline.ToString("dd.MM.yyyy")),
-        new KeyValuePair<string, string>("Статус", _context.Statuses.FirstOrDefault(s => s.StatusID == selectedRequest.StatusID)?.StatusName ?? "Не указано")
-    };
+            {
+                new KeyValuePair<string, string>("Название объекта", selectedRequest.ObjectName),
+                new KeyValuePair<string, string>("Адрес", selectedRequest.Address),
+                new KeyValuePair<string, string>("Площадь", selectedRequest.Area.ToString()),
+                new KeyValuePair<string, string>("Этажность", selectedRequest.Floors?.ToString() ?? "Не указано"),
+                new KeyValuePair<string, string>("Тип объекта", selectedRequest.ObjectType),
+                new KeyValuePair<string, string>("Цель", selectedRequest1.WorkTypeName),
+                new KeyValuePair<string, string>("Количество комнат", selectedRequest.RoomCount?.ToString() ?? "Не указано"),
+                new KeyValuePair<string, string>("Описание", selectedRequest.Description),
+                new KeyValuePair<string, string>("Дедлайн", selectedRequest.Deadline.ToString("dd.MM.yyyy")),
+                new KeyValuePair<string, string>("Статус", _context.Statuses.FirstOrDefault(s => s.StatusID == selectedRequest.StatusID)?.StatusName ?? "Не указано")
+            };
 
             if ((selectedRequest.StatusID == 2 || selectedRequest.StatusID == 3) && !string.IsNullOrEmpty(selectedRequest.ApprovalReason))
             {
@@ -112,7 +108,6 @@ namespace GeotekMetallCompleteDesktop
 
             RequestDetailsItemsControl.ItemsSource = requestDetails;
 
-            // Показываем панель с деталями заявки
             RequestDetailsStackPanel.Visibility = Visibility.Visible;
             RequestListStackPanel.Visibility = Visibility.Collapsed;
 
@@ -154,7 +149,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void SortByDeadlineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SortByDeadlineComboBox.SelectedIndex == 0) 
+            if (SortByDeadlineComboBox.SelectedIndex == 0)
             {
                 return;
             }
@@ -172,24 +167,24 @@ namespace GeotekMetallCompleteDesktop
             var selectedSort = (SortByDeadlineComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             var selectedWorkType = (FilterByWorkTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            List<RequestViewModel> filteredRequests =  _requests.Select(r => new RequestViewModel
+            List<RequestViewModel> filteredRequests = _requests.Select(r => new RequestViewModel
             {
                 RequestID = r.RequestID,
                 UserID = r.UserID,
                 ObjectName = r.ObjectName,
-                Address= r.Address,
-                Area =r.Area,
+                Address = r.Address,
+                Area = r.Area,
                 Floors = r.Floors,
                 ObjectType = r.ObjectType,
-                RoomCount= r.RoomCount,
-                Description= r.Description,
-                Deadline =r.Deadline,
-                ApprovalReason =r.ApprovalReason,
-                StatusID=r.StatusID,
+                RoomCount = r.RoomCount,
+                Description = r.Description,
+                Deadline = r.Deadline,
+                ApprovalReason = r.ApprovalReason,
+                StatusID = r.StatusID,
                 Request = r,
                 WorkTypeName = _workTypes.FirstOrDefault(wt => wt.WorkTypeID == r.Purpose)?.WorkTypeName ?? "Не указано"
             }).ToList();
-            
+
             switch (selectedStatus)
             {
                 case "Новые":
@@ -264,7 +259,7 @@ namespace GeotekMetallCompleteDesktop
                 if ((_selectedRequest.StatusID == 2 || _selectedRequest.StatusID == 3) && !string.IsNullOrEmpty(_selectedRequest.ApprovalReason))
                 {
                     string type = null;
-                    if(_selectedRequest.StatusID == 2)
+                    if (_selectedRequest.StatusID == 2)
                     { type = "одобрения"; }
                     else { type = "отказа"; }
 
@@ -300,7 +295,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void ApproveButton_Click(object sender, RoutedEventArgs e)
         {
-            _isApproving = true; 
+            _isApproving = true;
             FilterStackPanel.Visibility = Visibility.Collapsed;
             ReasonInputStackPanel.Visibility = Visibility.Visible;
             RequestDetailsStackPanel.Visibility = Visibility.Collapsed;
@@ -310,7 +305,7 @@ namespace GeotekMetallCompleteDesktop
 
         private void RejectButton_Click(object sender, RoutedEventArgs e)
         {
-            _isApproving = false; 
+            _isApproving = false;
             FilterStackPanel.Visibility = Visibility.Collapsed;
             ReasonInputStackPanel.Visibility = Visibility.Visible;
             RequestDetailsStackPanel.Visibility = Visibility.Collapsed;
@@ -339,12 +334,19 @@ namespace GeotekMetallCompleteDesktop
                         }
                         else
                         {
-                            request.StatusID = 3; // Отклонено
+                            request.StatusID = 3;
                             request.ApprovalReason = ReasonTextBox.Text;
+                            _selectedRequest = _context.Requests.FirstOrDefault(r => r.RequestID == _selectedRequest.RequestID);
                             MessageBox.Show("Заявка отклонена и сохранена.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                            CloseAllPanels();
-                            ShowRequestList();
+                            if (_isOpenedFromCustomerPage)
+                            {
+                                NavigationService?.GoBack();
+                            }
+                            else
+                            {
+                                CloseAllPanels();
+                                ShowRequestList();
+                            }
                         }
 
                         db.SaveChanges();
@@ -375,7 +377,7 @@ namespace GeotekMetallCompleteDesktop
         {
             CloseAllPanels();
             RequestDetailsStackPanel.Visibility = Visibility.Visible;
-            ReasonTextBox.Text= string.Empty;
+            ReasonTextBox.Text = string.Empty;
         }
 
         private void CreateProjectButton_Click(object sender, RoutedEventArgs e)
@@ -417,7 +419,7 @@ namespace GeotekMetallCompleteDesktop
                         RequestID = _selectedRequest.RequestID,
                         ProjectStartDate = startDate,
                         ProjectEndDate = endDate,
-                        ProjectManagerID = selectedManager.UserID 
+                        ProjectManagerID = selectedManager.UserID
                     };
 
                     db.Projects.Add(project);
@@ -425,10 +427,11 @@ namespace GeotekMetallCompleteDesktop
                     var request = db.Requests.Find(_selectedRequest.RequestID);
                     if (request != null)
                     {
-                        request.StatusID = 2; // Принято
+                        request.StatusID = 2;
                     }
 
                     db.SaveChanges();
+                    _selectedRequest = _context.Requests.FirstOrDefault(r => r.RequestID == _selectedRequest.RequestID);
                     MessageBox.Show("Проект успешно создан.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -438,9 +441,16 @@ namespace GeotekMetallCompleteDesktop
                 return;
             }
 
-            CloseAllPanels();
-            ShowRequestList();
-            LoadData();
+            if (_isOpenedFromCustomerPage)
+            {
+                NavigationService?.GoBack();
+            }
+            else
+            {
+                CloseAllPanels();
+                ShowRequestList();
+                LoadData();
+            }
         }
 
         public class ManagerViewModel
@@ -458,7 +468,7 @@ namespace GeotekMetallCompleteDesktop
                     .Select(u => new ManagerViewModel
                     {
                         UserID = u.UserID,
-                        FullName = u.FirstName + " " + u.LastName 
+                        FullName = u.FirstName + " " + u.LastName
                     })
                     .ToList();
 

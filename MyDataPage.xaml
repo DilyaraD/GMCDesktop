@@ -7,88 +7,77 @@
       mc:Ignorable="d"       
       d:DesignHeight="500" d:DesignWidth="720"      
       Title="мои данные">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid Margin="20,0,20,20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="660">
+            <Grid Margin="20,0,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <Border x:Name="InfoDataBorder" Grid.Row="0" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20"
-                        Effect="{StaticResource ShadowEffect}">
-                <StackPanel x:Name="InfoData">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Логин:" Style="{StaticResource LabelStyle12}" />
-                        <TextBlock Grid.Column="1"  x:Name="LoginDisplayTextBlock" Style="{StaticResource ValueStyle}" />
-
-                        <TextBlock Grid.Column="0" Text="Имя:" Style="{StaticResource LabelStyle12}" Grid.Row="1" />
-                        <TextBlock Grid.Column="1" x:Name="FirstNameDisplayTextBlock" Style="{StaticResource ValueStyle}" Grid.Row="1" />
-
-                        <TextBlock Grid.Column="0" Text="Фамилия:" Style="{StaticResource LabelStyle12}" Grid.Row="2" />
-                        <TextBlock Grid.Column="1" x:Name="LastNameDisplayTextBlock" Style="{StaticResource ValueStyle}" Grid.Row="2" />
-
-                        <TextBlock Grid.Column="0" Text="Телефон:" Style="{StaticResource LabelStyle12}" Grid.Row="3" />
-                        <TextBlock Grid.Column="1" x:Name="PhoneNumberDisplayTextBlock" Style="{StaticResource ValueStyle}" Grid.Row="3" />
-
-                        <TextBlock Grid.Column="0" Text="Email:" Style="{StaticResource LabelStyle12}" Grid.Row="4" />
-                        <TextBlock Grid.Column="1" x:Name="EmailDisplayTextBlock" Style="{StaticResource ValueStyle}" Grid.Row="4" />
-                    </Grid>
-                    <Button x:Name="EditButton" Grid.Row="1" Content="Редактировать профиль" Height="40" Padding="15,10" Click="EditButton_Click"
-                    Style="{StaticResource ButtonStyle}" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Row="2" x:Name="EditUserBorder" Visibility="Collapsed" Background="White" CornerRadius="10"
-                    Padding="15" Effect="{StaticResource ShadowEffect}">
-                <StackPanel x:Name="EditUserStackPanel">
-                    <TextBlock x:Name="NameText" Text="Редактировать профиль" Style="{StaticResource TextBlockStyle}" Margin="0,10,0,5"/>
-
-                    <TextBlock Text="Логин:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="LoginTextBox" Text="Логин" Tag="Логин" Style="{StaticResource ModernTextBoxStyle}" MaxLength="50"/>
-                    <TextBlock x:Name="LoginErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Пароль:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="PasswordTextBox" Text="Пароль" Tag="Пароль" Style="{StaticResource ModernTextBoxStyle}" MaxLength="50"/>
-                    <TextBlock x:Name="PasswordErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Имя:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="FirstNameTextBox" Text="Имя" Tag="Имя" Style="{StaticResource ModernTextBoxStyle}" PreviewTextInput="NameTextBox_PreviewTextInput" MaxLength="50"/>
-                    <TextBlock x:Name="FirstNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Фамилия:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="LastNameTextBox" Text="Фамилия" Tag="Фамилия" Style="{StaticResource ModernTextBoxStyle}" PreviewTextInput="NameTextBox_PreviewTextInput" MaxLength="50"/>
-                    <TextBlock x:Name="LastNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Телефон:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="PhoneNumberTextBox" Text="Телефон" Tag="Телефон" Style="{StaticResource ModernTextBoxStyle}" PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" MaxLength="11"/>
-                    <TextBlock x:Name="PhoneNumberErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Email:" Style="{StaticResource InputLabelStyle}" />
-                    <TextBox x:Name="EmailTextBox" Text="Email" Tag="Email" Style="{StaticResource ModernTextBoxStyle}" MaxLength="50" PreviewTextInput="EmailTextBox_PreviewTextInput" 
-                                 LostFocus="EmailTextBox_LostFocus"/>
-                    <TextBlock x:Name="EmailErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}" />
-
-                    <TextBlock Text="Должность:  " Style="{StaticResource InputLabelStyle}"><TextBlock x:Name="RoleComboBox" Style="{StaticResource InputLabelStyle}" /></TextBlock>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                        <Button Content="Сохранить" Click="SaveButton_Click"  Style="{StaticResource AccentButtonStyle}" Margin="0,0,10,0" />
-                        <Button Content="Отменить" Click="CancelButton_Click" Style="{StaticResource CancleButtonStyle}" />
+                <Border x:Name="InfoDataBorder" Grid.Row="0" Style="{StaticResource BorderStyle}">
+                    <StackPanel x:Name="InfoData">
+                        <ItemsControl x:Name="UserDetailsItemsControl" Style="{StaticResource ItemsControlStyle}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="170"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Key}" Style="{StaticResource InputLabelStyleProfil}" Grid.Column="0"/>
+                                        <TextBlock Text="{Binding Value}" Style="{StaticResource ValueStyle}" Grid.Column="1"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button x:Name="EditButton" Content="Редактировать профиль" 
+                            Style="{StaticResource PrimaryButtonStyle}" 
+                            HorizontalAlignment="Center" Click="EditButton_Click"/>
                     </StackPanel>
-                </StackPanel>
-            </Border>
-        </Grid>
-    </ScrollViewer>
-</Page>
+                </Border>
+
+                <Border x:Name="EditUserBorder" Grid.Row="1" Style="{StaticResource BorderStyle}" Visibility="Collapsed">
+                    <StackPanel x:Name="EditUserStackPanel">
+                        <TextBlock x:Name="NameText" Text="Редактировать профиль" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <TextBlock Text="Логин:" x:Name="LoginText" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                    <TextBox x:Name="LoginTextBox" Tag="Логин" Style="{StaticResource TextBoxStyle}" MaxLength="20" PreviewTextInput="LoginTextBox_PreviewTextInput"/>
+                        <TextBlock x:Name="LoginErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Пароль:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBox x:Name="PasswordTextBox" Tag="Пароль" Style="{StaticResource TextBoxStyle}" MaxLength="20"/>
+                        <TextBlock x:Name="PasswordErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Имя:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBox x:Name="FirstNameTextBox" Tag="Имя" Style="{StaticResource TextBoxStyle}" 
+                             PreviewTextInput="NameTextBox_PreviewTextInput" MaxLength="20"/>
+                        <TextBlock x:Name="FirstNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Фамилия:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBox x:Name="LastNameTextBox" Tag="Фамилия" Style="{StaticResource TextBoxStyle}" 
+                             PreviewTextInput="NameTextBox_PreviewTextInput" MaxLength="20"/>
+                        <TextBlock x:Name="LastNameErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Телефон:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBox x:Name="PhoneNumberTextBox" Tag="Телефон" Style="{StaticResource TextBoxStyle}" 
+                             PreviewTextInput="PhoneNumberTextBox_PreviewTextInput" MaxLength="11"/>
+                        <TextBlock x:Name="PhoneNumberErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Email:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBox x:Name="EmailTextBox" Tag="Email" Style="{StaticResource TextBoxStyle}" 
+                             MaxLength="100" PreviewTextInput="EmailTextBox_PreviewTextInput" 
+                             LostFocus="EmailTextBox_LostFocus"/>
+                        <TextBlock x:Name="EmailErrorTextBlock" Style="{StaticResource ErrorTextBlockStyle}"/>
+
+                    <TextBlock Text="Должность:" Style="{StaticResource InputLabelStyleProfilEdit}"/>
+                        <TextBlock x:Name="RoleComboBox" Style="{StaticResource ValueStyle}"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                            <Button Content="Сохранить" Click="SaveButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
+                            <Button Content="Отменить" Click="CancelButton_Click" Style="{StaticResource CancelButtonStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Page>

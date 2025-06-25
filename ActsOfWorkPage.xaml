@@ -7,39 +7,35 @@
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700" 
       Title="Управление актами"
-      Background="White">
-
+      Background="{StaticResource ActsOfWorkPage_BackgroundBrush}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Grid.Row="0" Margin="10">
+        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Grid.Row="0" Margin="10,1,10,5" Style="{StaticResource FilterPanelStyle}">
             <Button Content="Добавить акт" 
                     x:Name="AddBtm" 
                     Click="AddActButton_Click" 
                     Margin="0,0,10,0"  
-                    Style="{StaticResource ButtonPageStyle}"/>
-
+                    Style="{StaticResource PrimaryButtonStyle}"/>
             <Button Content="Выбрать проект" 
                     x:Name="SelectBtm" 
                     Click="SelectProjectButton_Click" 
                     Margin="0,0,10,0" 
-                    Style="{StaticResource ButtStyle}"/>
-
+                    Style="{StaticResource SecondaryButtonStyle}"/>
             <Button x:Name="ResetProjectButton" 
                     Content="Сбросить проект" 
                     Click="ResetProjectButton_Click" 
                     Margin="0,0,10,0" 
                     Visibility="Collapsed"
-                    Style="{StaticResource ButtStyle}"/>
+                    Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="ActsListView" Margin="10"
-                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                <ListView x:Name="ActsListView" Width="auto" Height="615">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ActID}" Width="50" />
@@ -48,28 +44,11 @@
                             <GridViewColumn Header="Действия" Width="auto">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Button Content="Скачать" 
-                        Click="DownloadActButton_Click" 
-                        Margin="2" 
-                        Style="{StaticResource ButtonPageStyle}"
-                        Width="auto"/>
-                                            <Button Content="Просмотр" 
-                        Click="ViewActButton_Click" 
-                        Margin="2" 
-                        Style="{StaticResource ButtonPageStyle}"
-                        Width="auto"/>
-                                            <Button Content="Редактировать" 
-                        Click="EditActButton_Click" 
-                        Margin="2" 
-                        Style="{StaticResource ButtonPageStyle}"
-                        Width="auto"
-                                                  />
-                                            <Button Content="Удалить" 
-                        Click="DeleteActButton_Click" 
-                        Margin="2" 
-                        Style="{StaticResource DangerButtonStyle}"
-                        Width="auto"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Style="{StaticResource ActionsStackPanelStyle}">
+                                            <Button Content="Скачать" Click="DownloadActButton_Click" Margin="2" Style="{StaticResource DownloadButtonStyle}" Width="auto"/>
+                                            <Button Content="Посмотреть" Click="ViewActButton_Click" Margin="2" Style="{StaticResource SecondaryButtonStyle}" Width="auto"/>
+                                            <Button Content="Редактировать" Click="EditActButton_Click" Margin="2" Style="{StaticResource EditButtonStyle}" Width="auto"/>
+                                            <Button Content="Удалить" Click="DeleteActButton_Click" Margin="2" Style="{StaticResource DangerButtonStyle}" Width="auto"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -81,25 +60,23 @@
 
             <Border x:Name="AddActPanel" 
                     CornerRadius="4" 
-                    Background="White" 
                     Padding="20" 
                     Margin="10" 
+                    Visibility="Collapsed"
                     Effect="{StaticResource ShadowEffect}" 
-                    Visibility="Collapsed">
+                    Style="{StaticResource BorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Добавление акта"  x:Name="HeaderTextBlock" 
-                               FontSize="26" 
-                               FontWeight="Bold"
-                               Margin="0,0,0,20" 
+                    <TextBlock Text="Добавление акта" x:Name="HeaderTextBlock" 
+                               Style="{StaticResource SectionHeaderStyle}"
                                HorizontalAlignment="Center"/>
 
-                    <Grid>
+                    <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -110,16 +87,13 @@
                                    Grid.Row="0" Grid.Column="0" 
                                    Style="{StaticResource InputLabelStyle}" 
                                    VerticalAlignment="Center"/>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" >
                             <TextBlock x:Name="SelectedProjectTextBlock" 
-                                      Style="{StaticResource ValueStyle}" 
-                                      VerticalAlignment="Center" 
-                                      Margin="10,0,0,0" 
-                                      FontWeight="Bold"/>
-                            <Button Content="Выбрать проект"  x:Name="ChangeProjectButton" 
+                                       Style="{StaticResource ValueStyle}" 
+                                       VerticalAlignment="Center" />
+                            <Button Content="Выбрать проект" x:Name="ChangeProjectButton" 
                                     Click="ChangeProjectButton_Click" 
                                     Style="{StaticResource AccentButtonStyle}" 
-                                    Margin="60,0,0,20" 
                                     Width="150"/>
                         </StackPanel>
 
@@ -127,39 +101,35 @@
                                    Grid.Row="1" Grid.Column="0" 
                                    Style="{StaticResource InputLabelStyle}" 
                                    VerticalAlignment="Center"/>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" >
                             <Button Content="Выбрать файл" 
                                     Click="SelectFileButton_Click" 
                                     Style="{StaticResource AccentButtonStyle}"
-                                    Width="150"
-                                    Margin="30,10,25,10"/>
+                                    Width="150"/>
                             <Button Content="Создать новый" 
                                     Click="CreateNewActButton_Click" 
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     Width="150"/>
                         </StackPanel>
-                        
+
                         <TextBlock Text="Файл:" 
                                    Grid.Row="2" Grid.Column="0" 
                                    Style="{StaticResource InputLabelStyle}" 
                                    VerticalAlignment="Center"/>
                         <TextBlock x:Name="SelectedFileTextBlock" 
                                    Grid.Row="2" Grid.Column="1" 
-                                   Style="{StaticResource ValueStyle}"
-                                   Margin="10,0,0,10"/>
+                                   Style="{StaticResource ValueStyle}"/>
 
                         <StackPanel Grid.Row="4" Grid.Column="1" 
                                     Orientation="Horizontal" 
-                                    HorizontalAlignment="Right" 
-                                    Margin="0,30,0,0">
-                            <Button Content="Сохранить"  x:Name="SaveActButton"
+                                    HorizontalAlignment="Right">
+                            <Button Content="Сохранить" x:Name="SaveActButton"
                                     Click="SaveActButton_Click" 
                                     Style="{StaticResource PrimaryButtonStyle}" 
-                                    Width="120" 
-                                    Margin="0,0,20,0"/>
+                                    Width="120"/>
                             <Button Content="Отмена" 
                                     Click="CancelButton_Click" 
-                                    Style="{StaticResource CancleButtonStyle}" 
+                                    Style="{StaticResource CancelButtonStyle}" 
                                     Width="120"/>
                         </StackPanel>
                     </Grid>

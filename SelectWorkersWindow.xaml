@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Выбор исполнителей" 
-         WindowStartupLocation="CenterScreen" Height="450" Width="400">
+         WindowStartupLocation="CenterScreen" Height="470" Width="400">
     <Grid>
         <StackPanel Margin="10">
             <TextBlock Text="Выберите рабочих:" FontWeight="Bold" Margin="0,0,0,10"/>
-            <ListBox x:Name="WorkersListBox" Height="300">
+            <ListBox x:Name="WorkersListBox" Height="350">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <CheckBox Content="{Binding FullName}" 
@@ -18,7 +18,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Button Content="Сохранить" Click="SaveButton_Click" Margin="0,10,0,0" Padding="10,5"/>
+            <Button Content="Сохранить" Click="SaveButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
         </StackPanel>
     </Grid>
 </Window>

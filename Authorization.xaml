@@ -19,8 +19,8 @@
 
             <CheckBox x:Name="showPasswordCheckBox" Content="Показать пароль" Margin="0,5,0,0" Checked="ShowPasswordCheckBox_Checked" Unchecked="ShowPasswordCheckBox_Unchecked"
                       Foreground="White" FontFamily="Leelawadee" />
-            
-            <Button Click="Login_Click">войти</Button>
+
+            <Button Click="Login_Click" >войти</Button>
         </StackPanel>
     </Grid>
 </Window>

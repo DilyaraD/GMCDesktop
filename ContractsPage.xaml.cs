@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -18,7 +18,6 @@ namespace GeotekMetallCompleteDesktop
         private List<Contracts> _contracts;
         private Contracts _currentEditingContract;
         private Contracts _currEditingContract;
-
         public ContractsPage(Users user)
         {
             InitializeComponent();
@@ -26,13 +25,11 @@ namespace GeotekMetallCompleteDesktop
             _db = new GeotekMetallCompleteEntities1();
             LoadContracts();
         }
-
         private void LoadContracts()
         {
             _contracts = _db.Contracts.ToList();
             ContractsListView.ItemsSource = _contracts;
         }
-
         private void AddContractButton_Click(object sender, RoutedEventArgs e)
         {
             ResetFormState();
@@ -41,7 +38,6 @@ namespace GeotekMetallCompleteDesktop
             SelectButton.Visibility = Visibility.Collapsed;
             HeaderTextBlock.Text = "Добавление договора";
         }
-
         private void CreateNewContractButton_Click(object sender, RoutedEventArgs e)
         {
             var editor = new DocumentEditorWindow();
@@ -52,7 +48,6 @@ namespace GeotekMetallCompleteDesktop
                 SelectedFileTextBlock.Text = "Новый документ" + _selectedFileType;
             }
         }
-
         private void SelectFileButton_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
@@ -62,12 +57,49 @@ namespace GeotekMetallCompleteDesktop
 
             if (openFileDialog.ShowDialog() == true)
             {
-                _selectedFile = File.ReadAllBytes(openFileDialog.FileName);
-                _selectedFileType = NormalizeFileType(Path.GetExtension(openFileDialog.FileName));
-                SelectedFileTextBlock.Text = Path.GetFileName(openFileDialog.FileName);
+                if (IsFileLocked(openFileDialog.FileName))
+                {
+                    MessageBox.Show($"Файл '{Path.GetFileName(openFileDialog.FileName)}' открыт в другой программе.\n" +
+                                  "Закройте файл и попробуйте снова.",
+                                  "Файл занят",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Warning);
+                    return;
+                }
+                try
+                {
+                    _selectedFile = File.ReadAllBytes(openFileDialog.FileName);
+                    _selectedFileType = NormalizeFileType(Path.GetExtension(openFileDialog.FileName));
+                    SelectedFileTextBlock.Text = Path.GetFileName(openFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при чтении файла:\n{ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Error);
+
+                    _selectedFile = null;
+                    _selectedFileType = null;
+                    SelectedFileTextBlock.Text = "Файл не выбран";
+                }
             }
         }
-
+        private bool IsFileLocked(string filePath)
+        {
+            try
+            {
+                using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
         private string NormalizeFileType(string fileType)
         {
             if (string.IsNullOrEmpty(fileType)) return ".unknown";
@@ -79,7 +111,6 @@ namespace GeotekMetallCompleteDesktop
 
             return fileType.ToLower();
         }
-
         private void ViewContractButton_Click(object sender, RoutedEventArgs e)
         {
             var contract = (sender as Button)?.DataContext as Contracts;
@@ -89,6 +120,7 @@ namespace GeotekMetallCompleteDesktop
                 {
                     var tempFilePath = Path.GetTempFileName() + contract.FileType;
                     File.WriteAllBytes(tempFilePath, contract.FilePath);
+
 
                     var viewer = new viewingDocument(tempFilePath, $"Договор N{contract.ContractID}");
                     viewer.Show();
@@ -105,7 +137,6 @@ namespace GeotekMetallCompleteDesktop
                 }
             }
         }
-
         private void EditContractButton_Click(object sender, RoutedEventArgs e)
         {
             var contract = (sender as Button)?.DataContext as Contracts;
@@ -135,7 +166,6 @@ namespace GeotekMetallCompleteDesktop
                 }
             }
         }
-
         private void OpenPdfEditForm(Contracts contract)
         {
             _currentEditingContract = contract;
@@ -161,7 +191,6 @@ namespace GeotekMetallCompleteDesktop
             _currEditingContract = contract;
             SaveContractButton.Content = "Обновить";
         }
-
         private void DeleteContractButton_Click(object sender, RoutedEventArgs e)
         {
             var contract = (sender as Button)?.DataContext as Contracts;
@@ -190,7 +219,6 @@ namespace GeotekMetallCompleteDesktop
                 }
             }
         }
-
         private void SaveContractButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currEditingContract == null && _selectedProject == null)
@@ -206,27 +234,23 @@ namespace GeotekMetallCompleteDesktop
                 _selectedProject = selectProjectWindow.SelectedProject;
                 SelectedProjectTextBlock.Text = _selectedProject.Requests.ObjectName;
             }
-
             if (_selectedFile == null || _selectedFile.Length == 0)
             {
                 MessageBox.Show("Выберите файл для загрузки", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             var currentEditingContract = _currEditingContract;
             try
             {
                 if (currentEditingContract != null)
                 {
-                    // Редактирование существующего договора
                     currentEditingContract.FilePath = _selectedFile;
                     currentEditingContract.FileType = _selectedFileType;
                     currentEditingContract.ContractDate = DateTime.Now;
                 }
                 else
                 {
-                    // Создание нового договора
                     var newContract = new Contracts
                     {
                         ProjectID = _selectedProject.ProjectID,
@@ -236,7 +260,6 @@ namespace GeotekMetallCompleteDesktop
                     };
                     _db.Contracts.Add(newContract);
                 }
-
                 _db.SaveChanges();
                 LoadContracts();
                 CancelButton_Click(sender, e);
@@ -261,7 +284,6 @@ namespace GeotekMetallCompleteDesktop
                     FileName = $"Договор_N{contract.ContractID}{contract.FileType}",
                     Filter = GetFilterForFileType(contract.FileType)
                 };
-
                 if (saveFileDialog.ShowDialog() == true)
                 {
                     try
@@ -288,7 +310,6 @@ namespace GeotekMetallCompleteDesktop
                 default: return "All Files (*.*)|*.*";
             }
         }
-
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             ResetFormState();
@@ -299,7 +320,6 @@ namespace GeotekMetallCompleteDesktop
             SelectButton.Visibility = Visibility.Visible;
             HeaderTextBlock.Text = "Добавление договора";
         }
-
         private void ResetFormState()
         {
             _currentEditingContract = null;
@@ -312,7 +332,6 @@ namespace GeotekMetallCompleteDesktop
             SelectedProjectTextBlock.Text = string.Empty;
             SelectedFileTextBlock.Text = string.Empty;
         }
-
         private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
         {
             var projects = _db.Projects.ToList();
@@ -325,14 +344,12 @@ namespace GeotekMetallCompleteDesktop
                 ResetProjectButton.Visibility = Visibility.Visible;
             }
         }
-
         private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
         {
             _selectedProject = null;
             ContractsListView.ItemsSource = _contracts;
             ResetProjectButton.Visibility = Visibility.Collapsed;
         }
-
         private void ChangeProjectButton_Click(object sender, RoutedEventArgs e)
         {
             var projects = _db.Projects.ToList();

@@ -7,49 +7,63 @@
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700" 
       Title="Мои задачи">
-    <Grid Background="White">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="6,10,10,5" x:Name="Filter">
+        <StackPanel Grid.Row="0" 
+                    x:Name="Filter" 
+                    Orientation="Horizontal" 
+                    Style="{StaticResource FilterPanelStyle}">
             <Button x:Name="FilterByProjectBtn" Content="Выбрать проект" 
-                    Style="{StaticResource ButtonPageStyle}" Click="FilterByProjectBtn_Click"  Margin="0,0,10,0" />
-
+                     Style="{StaticResource SecondaryButtonStyle}" Click="FilterByProjectBtn_Click" />
             <ComboBox x:Name="StatusFilterComboBox"  Width="150" Margin="5"  SelectionChanged="StatusFilterComboBox_SelectionChanged">
                 <ComboBoxItem Content="Все статусы" IsSelected="True"/>
             </ComboBox>
-
             <ComboBox x:Name="DueDateFilterComboBox"  Width="150" Margin="5"   SelectionChanged="DueDateFilterComboBox_SelectionChanged">
                 <ComboBoxItem Content="Сортировка по дате" IsSelected="True"/>
                 <ComboBoxItem Content="По возрастанию"/>
                 <ComboBoxItem Content="По убыванию"/>
             </ComboBox>
-
-            <Button x:Name="ResetFiltersBtn" Content="Сбросить фильтры"  Margin="0,0,10,0" 
-                   Style="{StaticResource ButtStyle}" Click="ResetFiltersBtn_Click" Visibility="Collapsed"/>
+            <Button x:Name="ResetFiltersBtn" Content="Сбросить фильтры" Style="{StaticResource SecondaryButtonStyle}" Click="ResetFiltersBtn_Click" Visibility="Collapsed"/>
         </StackPanel>
 
-        <ListView x:Name="TasksListView" Grid.Row="1" Margin="5,0,20,20" SelectionChanged="TasksListView_SelectionChanged"
-                   Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+        <ListView x:Name="TasksListView" 
+                  Grid.Row="1" 
+                  SelectionChanged="TasksListView_SelectionChanged"
+                  Height="600">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding TaskDescription}" Width="200"/>
-                    <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding ProjectStages.Projects.Requests.ObjectName}" Width="auto"/>
-                    <GridViewColumn Header="Стадия" DisplayMemberBinding="{Binding ProjectStages.StageName}" Width="auto"/>
-                    <GridViewColumn Header="Срок" DisplayMemberBinding="{Binding DueDate, StringFormat={}{0:dd.MM.yyyy}}" Width="auto"/>
-                    <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding Statuses.StatusName}" Width="auto"/>
+                    <GridViewColumn Header="Название" 
+                                    DisplayMemberBinding="{Binding TaskDescription}" 
+                                    Width="200"/>
+                    <GridViewColumn Header="Проект" 
+                                    DisplayMemberBinding="{Binding ProjectStages.Projects.Requests.ObjectName}" 
+                                    Width="150"/>
+                    <GridViewColumn Header="Стадия" 
+                                    DisplayMemberBinding="{Binding ProjectStages.StageName}" 
+                                    Width="150"/>
+                    <GridViewColumn Header="Срок" 
+                                    DisplayMemberBinding="{Binding DueDate, StringFormat={}{0:dd.MM.yyyy}}" 
+                                    Width="100"/>
+                    <GridViewColumn Header="Статус" 
+                                    DisplayMemberBinding="{Binding Statuses.StatusName}" 
+                                    Width="100"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <Border x:Name="TaskDetailsPanel" Background="White" 
-                Visibility="Collapsed" Margin="20" Padding="15">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Border x:Name="TaskDetailsPanel" 
+                Visibility="Collapsed" 
+                Style="{StaticResource BorderStyle}"
+                Margin="20">
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <TextBlock Text="Детали задачи" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-
+                    <TextBlock Text="Детали задачи" 
+                               Style="{StaticResource SectionHeaderStyle}" 
+                               Margin="0,0,0,20"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -90,9 +104,12 @@
                         <TextBlock Text="Тип работ:" Style="{StaticResource LabelStyle12}" Grid.Row="7" Grid.Column="0"/>
                         <TextBlock x:Name="WorkTypeText" Style="{StaticResource ValueStyle}" Grid.Row="7" Grid.Column="1"/>
                     </Grid>
-
-                    <Button x:Name="BackButton" Content="Назад" Style="{StaticResource PrimaryButtonStyle}" 
-                            HorizontalAlignment="Right" Margin="0,20,0,0" Click="BackButton_Click"/>
+                    <Button x:Name="BackButton" 
+                            Content="Назад" 
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            HorizontalAlignment="Left" 
+                            Margin="0,20,0,0" 
+                            Click="BackButton_Click"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>

@@ -213,22 +213,93 @@ namespace GeotekMetallCompleteDesktop
             var openFileDialog = new OpenFileDialog
             {
                 Multiselect = true,
-                Filter = "Документы и изображения (*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg)|*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.png;*.jpg;*.jpeg|Все файлы (*.*)|*.*"
+                Filter = "Документы и изображения (*.pdf;*.doc;*.docx;*.png;*.jpg;*.jpeg)|*.pdf;*.doc;*.docx;*.png;*.jpg;*.jpeg|Все файлы (*.*)|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
+                AttachedFilesListBox.Visibility = Visibility.Visible;
+                int totalFilesAfterAdd = _attachedFiles.Count + openFileDialog.FileNames.Length;
+                if (totalFilesAfterAdd > 5)
+                {
+                    MessageBox.Show($"Можно прикрепить не более 5 файлов.\n" +
+                                  $"У вас уже прикреплено {_attachedFiles.Count}, пытаетесь добавить еще {openFileDialog.FileNames.Length}.",
+                                  "Превышен лимит файлов",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Warning);
+                    return;
+                }
+                if (IsFileLocked(openFileDialog.FileName))
+                {
+                    MessageBox.Show($"Файл '{Path.GetFileName(openFileDialog.FileName)}' открыт в другой программе.\n" +
+                                  "Закройте файл и попробуйте снова.",
+                                  "Файл занят",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Warning);
+                    return;
+                }
                 foreach (var fileName in openFileDialog.FileNames)
                 {
-                    _attachedFiles.Add(new AttachedFile
+                    try
                     {
-                        FileData = File.ReadAllBytes(fileName),
-                        FileName = Path.GetFileNameWithoutExtension(fileName),
-                        FileExtension = Path.GetExtension(fileName).TrimStart('.')
-                    });
+                        using (var fileStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                        {
+                            fileStream.Close();
+                        }
+
+                        _attachedFiles.Add(new AttachedFile
+                        {
+                            FileData = File.ReadAllBytes(fileName),
+                            FileName = Path.GetFileNameWithoutExtension(fileName),
+                            FileExtension = NormalizeFileType(Path.GetExtension(fileName))
+                        });
+                    }
+                    catch (IOException)
+                    {
+                        MessageBox.Show($"Файл '{Path.GetFileName(fileName)}' открыт в другой программе.\n" +
+                                      "Закройте файл и попробуйте снова.",
+                                      "Файл занят",
+                                      MessageBoxButton.OK,
+                                      MessageBoxImage.Warning);
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при обработке файла '{Path.GetFileName(fileName)}':\n{ex.Message}",
+                                      "Ошибка",
+                                      MessageBoxButton.OK,
+                                      MessageBoxImage.Error);
+                        continue;
+                    }
                 }
                 UpdateAttachedFilesList();
             }
+        }
+        private bool IsFileLocked(string filePath)
+        {
+            try
+            {
+                using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
+        private string NormalizeFileType(string fileType)
+        {
+            if (string.IsNullOrEmpty(fileType)) return ".unknown";
+
+            if (!fileType.StartsWith("."))
+            {
+                fileType = "." + fileType;
+            }
+
+            return fileType.ToLower();
         }
 
         private void RemoveFileButton_Click(object sender, RoutedEventArgs e)

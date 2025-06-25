@@ -1,18 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Windows.Controls;
-using UglyToad.PdfPig;
-using Xceed.Words.NET;
-using System.Windows.Xps.Packaging;
-using System.Printing;
-using System.Collections.Generic;
-using System.Linq;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Printing;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using Xceed.Words.NET;
 using Drawing = DocumentFormat.OpenXml.Wordprocessing.Drawing;
 using OpenXmlParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using OpenXmlRun = DocumentFormat.OpenXml.Wordprocessing.Run;
@@ -83,7 +83,7 @@ namespace GeotekMetallCompleteDesktop
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при открытии документа: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка при открытии документа1234: {ex.Message}", "Ошибка",
                               MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
             }
@@ -102,8 +102,8 @@ namespace GeotekMetallCompleteDesktop
                 else
                 {
                     _originalImageSizes[image] = new Size(image.Width, image.Height);
-                    image.Width = flowDocumentReader.ActualWidth - 40; 
-                    image.Height = double.NaN; 
+                    image.Width = flowDocumentReader.ActualWidth - 40;
+                    image.Height = double.NaN;
                 }
             }
         }
@@ -120,12 +120,39 @@ namespace GeotekMetallCompleteDesktop
             image.MaxWidth = 500;
             image.Cursor = System.Windows.Input.Cursors.Hand;
             image.MouseDown += Image_MouseDown;
-
             var imageContainer = new BlockUIContainer(image);
             flowDocument.Blocks.Add(imageContainer);
         }
 
         private void LoadPdfFile(FlowDocument flowDocument)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = _filePath,
+                    UseShellExecute = true
+                });
+
+                this.Visibility = Visibility.Hidden;
+
+                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                timer.Tick += (sender, args) =>
+                {
+                    timer.Stop();
+                    this.Close();
+                };
+                timer.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть PDF в браузере: {ex.Message}", "Ошибка",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadPdfFileAlternative(flowDocument);
+            }
+        }
+
+        private void LoadPdfFileAlternative(FlowDocument flowDocument)
         {
             try
             {
@@ -138,37 +165,6 @@ namespace GeotekMetallCompleteDesktop
                         paragraph.Inlines.Add(new LineBreak());
                         paragraph.Inlines.Add(new WpfRun(page.Text));
                         flowDocument.Blocks.Add(paragraph);
-
-                        foreach (var image in page.GetImages())
-                        {
-                            try
-                            {
-                                using (var imageMemoryStream = new MemoryStream(image.RawBytes.ToArray()))
-                                {
-                                    var bitmapImage = new BitmapImage();
-                                    bitmapImage.BeginInit();
-                                    bitmapImage.StreamSource = imageMemoryStream;
-                                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                                    bitmapImage.EndInit();
-
-                                    var img = new System.Windows.Controls.Image
-                                    {
-                                        Source = bitmapImage,
-                                        Stretch = Stretch.Uniform,
-                                        MaxWidth = 500,
-                                        Cursor = System.Windows.Input.Cursors.Hand
-                                    };
-                                    img.MouseDown += Image_MouseDown;
-
-                                    var imageContainer = new BlockUIContainer(img);
-                                    flowDocument.Blocks.Add(imageContainer);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                flowDocument.Blocks.Add(new WpfParagraph(new WpfRun($"Ошибка загрузки изображения: {ex.Message}")));
-                            }
-                        }
                     }
                 }
             }
@@ -192,7 +188,7 @@ namespace GeotekMetallCompleteDesktop
                     {
                         foreach (var text in run.Elements<Text>())
                         {
-                           flowParagraph.Inlines.Add(new WpfRun(text.Text));
+                            flowParagraph.Inlines.Add(new WpfRun(text.Text));
                         }
 
                         foreach (var drawing in run.Elements<Drawing>())
@@ -241,8 +237,22 @@ namespace GeotekMetallCompleteDesktop
                 {
                     printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
                     var document = flowDocumentReader.Document;
+
+                    document.PageWidth = printDialog.PrintableAreaWidth;
+                    document.PageHeight = printDialog.PrintableAreaHeight;
+
+                    document.PagePadding = new Thickness(20 * 3.779527559);
+
+                    document.ColumnWidth = document.PageWidth - (document.PagePadding.Left + document.PagePadding.Right);
+
                     var paginator = ((IDocumentPaginatorSource)document).DocumentPaginator;
+
                     printDialog.PrintDocument(paginator, $"Печать документа: {Title}");
+
+                    document.PageWidth = double.NaN;
+                    document.PageHeight = double.NaN;
+                    document.ColumnWidth = double.PositiveInfinity;
+                    document.PagePadding = new Thickness(20);
                 }
             }
             catch (Exception ex)
@@ -297,7 +307,6 @@ namespace GeotekMetallCompleteDesktop
             }
         }
 
-       
         private void TryLoadAsText(FlowDocument flowDocument)
         {
             try

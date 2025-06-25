@@ -7,22 +7,22 @@
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700"
       Title="Управление бюджетом">
-    <Grid Background="White">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="50"/>
+            <RowDefinition />
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Grid.Row="0" Margin="10">
-            <Button Content="Добавить транзакцию" x:Name="AddBtm" Click="AddTransactionButton_Click" Margin="0,0,10,0"  Style="{StaticResource ButtonPageStyle}"/>
-            <Button Content="Выбрать проект" x:Name="SelectBtm" Click="SelectProjectButton_Click" Margin="0,0,10,0" Style="{StaticResource ButtStyle}"/>
-            <Button x:Name="ResetProjectButton" Content="Сбросить проект" Click="ResetProjectButton_Click" Margin="0,0,10,0" Visibility="Collapsed" Style="{StaticResource ButtStyle}"/>
+        <StackPanel x:Name="FilterPanel" Margin="10,1,10,5" Orientation="Horizontal" Grid.Row="0" Style="{StaticResource FilterPanelStyle}">
+            <Button Content="Добавить транзакцию" x:Name="AddBtm" Click="AddTransactionButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
+            <Button Content="Выбрать проект" x:Name="SelectBtm" Click="SelectProjectButton_Click" Style="{StaticResource SecondaryButtonStyle}"/>
+            <Button x:Name="ResetProjectButton" Content="Сбросить проект" Click="ResetProjectButton_Click" Visibility="Collapsed" Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel>
-        <StackPanel Grid.Row="1" >
-            <ScrollViewer VerticalScrollBarVisibility="Auto" >
-                <ListView x:Name="TransactionsListView" Margin="10" 
-                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}"
-                      MouseDoubleClick="TransactionsListView_MouseDoubleClick">
+
+        <StackPanel Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListView x:Name="TransactionsListView"  Height="615"
+                          MouseDoubleClick="TransactionsListView_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="ID" DisplayMemberBinding="{Binding TransactionID}" Width="50" />
@@ -34,11 +34,10 @@
                     </ListView.View>
                 </ListView>
             </ScrollViewer>
-            <Border x:Name="AddTransactionPanel" CornerRadius="4" Background="White" 
-                    Padding="20" Margin="10" Effect="{StaticResource ShadowEffect}" Visibility="Collapsed">
+
+            <Border x:Name="AddTransactionPanel" Style="{StaticResource BorderStyle}" Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="Добавление транзакции" FontSize="26" FontWeight="Bold"
-                               Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Добавление транзакции" Style="{StaticResource SectionHeaderStyle}"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -55,26 +54,24 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Выбранный проект:" Grid.Row="0" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
+                                   Style="{StaticResource InputLabelStyle}"/>
                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                            <TextBlock x:Name="SelectedProjectTextBlock" Style="{StaticResource ValueStyle}" 
-                                      VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+                            <TextBlock x:Name="SelectedProjectTextBlock" Style="{StaticResource ValueStyle}"/>
                             <Button Content="Выбрать проект" Click="ChangeProjectButton_Click" 
-                                    Style="{StaticResource AccentButtonStyle}" Margin="40,0,0,10" Width="150"/>
+                                    Style="{StaticResource AccentButtonStyle}"/>
                         </StackPanel>
 
                         <TextBlock Text="Сумма:" Grid.Row="1" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="AmountTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
-                                 Style="{StaticResource ModernTextBoxStyle}" Height="35"
+                                   Style="{StaticResource InputLabelStyle}"/>
+                        <TextBox x:Name="AmountTextBox" Grid.Row="1" Grid.Column="1" 
+                                 Style="{StaticResource TextBoxStyle}"
                                  PreviewTextInput="AmountTextBox_PreviewTextInput" 
                                  PreviewKeyDown="AmountTextBox_PreviewKeyDown"/>
 
                         <TextBlock Text="Тип транзакции:" Grid.Row="2" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="TransactionTypeComboBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"
-                                  Height="35"
-                                  SelectionChanged="TransactionTypeComboBox_SelectionChanged">
+                                   Style="{StaticResource InputLabelStyle}"/>
+                        <ComboBox x:Name="TransactionTypeComboBox" Grid.Row="2" Grid.Column="1"
+                                   SelectionChanged="TransactionTypeComboBox_SelectionChanged" Margin="10,0,0,0">
                             <ComboBoxItem Content="Закупка материалов" />
                             <ComboBoxItem Content="Оплата труда" />
                             <ComboBoxItem Content="Аренда оборудования" />
@@ -83,28 +80,28 @@
                         </ComboBox>
 
                         <StackPanel x:Name="CustomDescriptionPanel" Grid.Row="3" Grid.Column="1" 
-                                    Visibility="Collapsed" Margin="0,0,0,10">
+                                    Visibility="Collapsed">
                             <TextBlock Text="Введите название транзакции:" Style="{StaticResource InputLabelStyle}"/>
-                            <TextBox x:Name="DescriptionTextBox" Style="{StaticResource ModernTextBoxStyle}" Height="35"/>
+                            <TextBox x:Name="DescriptionTextBox" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>
 
-                        <StackPanel x:Name="AttachedFilesStackPanel" Grid.Row="4" Grid.Column="1" Margin="0,0,0,10">
-                            <TextBlock Text="Прикрепленные документы:" Style="{StaticResource InputLabelStyle}"/>
+                        <StackPanel x:Name="AttachedFilesStackPanel" Grid.Row="4" Grid.Column="1">
+                            <TextBlock Text="Прикрепленные документы:" Margin="10" Style="{StaticResource InputLabelStyle}"  />
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Добавить файл" Click="AddFileButton_Click" 
-                                    Style="{StaticResource AccentButtonStyle}" Width="120" Margin="0,5,5,5"/>
+                                        Style="{StaticResource AccentButtonStyle}"/>
                                 <Button Content="Удалить" Click="RemoveFileButton_Click" 
-                                    Style="{StaticResource CancleButtonStyle}" Width="80" Margin="0,5,0,5"
-                                    Visibility="Collapsed"/>        
+                                        Style="{StaticResource CancelButtonStyle}" 
+                                        Visibility="Collapsed"/>
                             </StackPanel>
-                            <ListBox x:Name="AttachedFilesListBox" Height="100"/>
+                            <ListBox x:Name="AttachedFilesListBox" Visibility="Collapsed"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Сохранить" Click="SaveTransactionButton_Click" 
-                                    Style="{StaticResource PrimaryButtonStyle}" Width="120" Margin="0,0,10,0"/>
+                                    Style="{StaticResource PrimaryButtonStyle}"/>
                             <Button Content="Отмена" Click="CancelButton_Click" 
-                                    Style="{StaticResource CancleButtonStyle}" Width="120"/>
+                                    Style="{StaticResource CancelButtonStyle}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

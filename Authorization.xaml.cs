@@ -1,19 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -110,6 +97,7 @@ namespace GeotekMetallCompleteDesktop
             passwordTextBox.Visibility = Visibility.Visible;
             passwordBox.Visibility = Visibility.Collapsed;
             passwordTextBox.Focus();
+            passwordTextBox.CaretIndex = passwordTextBox.Text.Length;
         }
 
         private void ShowPasswordCheckBox_Unchecked(object sender, RoutedEventArgs e)
@@ -121,6 +109,12 @@ namespace GeotekMetallCompleteDesktop
                 ? Visibility.Visible
                 : Visibility.Collapsed;
             passwordBox.Focus();
+            if (passwordBox.Password.Length > 0)
+            {
+                passwordBox.GetType()
+                    .GetMethod("Select", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?.Invoke(passwordBox, new object[] { passwordBox.Password.Length, 0 });
+            }
         }
 
         private void PasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)

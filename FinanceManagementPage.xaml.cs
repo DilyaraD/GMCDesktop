@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -13,7 +12,6 @@ namespace GeotekMetallCompleteDesktop
         public Users _user;
         private GeotekMetallCompleteEntities1 _db;
         private int? _transactionId;
-
         public FinanceManagementPage(Users user, int? transactionId = null)
         {
             InitializeComponent();
@@ -35,13 +33,11 @@ namespace GeotekMetallCompleteDesktop
                 LoadFinancialReports();
             }
         }
-
         private void LoadFinancialReports()
         {
             FinancialReportsListView.ItemsSource = _db.FinancialReports.Include("Projects").ToList();
             ResetProjectButton.Visibility = Visibility.Collapsed;
         }
-
         private void SelectProjectButton_Click(object sender, RoutedEventArgs e)
         {
             var projects = _db.Projects.ToList();
@@ -56,12 +52,10 @@ namespace GeotekMetallCompleteDesktop
                 ResetProjectButton.Visibility = Visibility.Visible;
             }
         }
-
         private void ResetProjectButton_Click(object sender, RoutedEventArgs e)
         {
             LoadFinancialReports();
         }
-
         private void DownloadReportButton_Click(object sender, RoutedEventArgs e)
         {
             var report = (sender as Button)?.Tag as FinancialReports;
@@ -93,26 +87,29 @@ namespace GeotekMetallCompleteDesktop
                 MessageBox.Show("Файл отчета не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void ViewReportButton_Click(object sender, RoutedEventArgs e)
         {
             var report = (sender as Button)?.Tag as FinancialReports;
-            if (report != null && report.FilePath != null && report.FilePath.Length > 0)
+            if (report?.FilePath != null)
             {
                 try
                 {
-                    string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.{report.FileType}");
+                    var tempFilePath = Path.GetTempFileName() + report.FileType;
                     File.WriteAllBytes(tempFilePath, report.FilePath);
 
-                    var viewWindow = new viewingDocument(tempFilePath, report.ReportType);
-                    viewWindow.ShowDialog();
 
-                    try { File.Delete(tempFilePath); } catch { }
+                    var viewer = new viewingDocument(tempFilePath, $"Финансовый отчет N{report.ReportID}");
+                    viewer.Show();
+
+                    viewer.Closed += (s, args) =>
+                    {
+                        try { File.Delete(tempFilePath); } catch { }
+                    };
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка при открытии файла: {ex.Message}",
-                                  "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Ошибка при открытии документа: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

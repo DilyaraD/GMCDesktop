@@ -28,8 +28,8 @@
         </RichTextBox>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-            <Button Content="Отмена" Click="Cancel_Click" Width="100" Margin="5"/>
-            <Button Content="Сохранить" Click="Save_Click" Width="100" Margin="5"/>
+            <Button Content="Отмена" Click="Cancel_Click" Width="100" Margin="5"  Style="{StaticResource CancelButtonStyle}"/>
+            <Button Content="Сохранить" Click="Save_Click" Width="100" Margin="5" Style="{StaticResource PrimaryButtonStyle}"/>
         </StackPanel>
     </Grid>
 </Window>

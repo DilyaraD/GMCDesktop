@@ -6,14 +6,14 @@
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700"
-      Title="Проекты в работе"
-      Background="White" >
-
-    <Grid x:Name="MainGrid" Background="White">
-        <Grid Margin="10">
+      Title="Проекты в работе">
+    <Grid>
+        <Grid>
             <StackPanel x:Name="ProjectsListPanel">
-                <StackPanel x:Name="FiltersPanel" Orientation="Horizontal" Margin="0,0,0,10">
-                    <ComboBox x:Name="StatusFilterComboBox"   Width="150"  Margin="0,0,10,0" SelectionChanged="FilterChanged">
+                <StackPanel x:Name="FiltersPanel" 
+                            Orientation="Horizontal" 
+                            Style="{StaticResource FilterPanelStyle}" Margin="10,0,10,10" Height="auto">
+                    <ComboBox x:Name="StatusFilterComboBox" SelectionChanged="FilterChanged"  Margin="0,3,10,0" Height="30">
                         <ComboBoxItem Content="Все статусы" IsSelected="True"/>
                         <ComboBoxItem Content="Новый"/>
                         <ComboBoxItem Content="В работе"/>
@@ -21,33 +21,33 @@
                         <ComboBoxItem Content="Отменен"/>
                         <ComboBoxItem Content="Задерживается"/>
                     </ComboBox>
-                    <ComboBox x:Name="SortComboBox" 
-                              Width="200" 
-                              Margin="0,0,10,0"
-                              SelectionChanged="FilterChanged">
+                    <ComboBox x:Name="SortComboBox" SelectionChanged="FilterChanged"  Margin="0,3,10,0" Height="30">
                         <ComboBoxItem Content="Сортировка по дате" IsSelected="True"/>
                         <ComboBoxItem Content="По возрастанию срока"/>
                         <ComboBoxItem Content="По убыванию срока"/>
                     </ComboBox>
-
                     <Button x:Name="ResetFiltersButton" 
-                            Content="Сбросить фильтры"  
-                            Style="{StaticResource ButtStyle}"
-                            Click="ResetFilters_Click"
-                            Visibility="Collapsed"/>
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            Click="ResetFilters_Click" 
+                            Visibility="Collapsed" Content="Сбросить фильтры"/>
                 </StackPanel>
-
-                <ListView x:Name="ProjectsListView" 
-                          BorderThickness="0"
-                          SelectionChanged="ProjectsListView_SelectionChanged"
-                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                <ListView x:Name="ProjectsListView" SelectionChanged="ProjectsListView_SelectionChanged" Height="600">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Название проекта" DisplayMemberBinding="{Binding Requests.ObjectName}" Width="200"/>
-                            <GridViewColumn Header="Адрес" DisplayMemberBinding="{Binding Requests.Address}" Width="200"/>
-                            <GridViewColumn Header="Дата начала" DisplayMemberBinding="{Binding ProjectStartDate, StringFormat={}{0:dd.MM.yyyy}}" Width="120"/>
-                            <GridViewColumn Header="Дата окончания" DisplayMemberBinding="{Binding ProjectEndDate, StringFormat={}{0:dd.MM.yyyy}}" Width="120"/>
-                            <GridViewColumn Header="Статус" Width="120">
+                            <GridViewColumn Header="Название проекта" 
+                                            DisplayMemberBinding="{Binding Requests.ObjectName}" 
+                                            Width="200"/>
+                            <GridViewColumn Header="Адрес" 
+                                            DisplayMemberBinding="{Binding Requests.Address}" 
+                                            Width="200"/>
+                            <GridViewColumn Header="Дата начала" 
+                                            DisplayMemberBinding="{Binding ProjectStartDate, StringFormat={}{0:dd.MM.yyyy}}" 
+                                            Width="auto"/>
+                            <GridViewColumn Header="Дата окончания" 
+                                            DisplayMemberBinding="{Binding ProjectEndDate, StringFormat={}{0:dd.MM.yyyy}}" 
+                                            Width="auto"/>
+                            <GridViewColumn Header="Статус" 
+                                            Width="120">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Loaded="ProjectStatusTextBlock_Loaded"/>
@@ -59,158 +59,132 @@
                 </ListView>
             </StackPanel>
 
-            <ScrollViewer x:Name="ProjectDetailsScrollViewer" 
-                          Margin="10,0,10,10" 
-                          Visibility="Collapsed" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled" >
+            <ScrollViewer x:Name="ProjectDetailsScrollViewer" Visibility="Collapsed" VerticalScrollBarVisibility="auto" Height="660">
                 <StackPanel x:Name="ProjectDetailsStackPanel">
-                    <Button x:Name="BackToUserButton"  Content="Назад к списку" 
-                            Click="BackButton_Click"  Margin="0,10,0,5"
-                            Style="{StaticResource CancleButtonStyle}" HorizontalAlignment="Left" Width="auto"/>
-
+                    <Button x:Name="BackToUserButton" 
+                            Content="Назад к списку" 
+                            Click="BackButton_Click" 
+                            Style="{StaticResource SecondaryButtonStyle}" 
+                            HorizontalAlignment="Left"/>
                     <TextBlock x:Name="ProjectDetailsTitle" 
-                               Text="Детали проекта"   FontSize="26" 
-                               FontWeight="Bold"  Margin="0,0,0,10" />
-
+                               Text="Детали проекта" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
                     <ItemsControl x:Name="RequestDetailsItemsControl">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="170" />
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="170"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Key}" 
-                                               Style="{StaticResource LabelStyle12}" 
-                                               Grid.Column="0" />
+                                               Style="{StaticResource InputLabelStyle}" 
+                                               Grid.Column="0"/>
                                     <TextBlock Text="{Binding Value}" 
                                                Style="{StaticResource ValueStyle}" 
-                                               Grid.Column="1" 
-                                               Margin="10,0,0,0" 
-                                               TextWrapping="Wrap" />
+                                               Grid.Column="1"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
                     <TextBlock x:Name="ActsOfWorkTitle" 
                                Text="Акты выполненных работ" 
-                               FontSize="16" 
-                               FontWeight="Bold" 
-                               Margin="0,10,0,5"/>
-
-                    <ItemsControl x:Name="ActsOfWorkItemsControl">
+                               Style="{StaticResource SubSectionHeaderStyle}"/>
+                    <ItemsControl x:Name="ActsOfWorkItemsControl" 
+                                  Style="{StaticResource ItemsControlStyle}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="{Binding ActDate, StringFormat='Акт от {0:dd.MM.yyyy}'}" 
+                                               Style="{StaticResource ValueStyle}" 
                                                VerticalAlignment="Center"/>
                                     <Button Content="Скачать" 
                                             Tag="{Binding}" 
                                             Click="DownloadFileButton_Click" 
-                                            Margin="10,0,0,0" 
-                                            Padding="5,2"
-                                            Style="{StaticResource PrimaryButtonStyle}"/>
+                                            Style="{StaticResource DownloadButtonStyle}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock x:Name="NoActsText" 
                                Text="Нет прикрепленных актов" 
-                               FontSize="14"   FontWeight="Bold"
-                               Margin="0,5,0,0"
+                               Style="{StaticResource SubSectionHeaderStyle}" 
                                Visibility="Collapsed"/>
-
                     <TextBlock x:Name="ContractsTitle" 
                                Text="Договоры" 
-                               FontSize="16" 
-                               FontWeight="Bold" 
-                               Margin="0,10,0,5"/>
-
-                    <ItemsControl x:Name="ContractsItemsControl">
+                               Style="{StaticResource SubSectionHeaderStyle}"/>
+                    <ItemsControl x:Name="ContractsItemsControl" 
+                                  Style="{StaticResource ItemsControlStyle}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="{Binding ContractDate, StringFormat='Договор от {0:dd.MM.yyyy}'}" 
+                                               Style="{StaticResource ValueStyle}" 
                                                VerticalAlignment="Center"/>
                                     <Button Content="Скачать" 
                                             Tag="{Binding}" 
                                             Click="DownloadFileButton_Click" 
-                                            Margin="10,0,0,0" 
-                                            Padding="5,2"
-                                            Style="{StaticResource PrimaryButtonStyle}"/>
+                                            Style="{StaticResource DownloadButtonStyle}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock x:Name="NoContractsText" 
                                Text="Нет прикрепленных договоров" 
-                               FontSize="14" 
-                               Margin="0,5,0,0"  FontWeight="Bold"
+                               Style="{StaticResource SubSectionHeaderStyle}" 
                                Visibility="Collapsed"/>
-
                     <TextBlock x:Name="TasksTitle" 
                                Text="Все задачи проекта" 
-                               FontSize="16" 
-                               FontWeight="Bold" 
-                               Margin="0,10,0,5"/>
-
+                               Style="{StaticResource SubSectionHeaderStyle}"/>
                     <ListBox x:Name="AllTasksListBox" 
-                             BorderThickness="0"
-                             SelectionChanged="TasksListBox_SelectionChanged">
-                             <!--MaxHeight="300"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"-->
+         SelectionChanged="TasksListBox_SelectionChanged"
+         Style="{StaticResource TaskListBoxStyle}"
+         ItemContainerStyle="{StaticResource TaskListItemStyle}">
+
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="5">
+                                <StackPanel>
                                     <TextBlock Text="{Binding TaskDescription}" 
-                                               FontWeight="SemiBold"/>
+                           Style="{StaticResource TaskDescriptionTextStyle}"/>
+
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Срок: "/>
-                                        <TextBlock Text="{Binding DueDate, StringFormat={}{0:dd.MM.yyyy}}"/>
+                                        <TextBlock Text="Срок: " 
+                               Style="{StaticResource DueDateTextStyle}"/>
+                                        <TextBlock Text="{Binding DueDate, StringFormat={}{0:dd.MM.yyyy}}" 
+                               Style="{StaticResource DueDateTextStyle}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Statuses.StatusName}"/>
+
+                                    <TextBlock Text="{Binding Statuses.StatusName}" 
+                           Style="{StaticResource StatusTextStyle}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <TextBlock x:Name="NoTasksText" 
                                Text="Выделенных задач нет" 
-                               FontSize="14"   FontWeight="Bold"
-                               Margin="0,5,0,0"
+                               Style="{StaticResource ValueStyle}" 
                                Visibility="Collapsed"/>
                 </StackPanel>
             </ScrollViewer>
 
-            <Grid x:Name="TaskDetailsPanel"
+            <Grid x:Name="TaskDetailsPanel" 
                   Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                    <Button x:Name="TaskBackButton" 
-                            Content="Назад к проекту" 
-                            Style="{StaticResource CancleButtonStyle}"
-                            Click="TaskBackButton_Click"
-                            HorizontalAlignment="Left" Width="auto"/>
-
-                    <TextBlock Text="Детали задачи" 
-                               FontSize="18" 
-                               FontWeight="Bold"
-                               Margin="0,10,0,10"/>
-                </StackPanel>
-
-                <ScrollViewer Grid.Row="1" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}"
-                             VerticalScrollBarVisibility="Auto"
-                             HorizontalScrollBarVisibility="Disabled"
-                             Margin="0,0,0,10">
+                <Button x:Name="TaskBackButton" 
+                        Content="Назад к проекту" 
+                        Style="{StaticResource SecondaryButtonStyle}" 
+                        Click="TaskBackButton_Click" 
+                        HorizontalAlignment="Left"/>
+                <ScrollViewer Grid.Row="1"  Margin="10" VerticalScrollBarVisibility="Hidden" Height="600">                   
                     <StackPanel>
+                        <TextBlock Text="Детали задачи" 
+                                   Style="{StaticResource SectionHeaderStyle}"/>
+
                         <TextBlock x:Name="TaskDescriptionText" 
-                                   FontSize="16" 
+                                   FontSize="20" 
                                    FontWeight="Bold"
                                    Margin="0,0,0,10"/>
 
@@ -227,49 +201,44 @@
                         <TextBlock x:Name="TaskStatusText" 
                                    FontSize="14"
                                    Margin="0,0,0,10"/>
-
-                        <StackPanel x:Name="ResponsiblePanel">
-                            <TextBlock x:Name="ResponsibleTitle" 
-                                       Text="Ответственные:" 
-                                       FontSize="14" 
-                                       FontWeight="Bold"/>
-                            <ItemsControl x:Name="TaskUsersItemsControl"
-                                          Margin="0,5,0,10">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontSize="14" Margin="0,0,0,3">
-                                            <TextBlock.Text>
-                                                <MultiBinding StringFormat="{}{0} {1}">
-                                                    <Binding Path="Users.LastName"  TargetNullValue="[Не указано]"/>
-                                                    <Binding Path="Users.FirstName" />
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-
-                        <TextBlock x:Name="ReportsTitle" 
-                                   Text="Отчеты:" 
-                                   FontSize="14" 
-                                   FontWeight="Bold"
-                                   Margin="0,10,0,5"/>
-
-                        <ItemsControl x:Name="TaskReportsItemsControl"
-                                      Margin="0,0,0,10">
+                        
+                        <TextBlock x:Name="ResponsibleTitle" 
+                                   Text="Ответственные:" 
+                                   Style="{StaticResource SubSectionHeaderStyle}"/>
+                        <ItemsControl x:Name="TaskUsersItemsControl" 
+                                      Style="{StaticResource ItemsControlStyle}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="#DDD" BorderThickness="0,0,0,1" Padding="0,0,0,5" Margin="0,0,0,5">
+                                    <TextBlock Style="{StaticResource ValueStyle}" FontSize="16" Foreground="Black">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0} {1}">
+                                                <Binding Path="Users.LastName" TargetNullValue="[Не указано]"/>
+                                                <Binding Path="Users.FirstName"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="ReportsTitle" 
+                                   Text="Отчеты:" 
+                                   Style="{StaticResource SubSectionHeaderStyle}"/>
+                        <ItemsControl x:Name="TaskReportsItemsControl" 
+                                      Style="{StaticResource ItemsControlStyle}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource ActsOfWorkPage_BorderBrush}" 
+                                            BorderThickness="0,0,0,1" 
+                                            Padding="0,0,0,5" 
+                                            Margin="0,0,0,5">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Description}" 
-                                                       FontSize="14"
-                                                       TextWrapping="Wrap"/>
+                                                       Style="{StaticResource ValueStyle}" 
+                                                       TextWrapping="Wrap" FontSize="14"/>
                                             <TextBlock Text="{Binding UploadDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}" 
-                                                       FontSize="12"
-                                                       Foreground="#777"/>
-
-                                            <ItemsControl ItemsSource="{Binding TaskReportFiles}"
+                                                       Style="{StaticResource ValueStyle}" 
+                                                       FontSize="12"/>
+                                            <ItemsControl ItemsSource="{Binding TaskReportFiles}" 
                                                           Margin="10,5,0,0">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
@@ -278,13 +247,7 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Image x:Name="TaskReportImage"
-                                                               Width="50" 
-                                                               Height="50"
-                                                               Margin="0,0,5,5"
-                                                               Cursor="Hand"
-                                                               ToolTip="Нажмите для увеличения"
-                                                               Loaded="TaskReportImage_Loaded"/>
+                                                        <Image x:Name="TaskReportImage" Loaded="TaskReportImage_Loaded" Margin="5"/>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -295,85 +258,74 @@
                         </ItemsControl>
                         <TextBlock x:Name="NoReportsText" 
                                    Text="Еще отчет не прикреплен" 
-                                   FontSize="14"  FontWeight="Bold"
-                                   Margin="0,5,0,0"
+                                   Style="{StaticResource SubSectionHeaderStyle}" 
                                    Visibility="Collapsed"/>
-
                         <Button x:Name="SendReportButton" 
-                            Content="Отправить отчет"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            Click="SendReportButton_Click" 
-                            HorizontalAlignment="Left" Margin="0,10,0,0" Width="150"/>
+                                Content="Отправить отчет" 
+                                Style="{StaticResource PrimaryButtonStyle}" 
+                                Click="SendReportButton_Click" 
+                                HorizontalAlignment="Left"/>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>
 
         <Border x:Name="ImagePreviewOverlay" 
-        Visibility="Collapsed" 
-        Background="#80000000"
-        Panel.ZIndex="1000" VerticalAlignment="Top">
+                Visibility="Collapsed" 
+                Background="#80000000" 
+                Panel.ZIndex="1000">
             <Grid>
-                <Image x:Name="PreviewImage" Stretch="UniformToFill" Width="450" Height="auto" Margin="20"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Image x:Name="PreviewImage" 
+                       Stretch="Uniform" 
+                       MaxWidth="600" 
+                       MaxHeight="600" 
+                       Margin="20" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" 
+                       Effect="{StaticResource ShadowEffect}"/>
                 <Button x:Name="ClosePreviewButton" 
-            Content="✕" 
-            FontSize="20"
-            Foreground="White"
-            Background="Transparent"
-            BorderThickness="0"
-            Width="40" 
-            Height="40"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Margin="0,10,10,0"
-            Click="ClosePreviewButton_Click"/>
+                        Content="✕" 
+                        Style="{StaticResource DangerButtonStyle}" 
+                        Width="40" 
+                        Height="40" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top" 
+                        Margin="0,10,10,0" 
+                        Click="ClosePreviewButton_Click"/>
             </Grid>
         </Border>
 
         <Border x:Name="ReportFormOverlay" 
                 Visibility="Collapsed" 
-                Background="#80000000"
-                Panel.ZIndex="1001" >
-            <Border Background="White" 
-                    CornerRadius="5"
-                    BorderBrush="#DDD"
-                    BorderThickness="1"
-                    Width="650"
-                    Padding="20" Height="550">
+                Background="#80000000" 
+                Panel.ZIndex="1001" Height="auto" MaxHeight="700">
+            <Border Style="{StaticResource BorderStyle}" 
+                    Width="650" Height="auto"
+                    MaxHeight="700">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
-                    <TextBlock Text="Отправка отчет" 
-                               FontSize="18" 
-                               FontWeight="Bold"
-                               Margin="0,0,0,15"/>
-
+                    <TextBlock Text="Отправка отчета" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
                     <StackPanel Grid.Row="1">
                         <TextBlock Text="Описание отчета:" 
                                    Style="{StaticResource InputLabelStyle}"/>
                         <TextBox x:Name="ReportDescriptionTextBox" 
-                                 Style="{StaticResource ModernTextBoxStyle}"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 Height="100" Width="auto"
-                                 VerticalScrollBarVisibility="Auto"/>
-
+                                 Style="{StaticResource TextBoxStyle}" 
+                                 AcceptsReturn="True"  VerticalContentAlignment="Top" MaxLength="1500"
+                                 TextWrapping="Wrap" 
+                                 Height="150"/>
                         <TextBlock Text="Фотографии (максимум 10):" 
-                                   Style="{StaticResource InputLabelStyle}"
-                                   Margin="0,15,0,0"/>
-
+                                   Style="{StaticResource InputLabelStyle}"/>
                         <Button Content="Добавить фото" 
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Click="AddPhotosButton_Click"
-                                HorizontalAlignment="Left"
-                                Margin="0,5,0,10"/>
-
-                        <ItemsControl x:Name="SelectedFilesItemsControl">
+                                Style="{StaticResource PrimaryButtonStyle}" 
+                                Click="AddPhotosButton_Click" 
+                                HorizontalAlignment="Left"/>
+                        <ItemsControl x:Name="SelectedFilesItemsControl" 
+                                      Style="{StaticResource ItemsControlStyle}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal"/>
@@ -381,37 +333,30 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="0,0,10,10">
-                                        <Image Source="{Binding}" 
-                                               Width="80" 
-                                               Height="80"
-                                               Stretch="UniformToFill"/>
+                                    <StackPanel Margin="2">
+                                        <Image Source="{Binding}" />
                                         <Button Content="✕" 
-                                                FontSize="10"
-                                                Width="20"
-                                                Height="20"
-                                                Padding="0"
-                                                Margin="0,-25,0,0"
-                                                HorizontalAlignment="Right"
-                                                Background="#FFEB3B3B"
-                                                Foreground="White"
-                                                BorderThickness="0"
-                                                Click="RemovePhotoButton_Click"
+                                                Style="{StaticResource DangerButtonStyle}" 
+                                                Width="20" 
+                                                Height="20" 
+                                                Margin="0,-25,0,0" 
+                                                HorizontalAlignment="Right" 
+                                                Click="RemovePhotoButton_Click" 
                                                 Tag="{Binding}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-                        <Button Content="Отмена" Width="auto"
-                                Style="{StaticResource CancleButtonStyle}"
-                                Click="CancelReportButton_Click"
-                                Margin="0,0,10,0"/>
-
-                        <Button Content="Отправить" Width="auto"
-                                Style="{StaticResource PrimaryButtonStyle}"
+                    <StackPanel Grid.Row="2" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right" 
+                                Style="{StaticResource ActionsStackPanelStyle}">
+                        <Button Content="Отмена" 
+                                Style="{StaticResource SecondaryButtonStyle}" 
+                                Click="CancelReportButton_Click"/>
+                        <Button Content="Отправить" 
+                                Style="{StaticResource PrimaryButtonStyle}" 
                                 Click="SubmitReportButton_Click"/>
                     </StackPanel>
                 </Grid>

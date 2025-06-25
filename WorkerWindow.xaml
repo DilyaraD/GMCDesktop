@@ -16,10 +16,10 @@
             <Image Source="img/llogo.png" Margin="0,100,0,20"/>
             <Label x:Name="role" Style="{StaticResource LabelStyle}">Работник</Label>
             <Label x:Name="name" Style="{StaticResource LabelNameStyle}">Имя</Label>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_TasksManagementPage_Click">задачи</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_ProjectsPage_Click">проекты</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_MyDataPage_Click">мои данные</Button>
-            <Button Style="{StaticResource ButtonStyle}" Click="Button_Exit_Click">выйти</Button>
+            <Button  Click="Button_TasksManagementPage_Click">задачи</Button>
+            <Button  Click="Button_ProjectsPage_Click">проекты</Button>
+            <Button  Click="Button_MyDataPage_Click">мои данные</Button>
+            <Button  Click="Button_Exit_Click">выйти</Button>
         </StackPanel>
 
         <Border Grid.Column="1">

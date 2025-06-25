@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Data.Entity;
-using Microsoft.Win32;
-using System.IO;
-using System.Windows.Data;
-using System.Globalization;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -83,21 +81,18 @@ namespace GeotekMetallCompleteDesktop
 
                 RequestDetailsItemsControl.ItemsSource = requestDetails;
 
-                // Обработка актов
                 var acts = _selectedProject.ActsOfWork.ToList();
                 ActsOfWorkItemsControl.ItemsSource = acts;
                 ActsOfWorkTitle.Visibility = acts.Any() ? Visibility.Visible : Visibility.Collapsed;
                 ActsOfWorkItemsControl.Visibility = acts.Any() ? Visibility.Visible : Visibility.Collapsed;
                 NoActsText.Visibility = acts.Any() ? Visibility.Collapsed : Visibility.Visible;
 
-                // Обработка договоров
                 var contracts = _selectedProject.Contracts.ToList();
                 ContractsItemsControl.ItemsSource = contracts;
                 ContractsTitle.Visibility = contracts.Any() ? Visibility.Visible : Visibility.Collapsed;
                 ContractsItemsControl.Visibility = contracts.Any() ? Visibility.Visible : Visibility.Collapsed;
                 NoContractsText.Visibility = contracts.Any() ? Visibility.Collapsed : Visibility.Visible;
 
-                // Обработка задач
                 var allTasks = _selectedProject.ProjectStages
                     .SelectMany(ps => ps.Tasks)
                     .OrderBy(t => t.DueDate)
@@ -140,7 +135,57 @@ namespace GeotekMetallCompleteDesktop
                 }
             }
         }
+        private void RemovePhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is BitmapImage image)
+            {
+                var keyToRemove = _photoHashes.FirstOrDefault(x =>
+                {
+                    try
+                    {
+                        var tempImage = new BitmapImage(new Uri(x.Key));
+                        return AreImagesEqual(image, tempImage);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }).Key;
 
+                _selectedPhotos.Remove(image);
+                if (keyToRemove != null)
+                {
+                    _photoHashes.Remove(keyToRemove);
+                }
+
+                SelectedFilesItemsControl.ItemsSource = _selectedPhotos.ToList();
+            }
+        }
+
+        private bool AreImagesEqual(BitmapImage image1, BitmapImage image2)
+        {
+            if (image1 == null || image2 == null) return false;
+
+            if (image1.PixelWidth != image2.PixelWidth || image1.PixelHeight != image2.PixelHeight)
+                return false;
+
+            var bytes1 = GetImageBytes(image1);
+            var bytes2 = GetImageBytes(image2);
+
+            return bytes1.SequenceEqual(bytes2);
+        }
+
+        private byte[] GetImageBytes(BitmapImage image)
+        {
+            var encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(image));
+
+            using (var ms = new MemoryStream())
+            {
+                encoder.Save(ms);
+                return ms.ToArray();
+            }
+        }
         private void FilterChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ProjectsListView == null || StatusFilterComboBox == null || SortComboBox == null || _allProjects == null)
@@ -189,29 +234,24 @@ namespace GeotekMetallCompleteDesktop
         {
             if (project.ProjectStages == null || !project.ProjectStages.Any())
             {
-                // Если проект еще не начался (дата начала в будущем)
                 if (project.ProjectStartDate > DateTime.Today)
                     return "В разработке";
 
-                // Если проект должен был начаться, но этапов нет
                 return "Новый";
             }
 
-            // Проверка на полностью отмененный проект
             bool allCancelled = project.ProjectStages.All(s => s.StatusID == 5) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 5);
             if (allCancelled)
                 return "Отменен";
 
-            // Проверка на полностью завершенный проект
             bool allCompleted = project.ProjectStages.All(s => s.StatusID == 7) &&
                                project.ProjectStages.SelectMany(s => s.Tasks)
                                                    .All(t => t.StatusID == 3 || t.StatusID == 5);
             if (allCompleted)
                 return "Завершен";
 
-            // Проверка на задержку (есть этапы с просроченной датой и не завершены/не отменены)
             bool anyDelayed = project.ProjectStages.Any(s =>
                 s.EndDate.HasValue &&
                 s.EndDate.Value < DateTime.Now &&
@@ -220,32 +260,27 @@ namespace GeotekMetallCompleteDesktop
             if (anyDelayed)
                 return "Задерживается";
 
-            // Проверка этапов без задач, которые должны быть завершены по дате
             bool stagesWithoutTasksCompleted = project.ProjectStages
                 .Where(s => !s.Tasks.Any())
                 .All(s => s.EndDate.HasValue && s.EndDate.Value <= DateTime.Now);
             if (stagesWithoutTasksCompleted && project.ProjectStages.All(s => s.StatusID == 7 || s.StatusID == 5))
                 return "Завершен";
 
-            // Проверка, если проект еще не начался (все даты этапов в будущем)
             bool projectNotStarted = project.ProjectStartDate > DateTime.Today ||
                                    (project.ProjectStages.All(s => s.StartDate > DateTime.Today) &&
                                     project.ProjectStages.All(s => s.StatusID != 4 && s.StatusID != 6 && s.StatusID != 8));
             if (projectNotStarted)
                 return "В разработке";
 
-            // Проверка на активную работу (есть этапы или задачи в работе)
             bool anyInProgress = project.ProjectStages.Any(s => s.StatusID == 4 || s.StatusID == 6 || s.StatusID == 8) ||
                                 project.ProjectStages.SelectMany(s => s.Tasks)
                                                     .Any(t => t.StatusID == 2 || t.StatusID == 4);
             if (anyInProgress)
                 return "В работе";
 
-            // Если ни одно из условий не подошло, но проект должен быть активным
             if (project.ProjectEndDate >= DateTime.Today)
                 return "В работе";
 
-            // Если все этапы завершены, но не все задачи (например, некоторые отменены)
             if (project.ProjectStages.All(s => s.StatusID == 7))
                 return "Завершен";
 
@@ -397,6 +432,7 @@ namespace GeotekMetallCompleteDesktop
             ReportDescriptionTextBox.Text = string.Empty;
         }
 
+        private Dictionary<string, string> _photoHashes = new Dictionary<string, string>();
         private void AddPhotosButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -412,44 +448,65 @@ namespace GeotekMetallCompleteDesktop
                 {
                     if (_selectedPhotos.Count >= 10)
                     {
-                        MessageBox.Show("Можно добавить не более 10 фотографий", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("Можно добавить не более 10 фотографий", "Предупреждение",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
                         break;
                     }
 
                     try
                     {
+                        byte[] fileBytes = File.ReadAllBytes(filename);
+                        string fileHash = ComputeFileHash(fileBytes);
+
+                        if (_photoHashes.ContainsValue(fileHash))
+                        {
+                            MessageBox.Show($"Файл '{Path.GetFileName(filename)}' уже добавлен в отчет",
+                                "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            continue;
+                        }
+
                         BitmapImage image = new BitmapImage();
                         image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
                         image.UriSource = new Uri(filename);
                         image.EndInit();
+
                         _selectedPhotos.Add(image);
+                        _photoHashes[filename] = fileHash;
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}",
+                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
-
                 SelectedFilesItemsControl.ItemsSource = _selectedPhotos.ToList();
             }
         }
-
-        private void RemovePhotoButton_Click(object sender, RoutedEventArgs e)
+        private string ComputeFileHash(byte[] fileData)
         {
-            if (sender is Button button && button.Tag is BitmapImage image)
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
-                _selectedPhotos.Remove(image);
-                SelectedFilesItemsControl.ItemsSource = _selectedPhotos.ToList();
+                byte[] hashBytes = sha256.ComputeHash(fileData);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
             }
         }
 
         private void CancelReportButton_Click(object sender, RoutedEventArgs e)
         {
             ReportFormOverlay.Visibility = Visibility.Collapsed;
+            _photoHashes = new Dictionary<string, string>();
         }
 
         private void SubmitReportButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_selectedPhotos.Count == 0)
+            {
+                MessageBox.Show("Для отправки отчета необходимо добавить хотя бы одно фото", "Ошибка",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(ReportDescriptionTextBox.Text))
             {
                 MessageBox.Show("Введите описание отчета", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -496,7 +553,8 @@ namespace GeotekMetallCompleteDesktop
                     MessageBox.Show("Отчет успешно отправлен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     ReportFormOverlay.Visibility = Visibility.Collapsed;
-                    ShowTaskDetails(); 
+                    ShowTaskDetails();
+                    _photoHashes = new Dictionary<string, string>();
                 }
             }
             catch (Exception ex)

@@ -6,40 +6,32 @@
       xmlns:local="clr-namespace:GeotekMetallCompleteDesktop"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700" 
-      Title="Управление договорами"
-      Background="White">
-
+      Title="Управление договорами">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Grid.Row="0" Margin="10">
+        <StackPanel x:Name="FilterPanel" Orientation="Horizontal" Margin="10,1,10,5" Grid.Row="0" Style="{StaticResource FilterPanelStyle}">
             <Button Content="Добавить договор" 
                     x:Name="AddButton" 
                     Click="AddContractButton_Click" 
-                    Margin="0,0,10,0"  
-                    Style="{StaticResource ButtonPageStyle}"/>
-
+                    Style="{StaticResource PrimaryButtonStyle}"/>
             <Button Content="Выбрать проект" 
                     x:Name="SelectButton" 
                     Click="SelectProjectButton_Click" 
-                    Margin="0,0,10,0" 
-                    Style="{StaticResource ButtStyle}"/>
-
+                    Style="{StaticResource SecondaryButtonStyle}"/>
             <Button x:Name="ResetProjectButton" 
                     Content="Сбросить проект" 
                     Click="ResetProjectButton_Click" 
-                    Margin="0,0,10,0" 
                     Visibility="Collapsed"
-                    Style="{StaticResource ButtStyle}"/>
+                    Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="ContractsListView" Margin="10"
-                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                <ListView x:Name="ContractsListView" Height="615">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ContractID}" Width="50" />
@@ -48,27 +40,19 @@
                             <GridViewColumn Header="Действия" Width="auto">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Style="{StaticResource ActionsStackPanelStyle}">
                                             <Button Content="Скачать" 
                                                     Click="DownloadContractButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
-                                            <Button Content="Просмотр" 
+                                                    Style="{StaticResource DownloadButtonStyle}"/>
+                                            <Button Content="Посмотреть" 
                                                     Click="ViewContractButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
+                                                    Style="{StaticResource SecondaryButtonStyle}"/>
                                             <Button Content="Редактировать" 
                                                     Click="EditContractButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource ButtonPageStyle}"
-                                                    Width="auto"/>
+                                                    Style="{StaticResource EditButtonStyle}"/>
                                             <Button Content="Удалить" 
                                                     Click="DeleteContractButton_Click" 
-                                                    Margin="2" 
-                                                    Style="{StaticResource DangerButtonStyle}"
-                                                    Width="auto"/>
+                                                    Style="{StaticResource DangerButtonStyle}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -79,18 +63,11 @@
             </ScrollViewer>
 
             <Border x:Name="AddContractPanel" 
-                    CornerRadius="4" 
-                    Background="White" 
-                    Padding="20" 
-                    Margin="10" 
-                    Effect="{StaticResource ShadowEffect}" 
+                    Style="{StaticResource BorderStyle}" 
                     Visibility="Collapsed">
                 <StackPanel>
                     <TextBlock Text="Добавление договора" x:Name="HeaderTextBlock" 
-                               FontSize="26" 
-                               FontWeight="Bold"
-                               Margin="0,0,0,20" 
-                               HorizontalAlignment="Center"/>
+                               Style="{StaticResource SectionHeaderStyle}"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -107,59 +84,43 @@
 
                         <TextBlock Text="Выбранный проект:" 
                                    Grid.Row="0" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" 
-                                   VerticalAlignment="Center"/>
+                                   Style="{StaticResource InputLabelStyle}"/>
                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
                             <TextBlock x:Name="SelectedProjectTextBlock" 
-                                      Style="{StaticResource ValueStyle}" 
-                                      VerticalAlignment="Center" 
-                                      Margin="10,0,0,0" 
-                                      FontWeight="Bold"/>
+                                       Style="{StaticResource ValueStyle}"/>
                             <Button Content="Выбрать проект" x:Name="ChangeProjectButton" 
                                     Click="ChangeProjectButton_Click" 
-                                    Style="{StaticResource AccentButtonStyle}" 
-                                    Margin="60,0,0,20" 
-                                    Width="150"/>
+                                    Style="{StaticResource AccentButtonStyle}"/>
                         </StackPanel>
 
                         <TextBlock Text="Способ добавления:" 
                                    Grid.Row="1" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" 
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                                   Style="{StaticResource InputLabelStyle}"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
                             <Button Content="Выбрать файл" 
                                     Click="SelectFileButton_Click" 
-                                    Style="{StaticResource AccentButtonStyle}"
-                                    Width="150"
-                                    Margin="30,10,25,10"/>
+                                    Style="{StaticResource AccentButtonStyle}"/>
                             <Button Content="Создать новый" 
                                     Click="CreateNewContractButton_Click" 
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    Width="150"/>
+                                    Style="{StaticResource PrimaryButtonStyle}"/>
                         </StackPanel>
 
                         <TextBlock Text="Файл:" 
                                    Grid.Row="2" Grid.Column="0" 
-                                   Style="{StaticResource InputLabelStyle}" 
-                                   VerticalAlignment="Center"/>
+                                   Style="{StaticResource InputLabelStyle}"/>
                         <TextBlock x:Name="SelectedFileTextBlock" 
                                    Grid.Row="2" Grid.Column="1" 
-                                   Style="{StaticResource ValueStyle}"
-                                   Margin="10,0,0,10"/>
+                                   Style="{StaticResource ValueStyle}"/>
 
                         <StackPanel Grid.Row="4" Grid.Column="1" 
                                     Orientation="Horizontal" 
-                                    HorizontalAlignment="Right" 
-                                    Margin="0,30,0,0">
+                                    HorizontalAlignment="Right">
                             <Button Content="Сохранить" x:Name="SaveContractButton"
                                     Click="SaveContractButton_Click" 
-                                    Style="{StaticResource PrimaryButtonStyle}" 
-                                    Width="120" 
-                                    Margin="0,0,20,0"/>
+                                    Style="{StaticResource PrimaryButtonStyle}"/>
                             <Button Content="Отмена" 
                                     Click="CancelButton_Click" 
-                                    Style="{StaticResource CancleButtonStyle}" 
-                                    Width="120"/>
+                                    Style="{StaticResource CancelButtonStyle}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

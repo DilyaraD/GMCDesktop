@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace GeotekMetallCompleteDesktop

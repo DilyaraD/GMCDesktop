@@ -7,33 +7,32 @@
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="700" 
       Title="Управление финансовой отчетностью">
-        <Grid Background="White">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Height="50" x:Name="Filter">
-            <Button Click="SelectProjectButton_Click" Content="Выбрать проект" x:Name="SelectBtm" Margin="10,0,10,0" Style="{StaticResource ButtStyle}" />
-            <Button Click="ResetProjectButton_Click" x:Name="ResetProjectButton" Content="Сбросить проект"  Margin="0,0,10,0" Visibility="Collapsed" Style="{StaticResource ButtStyle}" />
-            </StackPanel>
-        <StackPanel Grid.Row="1" >
+        <StackPanel Orientation="Horizontal" Grid.Row="0" x:Name="Filter" Margin="10,1,10,5" Style="{StaticResource FilterPanelStyle}">
+            <Button Click="SelectProjectButton_Click" Content="Выбрать проект" x:Name="SelectBtm" Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Click="ResetProjectButton_Click" x:Name="ResetProjectButton" Content="Сбросить проект" Visibility="Collapsed" Style="{StaticResource SecondaryButtonStyle}" />
+        </StackPanel>
 
+        <StackPanel Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView x:Name="FinancialReportsListView" Margin="10"
-                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource SizeConverter}}">
+                <ListView x:Name="FinancialReportsListView" Height="615">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ReportID}" Width="50" />
-                            <GridViewColumn Header="Название отчета" DisplayMemberBinding="{Binding ReportType}" Width="150" />
+                            <GridViewColumn Header="Название отчета" DisplayMemberBinding="{Binding ReportType}" Width="200" />
                             <GridViewColumn Header="Дата отчета" DisplayMemberBinding="{Binding ReportDate, StringFormat=dd.MM.yyyy}" Width="80" />
-                            <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="200" />
+                            <GridViewColumn Header="Проект" DisplayMemberBinding="{Binding Projects.Requests.ObjectName}" Width="190" />
                             <GridViewColumn Header="Действия" Width="auto">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="Скачать" Click="DownloadReportButton_Click" Tag="{Binding}" Margin="0,0,5,0" Width="80"/>
-                                            <Button Content="Просмотреть" Click="ViewReportButton_Click" Tag="{Binding}" Margin="0,0,5,0" Width="110"/>
+                                        <StackPanel Orientation="Horizontal" Style="{StaticResource ActionsStackPanelStyle}">
+                                            <Button Content="Скачать" Click="DownloadReportButton_Click" Tag="{Binding}" Style="{StaticResource DownloadButtonStyle}" />
+                                            <Button Content="Посмотреть" Click="ViewReportButton_Click" Tag="{Binding}" Style="{StaticResource SecondaryButtonStyle}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

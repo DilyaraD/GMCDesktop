@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -25,18 +18,23 @@ namespace GeotekMetallCompleteDesktop
         {
             InitializeComponent();
             _user = user;
-            db =new GeotekMetallCompleteEntities1();
+            db = new GeotekMetallCompleteEntities1();
             Load();
         }
 
         private void Load()
-        {
-            LoginDisplayTextBlock.Text = _user.Login;
-            FirstNameDisplayTextBlock.Text = _user.FirstName;
-            LastNameDisplayTextBlock.Text = _user.LastName;
-            PhoneNumberDisplayTextBlock.Text = _user.PhoneNumber;
-            EmailDisplayTextBlock.Text = _user.Email;
-            RoleComboBox.Text = _user.UserRoles.FirstOrDefault().Roles.RoleName;
+        {            
+            var UserDetails = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("Логин", _user.Login.ToString()),
+                new KeyValuePair<string, string>("Имя",  _user.FirstName.ToString()),
+                new KeyValuePair<string, string>("Фамилия", _user.LastName.ToString()),
+                new KeyValuePair<string, string>("Номер телефона", _user.PhoneNumber.ToString()),
+                new KeyValuePair<string, string>("Email", _user.Email.ToString()),
+                new KeyValuePair<string, string>("Роль", _user.UserRoles.FirstOrDefault().Roles.RoleName)
+            };
+
+            UserDetailsItemsControl.ItemsSource = UserDetails;
 
             LoginTextBox.LostFocus += General.AddText;
             PasswordTextBox.LostFocus += General.AddText;
@@ -55,17 +53,24 @@ namespace GeotekMetallCompleteDesktop
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
+
             LoginTextBox.Text = _user.Login;
             PasswordTextBox.Text = General.DecryptString(_user.PasswordHash);
             FirstNameTextBox.Text = _user.FirstName;
             LastNameTextBox.Text = _user.LastName;
             PhoneNumberTextBox.Text = _user.PhoneNumber;
             EmailTextBox.Text = _user.Email;
+            RoleComboBox.Text = _user.UserRoles.FirstOrDefault().Roles.RoleName;
             InfoDataBorder.Visibility = Visibility.Collapsed;
             EditButton.Visibility = Visibility.Collapsed;
             EditUserStackPanel.Visibility = Visibility.Visible;
             InfoData.Visibility = Visibility.Collapsed;
             EditUserBorder.Visibility = Visibility.Visible;
+        }
+        private void LoginTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex(@"^[a-zA-Z0-9_]+$");
+            e.Handled = !regex.IsMatch(e.Text);
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -77,20 +82,25 @@ namespace GeotekMetallCompleteDesktop
                 return;
             }
 
-            _user.Login = LoginTextBox.Text;
-            _user.PasswordHash = General.HashPassword(PasswordTextBox.Text);
-            _user.FirstName = FirstNameTextBox.Text;
-            _user.LastName = LastNameTextBox.Text;
-            _user.PhoneNumber = PhoneNumberTextBox.Text;
-            _user.Email = EmailTextBox.Text;
+            var us = db.Users.FirstOrDefault(u => u.UserID == _user.UserID);
+            us.Login = LoginTextBox.Text.Trim();
+            us.PasswordHash = General.HashPassword(PasswordTextBox.Text.Trim());
+            us.FirstName = FirstNameTextBox.Text.Trim();
+            us.LastName = LastNameTextBox.Text.Trim();
+            us.PhoneNumber = PhoneNumberTextBox.Text.Trim();
+            us.Email = EmailTextBox.Text.Trim();
+            try
+            {
+                db.SaveChanges();
+                MessageBox.Show("Данные успешно сохранены!");
+                _user = us;
+                Load();
+            }
+            catch (DbUpdateException ex)
+            {
+                MessageBox.Show($"Ошибка сохранения: {ex.InnerException?.Message ?? ex.Message}");
+            }
 
-            LoginDisplayTextBlock.Text = _user.Login;
-            FirstNameDisplayTextBlock.Text = _user.FirstName;
-            LastNameDisplayTextBlock.Text = _user.LastName;
-            PhoneNumberDisplayTextBlock.Text = _user.PhoneNumber;
-            EmailDisplayTextBlock.Text = _user.Email;
-
-            MessageBox.Show("Данные успешно сохранены!");
             EditUserStackPanel.Visibility = Visibility.Collapsed;
             EditUserBorder.Visibility = Visibility.Collapsed;
             InfoDataBorder.Visibility = Visibility.Visible;
@@ -112,14 +122,19 @@ namespace GeotekMetallCompleteDesktop
         {
             if (string.IsNullOrWhiteSpace(email))
                 return false;
-
+            email = email.Trim();
             try
             {
                 return Regex.IsMatch(email,
-                   @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
-                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+                    @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+                    RegexOptions.IgnoreCase | RegexOptions.Compiled,
+                    TimeSpan.FromMilliseconds(250));
             }
             catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+            catch (ArgumentException)
             {
                 return false;
             }
@@ -185,7 +200,18 @@ namespace GeotekMetallCompleteDesktop
                 LoginErrorTextBlock.Visibility = Visibility.Visible;
                 isValid = false;
             }
-
+            if (LoginTextBox.Text.Contains(" "))
+            {
+                LoginErrorTextBlock.Text = "Логин не может содержать пробелы.";
+                LoginErrorTextBlock.Visibility = Visibility.Visible;
+                isValid = false;
+            }
+            if (!Regex.IsMatch(LoginTextBox.Text, @"^[a-zA-Z0-9_]+$"))
+            {
+                LoginErrorTextBlock.Text = "Логин может содержать только кириллицу, цифры и нижнее подчеркивание.";
+                LoginErrorTextBlock.Visibility = Visibility.Visible;
+                isValid = false;
+            }
             if (string.IsNullOrWhiteSpace(PasswordTextBox.Text) || PasswordTextBox.Text.Length < 6)
             {
                 PasswordErrorTextBlock.Text = "Пароль должен содержать не менее 6 символов.";
@@ -247,7 +273,7 @@ namespace GeotekMetallCompleteDesktop
             PhoneNumberErrorTextBlock.Visibility = Visibility.Collapsed;
             EmailErrorTextBlock.Visibility = Visibility.Collapsed;
         }
-        
+
         private void PhoneNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -264,7 +290,6 @@ namespace GeotekMetallCompleteDesktop
                 e.Handled = true;
             }
         }
-
     }
 }
 

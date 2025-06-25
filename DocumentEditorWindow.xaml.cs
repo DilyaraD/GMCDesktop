@@ -1,28 +1,25 @@
-﻿using iTextSharp.text;
+﻿using DocumentFormat.OpenXml.Packaging;
 using iTextSharp.text.pdf;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Xceed.Words.NET;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using UglyToad.PdfPig;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using WpfImage = System.Windows.Controls.Image;
-using WpfParagraph = System.Windows.Documents.Paragraph;
-using WpfRun = System.Windows.Documents.Run;
 using OpenXmlParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using OpenXmlRun = DocumentFormat.OpenXml.Wordprocessing.Run;
 using PdfImage = iTextSharp.text.Image;
+using WpfImage = System.Windows.Controls.Image;
+using WpfParagraph = System.Windows.Documents.Paragraph;
+using WpfRun = System.Windows.Documents.Run;
 
 namespace GeotekMetallCompleteDesktop
 {
@@ -150,7 +147,7 @@ namespace GeotekMetallCompleteDesktop
                                             Stretch = Stretch.Uniform,
                                             MaxWidth = 300,
                                             Cursor = Cursors.Hand,
-                                            Tag = "from_docx_" + blip.Embed.Value // Сохраняем идентификатор изображения
+                                            Tag = "from_docx_" + blip.Embed.Value
                                         };
                                         img.MouseDown += Image_MouseDown;
 
@@ -188,12 +185,10 @@ namespace GeotekMetallCompleteDesktop
                         pageParagraph.Inlines.Add(new WpfRun());
                         pageParagraph.Inlines.Add(new LineBreak());
 
-                        // Получаем текст страницы
                         var text = page.Text;
                         pageParagraph.Inlines.Add(new WpfRun(text));
                         pageParagraph.Inlines.Add(new LineBreak());
 
-                        // Обрабатываем изображения
                         foreach (var image in page.GetImages())
                         {
                             try
@@ -244,86 +239,6 @@ namespace GeotekMetallCompleteDesktop
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private BitmapImage LoadPngImage(MemoryStream ms)
-        {
-            var bitmapImage = new BitmapImage();
-            bitmapImage.BeginInit();
-            bitmapImage.StreamSource = ms;
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.EndInit();
-            return bitmapImage;
-        }
-
-        private BitmapImage LoadImage(MemoryStream ms)
-        {
-            var bitmapImage = new BitmapImage();
-            try
-            {
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                return bitmapImage;
-            }
-            catch
-            {
-                // Попробуем альтернативный метод для поврежденных изображений
-                try
-                {
-                    ms.Position = 0;
-                    var decoder = BitmapDecoder.Create(ms, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-                    return ConvertToBitmapImage(decoder.Frames[0]);
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
-
-        private BitmapImage ConvertToBitmapImage(BitmapFrame frame)
-        {
-            var bitmapImage = new BitmapImage();
-            using (var stream = new MemoryStream())
-            {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(frame);
-                encoder.Save(stream);
-                stream.Position = 0;
-
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = stream;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
-            return bitmapImage;
-        }
-        private bool IsJpeg(MemoryStream ms)
-        {
-            var buffer = new byte[2];
-            ms.Read(buffer, 0, 2);
-            ms.Position = 0;
-            return buffer[0] == 0xFF && buffer[1] == 0xD8; // JPEG signature
-        }
-
-        private bool IsPng(MemoryStream ms)
-        {
-            var buffer = new byte[8];
-            ms.Read(buffer, 0, 8);
-            ms.Position = 0;
-            return buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47; // PNG signature
-        }
-
-        private BitmapImage LoadJpegImage(MemoryStream ms)
-        {
-            var bitmapImage = new BitmapImage();
-            bitmapImage.BeginInit();
-            bitmapImage.StreamSource = ms;
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.EndInit();
-            return bitmapImage;
-        }
-
 
         private void LoadTextFile(FlowDocument flowDoc)
         {
